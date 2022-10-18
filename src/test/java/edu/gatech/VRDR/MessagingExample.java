@@ -55,6 +55,7 @@ public class MessagingExample {
 		//MessageParameters. Commonly used across many messages. Note each parameter is optional
 		Parameters messageParameters = new Parameters();
 		messageParameters.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-MessageParameters");
+		messageParameters.setId(new IdType(UUID.randomUUID().toString()));
 		ParametersParameterComponent jurisdiction_id = new ParametersParameterComponent();
 		jurisdiction_id.setName("jurisdiction_id");
 		jurisdiction_id.setValue(new StringType("myState")); //Note: Invalid value. Must use a correct jurisdiction_id. Refer to http://hl7.org/fhir/us/vrdr/STU2/ValueSet-vrdr-jurisdiction-vs.html
