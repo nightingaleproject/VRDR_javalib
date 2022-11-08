@@ -30,7 +30,7 @@ public class MessagingExample {
 		//Required setup for DeathRecord
 		deathRecordSubmissionMessage.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage");
 		//We are assigning a random UUID; however we encourage implementers to use a consistent ID scheme for their messages
-		deathRecordSubmissionMessage.setId(new IdType(UUID.randomUUID().toString());
+		deathRecordSubmissionMessage.setId(new IdType(UUID.randomUUID().toString()));
 		deathRecordSubmissionMessage.setType(BundleType.MESSAGE);
 
 		DeathCertificateDocument deathCertificateDocument = BuildDCD.buildExampleDeathCertificateDocument();
