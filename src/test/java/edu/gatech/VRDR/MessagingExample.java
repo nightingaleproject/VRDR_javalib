@@ -39,7 +39,7 @@ public class MessagingExample {
 		MessageHeader submissionHeader = new MessageHeader();
 		//Required setup for SubmissionHeader
 		submissionHeader.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-SubmissionHeader");
-		submissionHeader.setId(new IdType(UUID.randomUUID().toString());
+		submissionHeader.setId(new IdType(UUID.randomUUID().toString()));
 		submissionHeader.setEvent(new UriType("http://nchs.cdc.gov/vrdr_submission"));
 		//Add destination to the message header
 		MessageDestinationComponent destination = new MessageDestinationComponent();
