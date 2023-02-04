@@ -1,11 +1,7 @@
 package edu.gatech.chai.VRDR.model;
 
-import org.hl7.fhir.r4.model.BooleanType;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.IntegerType;
-import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.Type;
+import edu.gatech.chai.VRDR.model.util.CauseOfDeathConditionUtil;
+import org.hl7.fhir.r4.model.*;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
@@ -41,7 +37,7 @@ public class EntityAxisCauseOfDeath extends Observation {
 	public Observation addECodeIndicator(boolean eCodeIndicator) {
 		return addComponent(EntityAxisCauseOfDeathUtil.positionComponentCode,new BooleanType(eCodeIndicator));
 	}
-	
+
 	public Observation addComponent(CodeableConcept code, Type value) {
 		ObservationComponentComponent occ = new ObservationComponentComponent();
 		occ.setCode(code);
@@ -49,4 +45,29 @@ public class EntityAxisCauseOfDeath extends Observation {
 		addComponent(occ);
 		return this;
 	}
+
+	public void setICD10Code(String icd10Code) {
+		CodeableConcept valueCodeableConcept = CauseOfDeathConditionUtil.createICD10CodeableConcept(icd10Code);
+		this.setValue(valueCodeableConcept);
+	}
+
+	public String getValueCodeAsString() {
+		return getValueCodeableConcept() == null ? null : getValueCodeableConcept().getCodingFirstRep().getCode();
+	}
+
+	public Integer getPosition() {
+		return CommonUtil.findObservationComponentComponentValueForCoding(getComponent(), IntegerType.class,
+				EntityAxisCauseOfDeathUtil.positionComponentCode.getCodingFirstRep());
+	}
+
+	public Integer getLineNumber() {
+		return CommonUtil.findObservationComponentComponentValueForCoding(getComponent(), IntegerType.class,
+				EntityAxisCauseOfDeathUtil.lineNumberComponentCode.getCodingFirstRep());
+	}
+
+	public Boolean isECodeIndicator() {
+		return CommonUtil.findObservationComponentComponentValueForCoding(getComponent(), BooleanType.class,
+				EntityAxisCauseOfDeathUtil.eCodeIndicatorComponentCode.getCodingFirstRep());
+	}
+
 }

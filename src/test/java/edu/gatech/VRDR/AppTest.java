@@ -7,11 +7,12 @@ import java.util.List;
 
 import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.parser.DataFormatException;
-import edu.gatech.chai.VRDR.context.VRDRFhirContext;
+import edu.gatech.chai.VRDR.context.VRDRFhirContextDataStructuresOnly;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 import edu.gatech.chai.VRDR.model.DeathDate;
 import edu.gatech.chai.VRDR.model.Decedent;
 import edu.gatech.chai.VRDR.model.MannerOfDeath;
+import edu.gatech.chai.VRDR.model.util.BuildDCD;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -22,7 +23,7 @@ import junit.framework.TestSuite;
 public class AppTest 
     extends TestCase
 {
-	VRDRFhirContext context;
+	VRDRFhirContextDataStructuresOnly context;
     /**
      * Create the test case
      *
@@ -31,7 +32,7 @@ public class AppTest
     public AppTest( String testName )
     {
     	super( testName );
-    	context = new VRDRFhirContext();
+    	context = new VRDRFhirContextDataStructuresOnly();
     }
 
     /**

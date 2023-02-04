@@ -1,23 +1,13 @@
 package edu.gatech.chai.VRDR.model;
 
-import org.hl7.fhir.r4.model.BooleanType;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.IntegerType;
-import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.Type;
+import edu.gatech.chai.VRDR.model.util.*;
+import org.hl7.fhir.r4.model.*;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.model.util.CommonUtil;
-import edu.gatech.chai.VRDR.model.util.EntityAxisCauseOfDeathUtil;
-import edu.gatech.chai.VRDR.model.util.RecordAxisCauseOfDeathUtil;
 
 @ResourceDef(name = "Observation", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-record-axis-cause-of-death")
 public class RecordAxisCauseOfDeath extends Observation {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1775205638319513588L;
 
 	public RecordAxisCauseOfDeath() {
@@ -46,4 +36,20 @@ public class RecordAxisCauseOfDeath extends Observation {
 		addComponent(occ);
 		return this;
 	}
+
+
+	public void setICD10Code(String icd10Code) {
+		CodeableConcept valueCodeableConcept = CauseOfDeathConditionUtil.createICD10CodeableConcept(icd10Code);
+		this.setValue(valueCodeableConcept);
+	}
+
+	public String getValueCodeAsString() {
+		return getValueCodeableConcept() == null ? null : getValueCodeableConcept().getCodingFirstRep().getCode();
+	}
+
+	public Integer getPosition() {
+		return CommonUtil.findObservationComponentComponentValueForCoding(getComponent(), IntegerType.class,
+				EntityAxisCauseOfDeathUtil.positionComponentCode.getCodingFirstRep());
+	}
+
 }

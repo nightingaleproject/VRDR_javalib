@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.hl7.fhir.r4.model.Bundle;
+import edu.gatech.chai.VRDR.context.VRDRFhirContext;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Composition.CompositionStatus;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.StringType;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
@@ -17,9 +15,8 @@ import edu.gatech.chai.VRDR.model.util.DeathCertificateDocumentUtil;
 @ResourceDef(name = "Bundle", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate-document")
 public class DeathCertificateDocument extends Bundle {
 
-	/**
-	 * 
-	 */
+	public static final String LOINC_CODE_DATE_PRONOUNCED_DEAD = "80616-6";
+
 	private static final long serialVersionUID = -429197004514766374L;
 
 	public DeathCertificateDocument() {
@@ -105,7 +102,7 @@ public class DeathCertificateDocument extends Bundle {
 		List<Resource> resources = getRecords(DeathCertificationProcedure.class);
 		return castListOfRecords(resources);
 	}
-	
+
 	public List<DeathDate> getDeathDate(){
 		List<Resource> resources = getRecords(DeathDate.class);
 		return castListOfRecords(resources);
@@ -205,4 +202,30 @@ public class DeathCertificateDocument extends Bundle {
 		List<Resource> resources = getRecords(TobaccoUseContributedToDeath.class);
 		return castListOfRecords(resources);
 	}
+
+	public String getDateOfDeathPronouncement() {
+		if (this == null || getDeathDate() == null || getDeathDate().size() == 0) {
+			return null;
+		}
+		for (DeathDate date : getDeathDate()) {
+			for (Observation.ObservationComponentComponent component : date.getComponent()) {
+				for (Coding coding : component.getCode().getCoding()) {
+					if (coding.getCode().equals(LOINC_CODE_DATE_PRONOUNCED_DEAD)) {
+						return component.getValueDateTimeType().getValueAsString();
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public String toJson(VRDRFhirContext ctx) {
+		return toJson(ctx, false);
+	}
+
+	public String toJson(VRDRFhirContext ctx, boolean prettyPrint) {
+		return ctx.getCtx().newJsonParser().setPrettyPrint(prettyPrint).encodeResourceToString(this);
+	}
+
+
 }

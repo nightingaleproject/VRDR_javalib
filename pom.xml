@@ -1,53 +1,78 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>edu.gatech</groupId>
-  <artifactId>VRDR</artifactId>
-  <version>v1.3.5-STU2</version>
-  <packaging>jar</packaging>
+    <groupId>edu.gatech</groupId>
+    <artifactId>VRDR</artifactId>
+    <version>v1.4.0-STU2</version>
+    <packaging>jar</packaging>
 
-  <name>VRDR</name>
-  <url>http://maven.apache.org</url>
+    <name>VRDR</name>
+    <url>http://maven.apache.org</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-  	<maven.compiler.target>1.8</maven.compiler.target>
-    <fhir.version>4.1.0</fhir.version>
-  </properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <fhir.version>4.1.0</fhir.version>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-    	<groupId>ca.uhn.hapi.fhir</groupId>
-    	<artifactId>hapi-fhir-base</artifactId>
-    	<version>${fhir.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>ca.uhn.hapi.fhir</groupId>
-    	<artifactId>hapi-fhir-client</artifactId>
-    	<version>${fhir.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>ca.uhn.hapi.fhir</groupId>
-    	<artifactId>hapi-fhir-structures-r4</artifactId>
-    	<version>${fhir.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>ca.uhn.hapi.fhir</groupId>
-    	<artifactId>hapi-fhir-validation</artifactId>
-    	<version>${fhir.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>ca.uhn.hapi.fhir</groupId>
-    	<artifactId>hapi-fhir-validation-resources-r4</artifactId>
-    	<version>${fhir.version}</version>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-base</artifactId>
+            <version>${fhir.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-client</artifactId>
+            <version>${fhir.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
+            <version>${fhir.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-validation</artifactId>
+            <version>${fhir.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-validation-resources-r4</artifactId>
+            <version>${fhir.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>2.1.0</version>
+                <configuration>
+                    <programs>
+                        <program>
+                            <mainClass>edu.gatech.chai.VRDR.cli.Console</mainClass>
+                            <id>app</id>
+                        </program>
+                    </programs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
+
