@@ -1,18 +1,15 @@
 package edu.gatech.chai.VRDR.model;
 
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Observation;
+import edu.gatech.chai.VRDR.model.util.EntityAxisCauseOfDeathUtil;
+import org.hl7.fhir.r4.model.*;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import edu.gatech.chai.VRDR.model.util.CodedRaceAndEthnicityUtil;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
 
 @ResourceDef(name = "Observation", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-coded-race-and-ethnicity")
-public class CodedRaceAndEthnicity extends Observation{
+public class CodedRaceAndEthnicity extends Observation {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3974516224741393275L;
 
 	public CodedRaceAndEthnicity() {
@@ -37,4 +34,10 @@ public class CodedRaceAndEthnicity extends Observation{
 		CodeableConcept ccCode = CommonUtil.findConceptFromCollectionUsingSimpleString(code, CodedRaceAndEthnicityUtil.valueCodesetList);
 		addComponent(ccCode,value);
 	}
+
+	public String getValueCodeableConceptCodeForCoding(CodeableConcept codeableConcept) {
+		return CommonUtil.findObservationComponentComponentValueCodeableConceptCodeForCoding(getComponent(),
+				codeableConcept.getCodingFirstRep());
+	}
+
 }

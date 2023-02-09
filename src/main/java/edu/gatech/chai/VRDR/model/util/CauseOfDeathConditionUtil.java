@@ -30,4 +30,8 @@ public class CauseOfDeathConditionUtil {
 			new CodeableConcept().addCoding(new Coding(categorySystemUrl,"health-concern","Health Concern"))));*/
 	public static final CodeableConcept code = new CodeableConcept().addCoding(new Coding(CommonUtil.loincSystemUrl, "69453-9", "Cause of death [US Standard Certificate of Death]"));
 	public static final CodeableConcept intervalComponentCode = new CodeableConcept().addCoding(new Coding(CommonUtil.loincSystemUrl, "69440-6", "Disease onset to death interval"));
+
+    public static CodeableConcept createICD10CodeableConcept(String code) {
+        return new CodeableConcept().addCoding(new Coding(CommonUtil.icd10SystemUrl, code, null));
+    }
 }

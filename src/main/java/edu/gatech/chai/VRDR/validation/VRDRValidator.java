@@ -8,11 +8,11 @@ import ca.uhn.fhir.validation.IValidatorModule;
 import ca.uhn.fhir.validation.SchemaBaseValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationResult;
-import edu.gatech.chai.VRDR.context.VRDRFhirContext;
+import edu.gatech.chai.VRDR.context.VRDRFhirContextDataStructuresOnly;
 
 public class VRDRValidator {
 	public static void testValidation() {
-		FhirContext ctx = new VRDRFhirContext().getCtx();
+		FhirContext ctx = new VRDRFhirContextDataStructuresOnly().getCtx();
 		
 		FhirValidator validator = ctx.newValidator();
 		IValidatorModule module1 = new SchemaBaseValidator(ctx);
@@ -26,7 +26,7 @@ public class VRDRValidator {
 	}
 	
 	public static void testSampleBundle() {
-		FhirContext ctx = new VRDRFhirContext().getCtx();
+		FhirContext ctx = new VRDRFhirContextDataStructuresOnly().getCtx();
 		FhirValidator validator = ctx.newValidator();
 		IValidatorModule module1 = new SchemaBaseValidator(ctx);
 		validator.registerValidatorModule(module1);

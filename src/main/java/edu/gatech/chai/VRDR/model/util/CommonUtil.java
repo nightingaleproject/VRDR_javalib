@@ -7,16 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeType;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
+import ca.uhn.fhir.model.api.annotation.ResourceDef;
+import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Composition.SectionComponent;
-import org.hl7.fhir.r4.model.DomainResource;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.Resource;
 
 import edu.gatech.chai.VRDR.model.DeathCertificate;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
@@ -28,7 +22,8 @@ public class CommonUtil {
 	public static final String nullFlavorHL7System = "http://terminology.hl7.org/CodeSystem/v3-NullFlavor";
 	public static final String snomedSystemUrl = "http://snomed.info/sct";
 	public static final String loincSystemUrl = "http://loinc.org";
-	
+	public static final String icd10SystemUrl = "http://hl7.org/fhir/sid/icd-10";
+
 	public static final String locationJurisdictionURL = "https://www.usps.com/";
 	public static final String dataAbsentReasonUrl = "http://unitsofmeasure.org";
 	public static final String unitsOfMeasureUrl = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
@@ -224,5 +219,87 @@ public class CommonUtil {
 	        }
 	    }
 	    return false;
+	}
+
+	public static <T extends Resource> T getSingleResource(Class<T> resourceClass, Bundle bundle) {
+		String profile = resourceClass.getAnnotation(ResourceDef.class).profile();
+		for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
+			if (getResourceMetaProfile(entry.getResource()).equals(profile)) {
+				return resourceClass.cast(entry.getResource());
+			}
+		}
+		return null;
+	}
+
+    public static <T extends Resource> List<T> getResources(Class<T> resourceClass, Bundle bundle) {
+		List<T> resources = new ArrayList<>();
+        String profile = resourceClass.getAnnotation(ResourceDef.class).profile();
+        for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
+            if (getResourceMetaProfile(entry.getResource()).equals(profile)) {
+                resources.add(resourceClass.cast(entry.getResource()));
+            }
+        }
+        return resources;
+    }
+
+    public static String getResourceMetaProfile(Resource resource) {
+        if (resource == null
+                || resource.getMeta() == null
+                || resource.getMeta().getProfile() == null
+                || resource.getMeta().getProfile().size() == 0) {
+            return null;
+        }
+        return resource.getMeta().getProfile().get(0).getValueAsString();
+    }
+
+    public static String getCodedValue(CodeableConcept codeableConcept) {
+        if (codeableConcept == null
+                || codeableConcept.getCoding() == null
+                || codeableConcept.getCoding().size() == 0) {
+            return null;
+        }
+        return codeableConcept.getCoding().get(0).getCode();
+    }
+
+    public static <T extends Resource> T findEntry(Bundle bundle, Class<T> tClass, boolean ignoreMissingEntries) {
+        for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
+            if (entry.getResource() != null && tClass.isAssignableFrom(entry.getResource().getClass())) {
+                return (T) entry.getResource();
+            }
+        }
+        if (!ignoreMissingEntries) {
+            throw new MessageParseException("Failed to find a Bundle Entry containing a Resource of type " + tClass.getCanonicalName(), bundle);
+        }
+        return null;
+    }
+
+	public static <T, U extends PrimitiveType<T>> T findObservationComponentComponentValueForCoding(
+			List<Observation.ObservationComponentComponent> occs, Class<U> fhirValueTypeClass, Coding coding) {
+		for (Observation.ObservationComponentComponent occ : occs) {
+			if (occ.getCode().getCodingFirstRep().getSystem().equals(coding.getSystem())
+					&& occ.getCode().getCodingFirstRep().getCode().equals(coding.getCode())
+					&& occ.getValue() != null
+					&& fhirValueTypeClass.isAssignableFrom(occ.getValue().getClass())) {
+				U fhirValue = (U)occ.getValue();
+				return fhirValue.getValue();
+			}
+		}
+		return null;
+	}
+
+	public static String findObservationComponentComponentValueCodeableConceptCodeForCoding(
+			List<Observation.ObservationComponentComponent> occs, Coding coding) {
+		for (Observation.ObservationComponentComponent occ : occs) {
+			if (occ.getCode().getCodingFirstRep().getSystem().equals(coding.getSystem())
+					&& occ.getCode().getCodingFirstRep().getCode().equals(coding.getCode())
+					&& occ.getValue() != null) {
+				return occ.getValueCodeableConcept().getCodingFirstRep().getCode();
+			}
+		}
+		return null;
+	}
+
+	public static <T extends Resource> T findEntry(Bundle messageBundle, Class<T> tClass) {
+		return findEntry(messageBundle, tClass, false);
 	}
 }

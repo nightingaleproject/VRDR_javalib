@@ -80,5 +80,10 @@ public class InputRaceAndEthnicity extends Observation {
 		occ.setCode(new CodeableConcept().addCoding(new Coding(InputRaceAndEthnicityUtil.codeAndComponentSystemUrl,codeName,"")));
 		return occ;
 	}
-	
+
+	public String getValueCodeableConceptCodeForCoding(CodeableConcept codeableConcept) {
+		return CommonUtil.findObservationComponentComponentValueCodeableConceptCodeForCoding(getComponent(),
+				codeableConcept.getCodingFirstRep());
+	}
+
 }

@@ -1,4 +1,4 @@
-package edu.gatech.VRDR;
+package edu.gatech.chai.VRDR.model.util;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -185,6 +185,7 @@ public class BuildDCD {
     	initResourceForTesting(decedentDispostionMethod);
     	contents.add(decedentDispostionMethod);
     	//DecedentUsualWork
+		/*
     	CodeableConcept occupationCode = new CodeableConcept().addCoding(new Coding("urn:oid:2.16.840.1.114222.4.5.314","1330","Agricultural engineers"));
     	CodeableConcept industryCode = new CodeableConcept().addCoding(new Coding("urn:oid:2.16.840.1.114222.4.5.315","2180","Agricultural chemical manufacturing"));
     	Integer occupationYears = new Integer(15);
@@ -192,11 +193,12 @@ public class BuildDCD {
     	decedentUsualWork.setSubject(decedentReference);
     	initResourceForTesting(decedentUsualWork);
     	contents.add(decedentUsualWork);
+		 */
     	//DecedentMilitaryService 
     	DecedentMilitaryService decedentMilitaryService = new DecedentMilitaryService(CommonUtil.yesCode);
     	decedentMilitaryService.setSubject(decedentReference);
     	initResourceForTesting(decedentMilitaryService);
-    	contents.add(decedentUsualWork);
+    	contents.add(decedentMilitaryService);
     	//DecedentPregnancyStatus
     	DecedentPregnancyStatus decedentPregnancyStatus = new DecedentPregnancyStatus("No");
     	decedentPregnancyStatus.setSubject(decedentReference);
