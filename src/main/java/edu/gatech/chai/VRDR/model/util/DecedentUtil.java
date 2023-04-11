@@ -41,7 +41,6 @@ public class DecedentUtil {
 			VALUE_WIDOWED,
 			CommonUtil.unknownCode
 	));
-
 	public static final List<String> raceBooleanNVSSSet = Arrays.asList("White", "BlackOrAfricanAmerican",
 			"AmericanIndianOrAlaskaNative", "AsianIndian", "Chinese", "Filipino", "Japanese", "Korean", "Vietnamese",
 			"OtherAsian", "NativeHawaiian", "GuamanianOrChamorro", "Samoan","OtherPacificIslander","OtherRace",
@@ -65,7 +64,6 @@ public class DecedentUtil {
 		"HispanicLiteral");
 	public static final List<String> hispanicCodedNVSSSet = Arrays.asList("HispanicMexican", "HispanicPuertoRican",
 			"HispanicOther", "HispanicCuban");
-	
 	public static Set<CodeableConcept> sexAtDeathSet = new HashSet<CodeableConcept>(Arrays.asList(
 			VALUE_MALE,
 			VALUE_FEMALE,

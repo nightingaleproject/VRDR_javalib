@@ -23,4 +23,5 @@ public class InputRaceAndEthnicityUtil {
 			new CodeableConcept().addCoding(new Coding(CommonUtil.missingValueReasonUrl,"S","Sought, but unknown")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.missingValueReasonUrl,"C","Not obtainable"))
 			));
+
 }

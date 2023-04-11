@@ -29,9 +29,6 @@ public class InputRaceAndEthnicity extends Observation {
 			else if(InputRaceAndEthnicityUtil.hispanicCodedSystemStrings.contains(raceOrEth)) {
 				addHispanicBooleanComponent(raceOrEth);
 			}
-			else if(InputRaceAndEthnicityUtil.raceEthnicityLiteralSystemStrings.contains(raceOrEth)) {
-				addRaceEthnicityLiteralComponent(raceOrEth, "");
-			}
 		}
 	}
 
@@ -58,6 +55,10 @@ public class InputRaceAndEthnicity extends Observation {
 		addComponent(codeName, new StringType(value));
 	}
 
+	public void addRaceLiteralComponent(String codeName, String value) {
+		addComponent(codeName, value);
+	}
+
 	public void addRaceLiteralComponent(String codeName, StringType value) {
 		addComponent(codeName, value);
 	}
@@ -73,11 +74,7 @@ public class InputRaceAndEthnicity extends Observation {
 	public void addHispanicBooleanComponentUnknown(String codeName) {
 		addComponent(codeName, CommonUtil.findConceptFromCollectionUsingSimpleString("unknown", CommonUtil.yesNoUnknownSet));
 	}
-	
-	public void addRaceEthnicityLiteralComponent(String codeName, StringType value) {
-		addComponent(codeName, value);
-	}
-	
+
 	public void addMissingRaceValueReason(String value) {
 		CodeableConcept mrvrCodeableConcept = CommonUtil.findConceptFromCollectionUsingSimpleString(value, InputRaceAndEthnicityUtil.raceMissingValueReasonList);
 		addComponent("RACEMVR",mrvrCodeableConcept);
