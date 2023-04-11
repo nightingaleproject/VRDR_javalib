@@ -8,7 +8,7 @@ import edu.gatech.chai.VRDR.model.util.CommonUtil;
 
 import java.util.List;
 
-@ResourceDef(name = "Bundle", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-coded-content-bundle")
+@ResourceDef(name = "Bundle", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-coded-bundle")
 public class CauseOfDeathCodedContentBundle extends Bundle {
 
 	/**

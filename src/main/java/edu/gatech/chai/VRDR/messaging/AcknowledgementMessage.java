@@ -39,6 +39,8 @@ public class AcknowledgementMessage extends BaseMessage {
         header.getSource().setEndpoint(source);
         setMessageDestination(destination);
         MessageHeader.MessageHeaderResponseComponent resp = new MessageHeader.MessageHeaderResponseComponent();
+        // strip off if messageId of header.id has prefix 'urn:uuid:'
+        messageId = messageId.startsWith("urn:uuid:") ?  messageId.substring(9) : messageId;
         resp.setIdentifier(messageId);
         resp.setCode(MessageHeader.ResponseType.OK);
         header.setResponse(resp);

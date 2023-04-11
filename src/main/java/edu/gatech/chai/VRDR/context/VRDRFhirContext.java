@@ -30,5 +30,3 @@ public class VRDRFhirContext extends VRDRFhirContextDataStructuresOnly {
                 Bundle.class);
     }
 }
-
-

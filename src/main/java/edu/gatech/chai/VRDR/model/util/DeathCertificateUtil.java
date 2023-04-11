@@ -3,6 +3,8 @@ package edu.gatech.chai.VRDR.model.util;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Composition;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Composition.CompositionStatus;
 
 import edu.gatech.chai.VRDR.model.ActivityAtTimeOfDeath;
@@ -43,6 +45,7 @@ import edu.gatech.chai.VRDR.model.TobaccoUseContributedToDeath;
 
 public class DeathCertificateUtil {
 	public static final CompositionStatus status = CompositionStatus.FINAL;  
+	public static final String title = "Death Certificate";
 	public static final CodeableConcept typeFixedValue = new CodeableConcept()
 			.addCoding(new Coding(CommonUtil.loincSystemUrl,"64297-5","Death certificate"));
 	public static final Composition.CompositionAttestationMode attesterMode = Composition.CompositionAttestationMode.LEGAL;
@@ -54,7 +57,7 @@ public class DeathCertificateUtil {
 	public static final CodeableConcept deathInvestigationSectionCode = new CodeableConcept()
 			.addCoding(new Coding(vrdrDocumentSectionUrl,"DeathInvestigation",""));
 	public static final CodeableConcept deathCertificationSectionCode = new CodeableConcept()
-			.addCoding(new Coding(vrdrDocumentSectionUrl,"DeathCertificationProcedure",""));
+			.addCoding(new Coding(vrdrDocumentSectionUrl,"DeathCertification",""));
 	public static final CodeableConcept decedentDispositionSectionCode = new CodeableConcept()
 			.addCoding(new Coding(vrdrDocumentSectionUrl,"DecedentDisposition",""));
 	public static final CodeableConcept codedContentSectionCode = new CodeableConcept()
@@ -74,4 +77,12 @@ public class DeathCertificateUtil {
 			CodedRaceAndEthnicity.class,EntityAxisCauseOfDeath.class,RecordAxisCauseOfDeath.class,PlaceOfInjury.class,
 			CodingStatusValues.class};
 	
+	public static final String filingFormatExtensionUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/FilingFormat";
+	public static final String filingFormatExtensionCodeSystem = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-filing-format-cs";
+	public static final CodeableConcept electronicFilingFormat = new CodeableConcept()
+			.addCoding(new Coding().setSystem(filingFormatExtensionCodeSystem).setCode("electronic").setDisplay("Electronic"));
+	public static final CodeableConcept mixedFilingFormat = new CodeableConcept()
+			.addCoding(new Coding().setSystem(filingFormatExtensionCodeSystem).setCode("mixed").setDisplay("Mixed"));
+	public static final CodeableConcept paperFilingFormat = new CodeableConcept()
+			.addCoding(new Coding().setSystem(filingFormatExtensionCodeSystem).setCode("paper").setDisplay("Paper"));
 }

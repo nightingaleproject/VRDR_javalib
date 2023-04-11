@@ -11,7 +11,7 @@ import org.hl7.fhir.r4.model.PositiveIntType;
 import org.hl7.fhir.r4.model.StringType;
 
 public class AddressUtil {
-	public static String withinCityLimitsIndicatorUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/Within-City-Limits-Indicator";
+	public static String withinCityLimitsIndicatorUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/WithinCityLimitsIndicator";
 	public static String locationJurisdictionIdUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/Location-Jurisdiction-Id";
 	public static String cityCodeUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/CityCode";
 	public static String districtCodeUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/DistrictCode";

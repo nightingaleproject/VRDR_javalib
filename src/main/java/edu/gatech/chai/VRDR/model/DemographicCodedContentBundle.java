@@ -5,7 +5,7 @@ import edu.gatech.chai.VRDR.model.util.CommonUtil;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Identifier;
 
-@ResourceDef(name = "Bundle", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-demographic-coded-content-bundle")
+@ResourceDef(name = "Bundle", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-demographic-coded-bundle")
 public class DemographicCodedContentBundle extends Bundle {
 
 	/**

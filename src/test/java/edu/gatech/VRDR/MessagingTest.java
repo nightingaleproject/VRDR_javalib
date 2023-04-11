@@ -332,7 +332,8 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateAckFromJSON() {
-        AcknowledgementMessage ack = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/AcknowledgementMessage.json");
+        AcknowledgementMessage ack = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx,
+                "src/test/resources/json/AcknowledgementMessage.json");
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
         assertEquals("a9d66d2e-2480-4e8d-bab3-4e4c761da1b7", ack.getAckedMessageId());
         assertEquals("nightingale", ack.getMessageDestination());
@@ -367,7 +368,8 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateCauseOfDeathCodingResponseFromJSON() {
-        CauseOfDeathCodingMessage message = BaseMessage.parseJsonFile(CauseOfDeathCodingMessage.class, ctx, "src/test/resources/json/CauseOfDeathCodingMessage.json");
+        CauseOfDeathCodingMessage message = BaseMessage.parseJsonFile(CauseOfDeathCodingMessage.class, ctx,
+                "src/test/resources/json/CauseOfDeathCodingMessage.json");
 
         assertEquals(CauseOfDeathCodingMessage.MESSAGE_TYPE, message.getMessageType());
         assertEquals("http://nchs.cdc.gov/vrdr_submission", message.getMessageDestination());
@@ -627,7 +629,8 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateAckForStatusMessage() {
-        StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx, "src/test/resources/json/StatusMessage.json");
+        StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx,
+                "src/test/resources/json/StatusMessage.json");
         AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
         assertEquals(statusMessage.getMessageId(), ack.getAckedMessageId());
@@ -813,7 +816,8 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateExtractionErrorFromJson() {
-        ExtractionErrorMessage err = BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx, "src/test/resources/json/ExtractionErrorMessage.json");
+        ExtractionErrorMessage err = BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx,
+                "src/test/resources/json/ExtractionErrorMessage.json");
         assertEquals("http://nchs.cdc.gov/vrdr_extraction_error", err.getMessageType());
         assertEquals((long) 1, (long) err.getCertNo());
         assertEquals("42", err.getStateAuxiliaryId());

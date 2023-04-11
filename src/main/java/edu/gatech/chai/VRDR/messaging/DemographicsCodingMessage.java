@@ -11,6 +11,7 @@ import org.hl7.fhir.r4.model.MessageHeader;
 @ResourceDef(name = "DemographicsCodingMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingMessage")
 public class DemographicsCodingMessage extends BaseMessage implements DocumentBundler<DemographicCodedContentBundle> {
 
+    // this comes from the VRDR Messaging IG http://build.fhir.org/ig/nightingaleproject/vital_records_fhir_messaging_ig/branches/main/StructureDefinition-VRM-DemographicsCodingMessage.html
     public static final String MESSAGE_TYPE = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingMessage";
 
     private DemographicCodedContentBundle demographicCodedContentBundle;
