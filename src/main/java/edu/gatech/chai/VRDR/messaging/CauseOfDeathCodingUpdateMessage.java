@@ -11,6 +11,7 @@ import org.hl7.fhir.r4.model.MessageHeader;
 @ResourceDef(name = "CauseOfDeathCodingUpdateMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingUpdateMessage")
 public class CauseOfDeathCodingUpdateMessage extends BaseMessage implements DocumentBundler<CauseOfDeathCodedContentBundle> {
 
+    // from the VRDR Messaging IG http://build.fhir.org/ig/nightingaleproject/vital_records_fhir_messaging_ig/branches/main/StructureDefinition-VRM-CauseOfDeathCodingUpdateMessage.html
     public static final String MESSAGE_TYPE = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingUpdateMessage";
 
     private CauseOfDeathCodedContentBundle causeOfDeathCodedContentBundle;

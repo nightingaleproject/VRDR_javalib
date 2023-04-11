@@ -18,30 +18,28 @@ public class DecedentAge extends Observation {
 
 	public DecedentAge() {
 		super();
+		CommonUtil.initResource(this);
+		// required fields and fixed values by VRDR IG http://hl7.org/fhir/us/vrdr/StructureDefinition-vrdr-decedent-age.html
+		super.setStatus(DecedentAgeUtil.status);
+		super.setCode(DecedentAgeUtil.code);
 	}
 	
 	public DecedentAge(Reference subject) {
-		super();
-		CommonUtil.initResource(this);
-		super.setStatus(DecedentAgeUtil.status);
-		super.setCode(DecedentAgeUtil.code);
+		this();
 		super.setSubject(subject);
 	}
-	
-	public DecedentAge setDataAbsentReason(String dataAbsentReason) {
-		super.setDataAbsentReason(CommonUtil.findConceptFromCollectionUsingSimpleString(dataAbsentReason, CommonUtil.dataAbsentReasonConceptSet));
-		return this;
-	}
-	
+
 	public DecedentAge(Quantity quantity) {
-		super();
-		CommonUtil.initResource(this);
-		super.setStatus(DecedentAgeUtil.status);
-		super.setCode(DecedentAgeUtil.code);
+		this();
 		if(quantity.getCode() == null || !DecedentAgeUtil.values.contains(quantity.getCode())) {
 			throw new FHIRException("DecedentAge: Quantity expects a Code of:"+
 					DecedentAgeUtil.values);
 		}
 		super.setValue(quantity);
+	}
+
+	public DecedentAge setDataAbsentReason(String dataAbsentReason) {
+		super.setDataAbsentReason(CommonUtil.findConceptFromCollectionUsingSimpleString(dataAbsentReason, CommonUtil.dataAbsentReasonConceptSet));
+		return this;
 	}
 }

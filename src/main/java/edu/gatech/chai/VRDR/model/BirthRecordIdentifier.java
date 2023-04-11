@@ -10,7 +10,7 @@ import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import edu.gatech.chai.VRDR.model.util.BirthRecordIdentifierUtil;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
 
-@ResourceDef(name = "Observation", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-BirthRecordIdentifier")
+@ResourceDef(name = "Observation", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-birth-record-identifier")
 public class BirthRecordIdentifier extends Observation {
 
 	public BirthRecordIdentifier() {

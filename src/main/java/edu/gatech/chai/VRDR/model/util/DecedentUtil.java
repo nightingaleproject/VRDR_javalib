@@ -19,20 +19,29 @@ public class DecedentUtil {
 	public static final String birthSexValueSetURL = "http://hl7.org/fhir/us/core/ValueSet/us-core-birthsex";
 	public static final String birthPlaceExtensionURL = "http://hl7.org/fhir/StructureDefinition/patient-birthPlace";
 	public static final String maritalStatusURL = "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus";
-	public static final String administrativeGenderURL = " http://hl7.org/fhir/administrative-gender";
-	public static final String addressWithinCityLimitsIndicatorExtensionURL = "http://hl7.org/fhir/us/vrdr/StructureDefinition/Within-City-Limits-Indicator";
+	public static final String administrativeGenderURL = "http://hl7.org/fhir/administrative-gender";
 	public static final CodeableConcept identifierTypeFixedValue = new CodeableConcept()
-			.addCoding(new Coding().setCode("SB").setDisplay("Social Beneficiary Identifier"));
+			.addCoding(new Coding().setSystem(CommonUtil.identifierTypeHL7System).setCode("SB").setDisplay("Social Beneficiary Identifier"));
 	public static final String identifierSystem = "http://hl7.org/fhir/sid/us-ssn";
 	
+	public static final String birthsexExtensionUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/NVSS-SexAtDeath";
+	public static final String birthsexCodeSystem = "http://hl7.org/fhir/administrative-gender";
+	public static final CodeableConcept VALUE_MALE = new CodeableConcept().addCoding(new Coding(birthsexCodeSystem,"male","Male"));
+	public static final CodeableConcept VALUE_FEMALE = new CodeableConcept().addCoding(new Coding(birthsexCodeSystem,"female","Female"));
+	public static final CodeableConcept VALUE_DIVORCED = new CodeableConcept().addCoding(new Coding(maritalStatusURL,"D","Divorced"));
+	public static final CodeableConcept VALUE_SEPARATED = new CodeableConcept().addCoding(new Coding(maritalStatusURL,"L","Legally Separated"));
+	public static final CodeableConcept VALUE_MARRIED = new CodeableConcept().addCoding(new Coding(maritalStatusURL,"M","Married"));
+	public static final CodeableConcept VALUE_NEVERMARRIED = new CodeableConcept().addCoding(new Coding(maritalStatusURL,"S","Never Married"));
+	public static final CodeableConcept VALUE_WIDOWED = new CodeableConcept().addCoding(new Coding(maritalStatusURL,"W","Widowed"));
 	public static final HashSet<CodeableConcept> maritalStatusSet = new HashSet<>(Arrays.asList(
-			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"M","Married")),
-			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"W","Widowed")),
-			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"D","Divorced")),
-			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"S","Never Marriew")),
-			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"L","Legally Separated")),
-			CommonUtil.unknownCode));
-	
+			VALUE_DIVORCED,
+			VALUE_SEPARATED,
+			VALUE_MARRIED,
+			VALUE_NEVERMARRIED,
+			VALUE_WIDOWED,
+			CommonUtil.unknownCode
+	));
+
 	public static final List<String> raceNVSSSet = Arrays.asList("White", "BlackOrAfricanAmerican",
 		"AmericanIndianOrAlaskaNative", "AsianIndian", "Chinese", "Filipino", "Japanese", "Korean", "Vietnamese",
 		"OtherAsian", "NativeHawaiian", "GuamanianOrChamorro", "Samoan","OtherPacificIslander","OtherRace",
@@ -41,9 +50,10 @@ public class DecedentUtil {
 			"HispanicOther", "HispanicCuban", "HispanicLiteral");
 	
 	public static Set<CodeableConcept> sexAtDeathSet = new HashSet<CodeableConcept>(Arrays.asList(
-			new CodeableConcept().addCoding(new Coding(administrativeGenderURL,"Male","Male")),
-			new CodeableConcept().addCoding(new Coding(administrativeGenderURL,"Female","Female")),
-			new CodeableConcept().addCoding(new Coding(administrativeGenderURL,"Unknown","Unknown"))
-			));
+			VALUE_MALE,
+			VALUE_FEMALE,
+			CommonUtil.unknownCode
+	));
+
 	public static Set<CodeableConcept> spouseAliveSet = CommonUtil.yesNoUnknownSet;	
 }

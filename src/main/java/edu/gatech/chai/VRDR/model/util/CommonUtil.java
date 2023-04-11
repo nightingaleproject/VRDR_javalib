@@ -16,7 +16,8 @@ import edu.gatech.chai.VRDR.model.DeathCertificate;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 
 public class CommonUtil {
-	public static final String basicBooleanHL7System = "http://hl7.org/CodeSystem/v2-0136";
+	public static final String identifierTypeHL7System = "http://terminology.hl7.org/CodeSystem/v2-0203";
+	public static final String basicBooleanHL7System = "http://terminology.hl7.org/CodeSystem/v2-0136";
 	public static final String yesNoNASystemOID = "urn:oid:2.16.840.1.113883.12.136";
 	public static final String nullFlavorSystemOID = "urn:oid:2.16.840.1.113883.5.1008";
 	public static final String nullFlavorHL7System = "http://terminology.hl7.org/CodeSystem/v3-NullFlavor";
@@ -40,8 +41,13 @@ public class CommonUtil {
 	public static CodeableConcept noCode = new CodeableConcept().addCoding(new Coding(basicBooleanHL7System,"N","No"));
 	public static CodeableConcept yesCode = new CodeableConcept().addCoding(new Coding(basicBooleanHL7System,"Y","Yes"));
 	public static CodeableConcept unknownCode = new CodeableConcept().addCoding(new Coding(nullFlavorHL7System,"UNK","unknown"));
-	public static CodeableConcept otherCode = new CodeableConcept().addCoding(new Coding(nullFlavorHL7System,"OTH","other"));
-	public static CodeableConcept notApplicableCode = new CodeableConcept().addCoding(new Coding(nullFlavorHL7System,"NA","not applicable"));
+	public static CodeableConcept otherCode = new CodeableConcept().addCoding(new Coding(nullFlavorHL7System, "OTH", "other"));
+	public static CodeableConcept notApplicableCode = new CodeableConcept().addCoding(new Coding(nullFlavorHL7System, "NA", "not applicable"));	public static CodeableConcept askuCode = new CodeableConcept().addCoding(new Coding(nullFlavorHL7System,"ASKU","asked but unknown"));
+	public static Coding otherCoding = new Coding(nullFlavorHL7System, "OTH", "other");
+	public static Coding notApplicableCoding = new Coding(nullFlavorHL7System, "NA", "not applicable");
+	public static Coding noCoding = new Coding(basicBooleanHL7System,"N","No");
+	public static Coding yesCoding = new Coding(basicBooleanHL7System,"Y","Yes");
+	public static Coding unknownCoding = new Coding(nullFlavorHL7System,"UNK","unknown");
 	public static CodeableConcept notAskedCode = new CodeableConcept().addCoding(new Coding(nullFlavorHL7System,"NASK","not asked"));
 	public static final String deathReportingIdentifierTypeSystem = "urn:oid:2.16.840.1.114222.4.11.7382";
 	public static CodeableConcept deathCertificateIdCode = new CodeableConcept().addCoding(new Coding(deathReportingIdentifierTypeSystem,"DC","Death Certificate Id"));
@@ -172,7 +178,7 @@ public class CommonUtil {
 	}
 
 	public static void initResource(Resource resource) {
-		//setUUID(resource);
+		setUUID(resource);
 	}
 	
 	public static void setUUID(Resource resource) {

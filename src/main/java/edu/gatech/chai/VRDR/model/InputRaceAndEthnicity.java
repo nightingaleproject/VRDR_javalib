@@ -13,6 +13,8 @@ import edu.gatech.chai.VRDR.model.util.InputRaceAndEthnicityUtil;
 @ResourceDef(name = "Observation", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-input-race-and-ethnicity")
 public class InputRaceAndEthnicity extends Observation {
 	public InputRaceAndEthnicity() {
+		super();
+		CommonUtil.initResource(this);
 		this.setCode(InputRaceAndEthnicityUtil.code);
 	}
 	
@@ -23,6 +25,9 @@ public class InputRaceAndEthnicity extends Observation {
 			}
 			else if(InputRaceAndEthnicityUtil.ethnicitySystemStrings.contains(raceOrEth)) {
 				addHispanicEthnicityComponent(raceOrEth);
+			}
+			else if(InputRaceAndEthnicityUtil.raceEthnicityLiteralSystemStrings.contains(raceOrEth)) {
+				addRaceEthnicityLiteralComponent(raceOrEth, "");
 			}
 		}
 	}
@@ -47,11 +52,11 @@ public class InputRaceAndEthnicity extends Observation {
 		addComponent(codeName, value);
 	}
 	
-	public void addHispanicEthnicityLiteralComponent(String codeName, String value) {
+	public void addRaceEthnicityLiteralComponent(String codeName, String value) {
 		addComponent(codeName, new StringType(value));
 	}
 	
-	public void addHispanicEthnicityLiteralComponent(String codeName, StringType value) {
+	public void addRaceEthnicityLiteralComponent(String codeName, StringType value) {
 		addComponent(codeName, value);
 	}
 	
@@ -63,21 +68,24 @@ public class InputRaceAndEthnicity extends Observation {
 	public void addComponent(String codeName, BooleanType value) {
 		ObservationComponentComponent occ = addComponentCommon(codeName);
 		occ.setValue(value);
+		this.addComponent(occ);
 	}
 	
 	public void addComponent(String codeName, CodeableConcept value) {
 		ObservationComponentComponent occ = addComponentCommon(codeName);
 		occ.setValue(value);
+		this.addComponent(occ);
 	}
 	
 	public void addComponent(String codeName, StringType value) {
 		ObservationComponentComponent occ = addComponentCommon(codeName);
 		occ.setValue(value);
+		this.addComponent(occ);
 	}
 	
 	private ObservationComponentComponent addComponentCommon(String codeName) {
 		ObservationComponentComponent occ = new ObservationComponentComponent();
-		occ.setCode(new CodeableConcept().addCoding(new Coding(InputRaceAndEthnicityUtil.codeAndComponentSystemUrl,codeName,"")));
+		occ.setCode(new CodeableConcept().addCoding(new Coding(InputRaceAndEthnicityUtil.componentSystemUrl,codeName,"")));
 		return occ;
 	}
 

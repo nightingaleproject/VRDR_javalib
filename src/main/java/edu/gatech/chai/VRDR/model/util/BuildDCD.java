@@ -72,7 +72,7 @@ public class BuildDCD {
     	Address decedentsHome = new Address().addLine("1808 Stroop Hill Road").setCity("Atlanta")
 		.setState("GA").setPostalCode("30303").setCountry("USA").setUse(AddressUse.HOME);
     	Extension withinCityLimits = new Extension();
-		withinCityLimits.setUrl(DecedentUtil.addressWithinCityLimitsIndicatorExtensionURL);
+		withinCityLimits.setUrl(AddressUtil.withinCityLimitsIndicatorUrl);
 		withinCityLimits.setValue(new BooleanType(true));
 		decedentsHome.addExtension(withinCityLimits);
     	decedent.setGender(AdministrativeGender.MALE);
@@ -161,14 +161,13 @@ public class BuildDCD {
     	deathDate.setSubject(decedentReference);
     	contents.add(deathDate);
     	//DeathLocation
-    	CodeableConcept deathLocationType = new CodeableConcept().addCoding(new Coding("http://hl7.org/fhir/v3/RoleCode","wi","Wing"));
     	Address hospitalAddress = new Address().addLine("80 Jesse Hill Jr Dr SE").setCity("Atlanta")
     			.setState("GA").setPostalCode("30303").setCountry("USA").setUse(AddressUse.WORK);
     	//Address Utils to add extensions to addresses
     	AddressUtil.addCityCode(11122, hospitalAddress);
     	AddressUtil.addDistrictCode(22233, hospitalAddress);
     	AddressUtil.addStateJurisdiction("GA", hospitalAddress); //Do not need to do this if the jurisdiction matches the state
-    	DeathLocation deathLocation = new DeathLocation("Grady Hospital","Grady Hospital of Atlanta",deathLocationType,hospitalAddress);
+    	DeathLocation deathLocation = new DeathLocation("Grady Hospital", "Grady Hospital of Atlanta", hospitalAddress);
     	initResourceForTesting(deathLocation);
     	contents.add(deathLocation);
     	//DecedentAge
@@ -261,7 +260,7 @@ public class BuildDCD {
     	Address decedentsHome = new Address().addLine("1808 Stroop Hill Road").setCity("Atlanta")
 		.setState("GA").setPostalCode("30303").setCountry("USA").setUse(AddressUse.HOME);
     	Extension withinCityLimits = new Extension();
-		withinCityLimits.setUrl(DecedentUtil.addressWithinCityLimitsIndicatorExtensionURL);
+		withinCityLimits.setUrl(AddressUtil.withinCityLimitsIndicatorUrl);
 		withinCityLimits.setValue(new BooleanType(true));
 		decedentsHome.addExtension(withinCityLimits);
     	decedent.setGender(AdministrativeGender.MALE);

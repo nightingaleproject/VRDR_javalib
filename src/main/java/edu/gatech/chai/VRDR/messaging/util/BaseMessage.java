@@ -71,6 +71,11 @@ public abstract class BaseMessage extends Bundle {
     }
 
     protected BaseMessage(String messageType) {
+       this(messageType, true);
+    }
+
+    // to support jurisdictions who want to bypass adding meta profile by default
+    protected BaseMessage(String messageType, boolean includeMetaProfiles) {
         // start with a bundle
         messageBundle = new Bundle();
         messageBundle.setId(UUID.randomUUID().toString());
@@ -80,7 +85,9 @@ public abstract class BaseMessage extends Bundle {
 
         // Start with a message header
         header = new MessageHeader();
-        header.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-SubmissionHeader");
+        if (includeMetaProfiles) {
+            header.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-SubmissionHeader");
+        }
         header.setId(UUID.randomUUID().toString());
         header.setEvent(new UriType(messageType));
 
@@ -97,7 +104,9 @@ public abstract class BaseMessage extends Bundle {
 
         // setup parameters and reference in header
         record = new Parameters();
-        record.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-MessageParameters");
+        if (includeMetaProfiles) {
+            record.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-MessageParameters");
+        }
         record.setId(UUID.randomUUID().toString());
         header.addFocus(new Reference("urn:uuid:" + record.getId()));
 
@@ -220,12 +229,12 @@ public abstract class BaseMessage extends Bundle {
     }
 
     public void setCertNo(Integer value) {
-        record.setParameter("cert_no", (IntegerType)null);
+        record.setParameter("cert_no", (UnsignedIntType)null);
         if (value != null) {
             if (value > 999999) {
                 throw new IllegalArgumentException("Certificate number must be a maximum of six digits");
             }
-            record.addParameter("cert_no", new IntegerType(value));
+            record.addParameter("cert_no", new UnsignedIntType(value));
         }
     }
 
@@ -262,12 +271,12 @@ public abstract class BaseMessage extends Bundle {
     }
 
     public void setDeathYear(Integer value) {
-        record.setParameter("death_year", (IntegerType)null);
+        record.setParameter("death_year", (UnsignedIntType)null);
         if (value != null) {
             if (value < 1000 || value > 9999) {
                 throw new IllegalArgumentException("Year of death must be specified using four digits");
             }
-            record.addParameter("death_year", new IntegerType(value));
+            record.addParameter("death_year", new UnsignedIntType(value));
         }
     }
 
