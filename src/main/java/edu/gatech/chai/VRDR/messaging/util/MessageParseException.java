@@ -1,5 +1,6 @@
 package edu.gatech.chai.VRDR.messaging.util;
 
+import edu.gatech.chai.VRDR.messaging.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.ExtractionErrorMessage;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.OperationOutcome;
@@ -14,7 +15,7 @@ public class MessageParseException extends IllegalArgumentException {
 
     public MessageParseException(String errorMessage, Bundle sourceBundle) {
         super(errorMessage);
-        this.sourceMessage = new UnknownMessage(sourceBundle, true, true, true);
+        this.sourceMessage = new UnknownMessage(sourceBundle);
     }
 
     public MessageParseException(String errorMessage, BaseMessage sourceMessage) {
