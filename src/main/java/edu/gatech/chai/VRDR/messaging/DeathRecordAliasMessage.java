@@ -1,7 +1,6 @@
 package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.messaging.util.BaseMessage;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 import edu.gatech.chai.VRDR.model.Decedent;
 import edu.gatech.chai.VRDR.model.DecedentFather;
@@ -70,7 +69,7 @@ public class DeathRecordAliasMessage extends BaseMessage {
     }
 
     public String getAliasDecedentFirstName() {
-        Type type = record.getParameter("alias_decedent_first_name");
+        Type type = messageParameters.getParameter("alias_decedent_first_name");
         if (type instanceof StringType) {
             return ((StringType) type).getValue();
         }
@@ -82,7 +81,7 @@ public class DeathRecordAliasMessage extends BaseMessage {
     }
 
     public String getAliasDecedentLastName() {
-        Type type = record.getParameter("alias_decedent_last_name");
+        Type type = messageParameters.getParameter("alias_decedent_last_name");
         if (type instanceof StringType) {
             return ((StringType) type).getValue();
         }
@@ -94,7 +93,7 @@ public class DeathRecordAliasMessage extends BaseMessage {
     }
 
     public String getAliasDecedentMiddleName() {
-        Type type = record.getParameter("alias_decedent_middle_name");
+        Type type = messageParameters.getParameter("alias_decedent_middle_name");
         if (type instanceof StringType) {
             return ((StringType) type).getValue();
         }
@@ -106,7 +105,7 @@ public class DeathRecordAliasMessage extends BaseMessage {
     }
 
     public String getAliasDecedentNameSuffix() {
-        Type type = record.getParameter("alias_decedent_name_suffix");
+        Type type = messageParameters.getParameter("alias_decedent_name_suffix");
         if (type instanceof StringType) {
             return ((StringType) type).getValue();
         }
@@ -118,7 +117,7 @@ public class DeathRecordAliasMessage extends BaseMessage {
     }
 
     public String getAliasFatherSurname() {
-        Type type = record.getParameter("alias_father_surname");
+        Type type = messageParameters.getParameter("alias_father_surname");
         if (type instanceof StringType) {
             return ((StringType) type).getValue();
         }
@@ -130,7 +129,7 @@ public class DeathRecordAliasMessage extends BaseMessage {
     }
 
     public String getAliasSocialSecurityNumber() {
-        Type type = record.getParameter("alias_social_security_number");
+        Type type = messageParameters.getParameter("alias_social_security_number");
         if (type instanceof StringType) {
             return ((StringType) type).getValue();
         }

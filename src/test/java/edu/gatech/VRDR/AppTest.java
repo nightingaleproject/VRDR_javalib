@@ -47,8 +47,7 @@ public class AppTest
     {
     	DeathCertificateDocument deathCertificateDocument = BuildDCD.buildExampleDeathCertificateDocument();
     	String encoded = context.getCtx().newJsonParser().encodeResourceToString(deathCertificateDocument);
-    	System.out.println(encoded);
-    	assertTrue( true );
+    	assertTrue(encoded != null && encoded.length() > 0);
     }
     
     public void testConsumingDeathCertificateDocument()
@@ -66,8 +65,7 @@ public class AppTest
 			e.printStackTrace();
 		}
     	String encoded = context.getCtx().newJsonParser().encodeResourceToString(deathCertificateDocument);
-    	System.out.println(encoded);
-    	assertTrue( true );
+		assertTrue(encoded != null && encoded.length() > 0);
     }
     
     public void testGetResourceFromDocument() {
@@ -75,19 +73,19 @@ public class AppTest
     	List<MannerOfDeath> mannerOfDeathList = deathCertificateDocument.getMannerOfDeath();
     	for(MannerOfDeath manner:mannerOfDeathList) {
     		String jsonForm = context.getCtx().newJsonParser().encodeResourceToString(manner);
-    		System.out.println(jsonForm);
+			assertTrue(jsonForm != null && jsonForm.length() > 0);
     	}
     }
     
     public void testPartialDecedentBirthDateRecord() {
     	Decedent decedent = BuildDCD.buildDecedentWithBirthDateAbsentReason();
     	String jsonForm = context.getCtx().newJsonParser().encodeResourceToString(decedent);
-		System.out.println(jsonForm);
+		assertTrue(jsonForm != null && jsonForm.length() > 0);
     }
     
     public void testPartialDeathDateRecord() {
     	DeathDate deathDate = BuildDCD.buildDeathWithPartialDateAbsentReason();
     	String jsonForm = context.getCtx().newJsonParser().encodeResourceToString(deathDate);
-		System.out.println(jsonForm);
+		assertTrue(jsonForm != null && jsonForm.length() > 0);
     }
 }

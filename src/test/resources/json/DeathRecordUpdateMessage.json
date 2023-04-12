@@ -51,15 +51,15 @@
           },
           {
             "name": "cert_no",
-            "valueUnsignedInt": 123456
+            "valueUnsignedInt": 182
           },
           {
             "name": "death_year",
-            "valueUnsignedInt": 2018
+            "valueUnsignedInt": 2020
           },
           {
             "name": "state_auxiliary_id",
-            "valueString": "abcdef10"
+            "valueString": "000000000001"
           }
         ]
       },

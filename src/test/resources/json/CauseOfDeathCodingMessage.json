@@ -50,7 +50,7 @@
         "id": "3ef10003-c427-4da6-bce2-f2dfef056ee7",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-coded-content-bundle"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-coded-bundle"
           ]
         },
         "identifier": {

@@ -1,11 +1,11 @@
 package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.messaging.util.BaseMessage;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.MessageHeader;
+import org.hl7.fhir.r4.model.ResourceType;
 
 @ResourceDef(name = "DeathRecordVoidMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordVoidMessage")
 public class DeathRecordVoidMessage extends BaseMessage {
@@ -26,7 +26,7 @@ public class DeathRecordVoidMessage extends BaseMessage {
     }
 
     public DeathRecordVoidMessage(BaseMessage messageToVoid) {
-        this(messageToVoid == null ? null : messageToVoid.getMessageId(),
+        this(messageToVoid == null ? null : messageToVoid.getId(),
                 messageToVoid == null ? null : messageToVoid.getMessageDestination(),
                 messageToVoid == null ? null : messageToVoid.getMessageSource());
         setCertNo(messageToVoid == null ? null : messageToVoid.getCertNo());
@@ -37,12 +37,12 @@ public class DeathRecordVoidMessage extends BaseMessage {
 
     public DeathRecordVoidMessage(String messageId, String source, String destination) {
         super(MESSAGE_TYPE);
-        header.getSource().setEndpoint(source == null ? DeathRecordSubmissionMessage.MESSAGE_TYPE : source);
+        messageHeader.getSource().setEndpoint(source == null ? DeathRecordSubmissionMessage.MESSAGE_TYPE : source);
         setMessageDestination(destination);
         MessageHeader.MessageHeaderResponseComponent resp = new MessageHeader.MessageHeaderResponseComponent();
         resp.setIdentifier(messageId);
         resp.setCode(MessageHeader.ResponseType.OK);
-        header.setResponse(resp);
+        messageHeader.setResponse(resp);
     }
 
     public String getIGMessageType() {
@@ -50,16 +50,16 @@ public class DeathRecordVoidMessage extends BaseMessage {
     }
 
     public Integer getBlockCount() {
-        if (record == null) {
+        if (messageParameters == null) {
             return null;
         }
-        if (!record.hasParameter("block_count")) {
+        if (!messageParameters.hasParameter("block_count")) {
             return null;
         }
-        if (!(record.getParameter("block_count") instanceof IntegerType)) {
+        if (!(messageParameters.getParameter("block_count") instanceof IntegerType)) {
             return null;
         }
-        IntegerType blockCountType = (IntegerType) record.getParameter("block_count");
+        IntegerType blockCountType = (IntegerType) messageParameters.getParameter("block_count");
         if (blockCountType == null) {
             return null;
         }
@@ -68,11 +68,16 @@ public class DeathRecordVoidMessage extends BaseMessage {
 
     public void setBlockCount(Integer value) {
         if (value != null && value > 1) {
-            record.setParameter("block_count", new IntegerType(value));
+            messageParameters.setParameter("block_count", new IntegerType(value));
         }
         else {
-            record.setParameter("block_count", (IntegerType)null);
+            messageParameters.setParameter("block_count", (IntegerType)null);
         }
+    }
+
+    @Override
+    public ResourceType getResourceType() {
+        return ResourceType.Bundle;
     }
 
 }

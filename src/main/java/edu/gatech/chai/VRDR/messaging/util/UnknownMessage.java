@@ -1,5 +1,6 @@
 package edu.gatech.chai.VRDR.messaging.util;
 
+import edu.gatech.chai.VRDR.messaging.BaseMessage;
 import org.hl7.fhir.r4.model.Bundle;
 
 // a message whose type is unknown, such as during a parsing error, but we still want to inspect and return info on the message
@@ -12,11 +13,7 @@ public class UnknownMessage extends BaseMessage {
     }
 
     public UnknownMessage(Bundle messageBundle) {
-        super(messageBundle);
-    }
-
-    public UnknownMessage(Bundle messageBundle, boolean ignoreMissingEntries, boolean ignoreBundleType, boolean ignoreEventType) {
-        super(messageBundle, ignoreMissingEntries, ignoreBundleType, ignoreEventType);
+        super(messageBundle, true);
     }
 
     public String getIGMessageType() {

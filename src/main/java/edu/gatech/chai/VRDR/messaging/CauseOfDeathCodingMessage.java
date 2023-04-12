@@ -1,12 +1,12 @@
 package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.messaging.util.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.util.DocumentBundler;
 import edu.gatech.chai.VRDR.model.CauseOfDeathCodedContentBundle;
-import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.MessageHeader;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.ResourceType;
 
 @ResourceDef(name = "CauseOfDeathCodingMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingMessage")
 public class CauseOfDeathCodingMessage extends BaseMessage implements DocumentBundler<CauseOfDeathCodedContentBundle> {
@@ -22,7 +22,7 @@ public class CauseOfDeathCodingMessage extends BaseMessage implements DocumentBu
 
     public CauseOfDeathCodingMessage(Bundle messageBundle) {
         super(messageBundle);
-        updateDocumentBundle(CauseOfDeathCodedContentBundle.class, this);
+        setDocumentBundleFromMessageBundle(CauseOfDeathCodedContentBundle.class, this, messageBundle);
     }
 
     public CauseOfDeathCodedContentBundle getDocumentBundle() {
@@ -39,10 +39,11 @@ public class CauseOfDeathCodingMessage extends BaseMessage implements DocumentBu
 
     public void setCauseOfDeathCodedContentBundle(CauseOfDeathCodedContentBundle causeOfDeathCodedContentBundle) {
         this.causeOfDeathCodedContentBundle = causeOfDeathCodedContentBundle;
+        addBundleEntryAndLinkToHeader(this, messageHeader, causeOfDeathCodedContentBundle);
     }
 
     public CauseOfDeathCodingMessage(BaseMessage messageToCode) {
-        this(messageToCode == null ? null : messageToCode.getMessageId(),
+        this(messageToCode == null ? null : messageToCode.getId(),
                 messageToCode == null ? null : messageToCode.getMessageDestination(),
                 messageToCode == null ? null : messageToCode.getMessageSource());
         setCertNo(messageToCode == null ? null : messageToCode.getCertNo());
@@ -53,32 +54,28 @@ public class CauseOfDeathCodingMessage extends BaseMessage implements DocumentBu
 
     public CauseOfDeathCodingMessage(String messageId, String source, String destination) {
         super(MESSAGE_TYPE);
-        header.getSource().setEndpoint(source == null ? DeathRecordSubmissionMessage.MESSAGE_TYPE : source);
+        messageHeader.getSource().setEndpoint(source == null ? DeathRecordSubmissionMessage.MESSAGE_TYPE : source);
         setMessageDestination(destination);
         MessageHeader.MessageHeaderResponseComponent resp = new MessageHeader.MessageHeaderResponseComponent();
         resp.setIdentifier(messageId);
         resp.setCode(MessageHeader.ResponseType.OK);
-        header.setResponse(resp);
+        messageHeader.setResponse(resp);
     }
 
     public String getIGMessageType() {
         return MESSAGE_TYPE;
     }
 
-    protected Bundle getMessageBundleRecord() {
-        return causeOfDeathCodedContentBundle;
-    }
-
     public String getCodedMessageId() {
-        return header != null && header.getResponse() != null ? header.getResponse().getIdentifier() : null;
+        return messageHeader != null && messageHeader.getResponse() != null ? messageHeader.getResponse().getIdentifier() : null;
     }
 
     public void setCodedMessageId(String value) {
-        if (header.getResponse() == null) {
-            header.setResponse(new MessageHeader.MessageHeaderResponseComponent());
-            header.getResponse().setCode(MessageHeader.ResponseType.OK);
+        if (messageHeader.getResponse() == null) {
+            messageHeader.setResponse(new MessageHeader.MessageHeaderResponseComponent());
+            messageHeader.getResponse().setCode(MessageHeader.ResponseType.OK);
         }
-        header.getResponse().setIdentifier(value);
+        messageHeader.getResponse().setIdentifier(value);
     }
 
 }

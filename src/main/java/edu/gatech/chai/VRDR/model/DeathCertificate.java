@@ -66,7 +66,7 @@ public class DeathCertificate extends Composition {
 		component.setParty(new Reference(resource.getId()));
 		addAttester(component);
 		// author is required from VRDR IG http://hl7.org/fhir/us/vrdr/StructureDefinition-vrdr-death-certificate.html
-		addAuthor(castToReference(resource));
+		addAuthor(new Reference(resource.getId()));
 	}
 
 	public void addEvent(DeathCertificationProcedure resource) {
@@ -93,8 +93,9 @@ public class DeathCertificate extends Composition {
 			addResource(resource, DeathCertificateUtil.codedContentSectionCode);
 		}
 		else {
-			System.out.println("resource not added successfuly Id: " + resource.getId());
-			System.out.println("resourceType: " + resource.getClass().getCanonicalName());
+			throw new IllegalArgumentException("Resource not added successfully. " +
+				"id: "	+ resource.getId() +
+				"resourceType: " + resource.getClass().getCanonicalName());
 		}
 	}
 	
