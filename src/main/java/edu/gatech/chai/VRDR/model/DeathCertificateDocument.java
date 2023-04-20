@@ -219,6 +219,11 @@ public class DeathCertificateDocument extends Bundle {
 		return null;
 	}
 
+	public List<InputRaceAndEthnicity> getInputRaceAndEthnicity() {
+		List<Resource> resources = getRecords(InputRaceAndEthnicity.class);
+		return castListOfRecords(resources);
+	}
+
 	public String toJson(VRDRFhirContext ctx) {
 		return toJson(ctx, false);
 	}

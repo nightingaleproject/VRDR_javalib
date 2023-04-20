@@ -13,12 +13,9 @@ public class InputRaceAndEthnicityUtil {
     public static final String hispanicCodingSystemUrl= "http://terminology.hl7.org/CodeSystem/v2-0136";
     
 	public static final CodeableConcept code = new CodeableConcept().addCoding(new Coding(codeAndComponentSystemUrl, "inputraceandethnicity", "Input Race and Ethnicity"));
-	public static Set<String> raceSystemStrings = new HashSet<String>(Arrays.asList(
-			"White", "BlackOrAfricanAmerican","AmericanIndianOrAlsakNative","AsianIndian","Chinese","Filipino","Japanese","Korean","Vietnamese","OtherAsian","NativeHawaiian","GuamanianOrChamorro","Samoan","OtherPacificIslander","OtherRace"));
-	public static Set<String> ethnicitySystemStrings = new HashSet<String>(Arrays.asList(
-			"HispanicPuertoRican", "HispanicCuban","HispanicOther","SecondOtherAsianLiteral","FirstOtherPacificIslanderLiteral","SecondOtherPacificIslanderLiteral","FirstOtherRaceLiteral","SecondOtherRaceLiteral"));
-	public static Set<String> raceEthnicityLiteralSystemStrings = new HashSet<String>(Arrays.asList(
-			"FirstAmericanIndianOrAlaskaNativeLiteral", "SecondAmericanIndianOrAlaskaNativeLiteral","FirstOtherAsianLiteral","SecondOtherAsianLiteral","FirstOtherPacificIslanderLiteral","SecondOtherPacificIslanderLiteral","FirstOtherRaceLiteral","SecondOtherRaceLiteral","HispanicLiteral"));
+	public static Set<String> raceBooleanSystemStrings = new HashSet<String>(DecedentUtil.raceBooleanNVSSSet);
+	public static Set<String> raceLiteralSystemStrings = new HashSet<String>(DecedentUtil.raceLiteralNVSSSet);
+	public static Set<String> hispanicCodedSystemStrings = new HashSet<String>(DecedentUtil.hispanicCodedNVSSSet);
 	public static Set<CodeableConcept> raceMissingValueReasonList = new HashSet<CodeableConcept>(Arrays.asList(
 			new CodeableConcept().addCoding(new Coding(CommonUtil.missingValueReasonUrl,"R","Refused")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.missingValueReasonUrl,"S","Sought, but unknown")),
