@@ -26,6 +26,7 @@ public class DeathCertificate extends Composition {
 		CommonUtil.initResource(this);
 		setType(DeathCertificateUtil.typeFixedValue);
 		setStatus(DeathCertificateUtil.status);
+		setTitle(DeathCertificateUtil.title);
 		setDate(new Date());
 	}
 	
@@ -64,6 +65,8 @@ public class DeathCertificate extends Composition {
 		component.setTime(time);
 		component.setParty(new Reference(resource.getId()));
 		addAttester(component);
+		// author is required from VRDR IG http://hl7.org/fhir/us/vrdr/StructureDefinition-vrdr-death-certificate.html
+		addAuthor(new Reference(resource.getId()));
 	}
 
 	public void addEvent(DeathCertificationProcedure resource) {
@@ -90,8 +93,9 @@ public class DeathCertificate extends Composition {
 			addResource(resource, DeathCertificateUtil.codedContentSectionCode);
 		}
 		else {
-			System.out.println("resource not added successfuly Id: " + resource.getId());
-			System.out.println("resourceType: " + resource.getClass().getCanonicalName());
+			throw new IllegalArgumentException("Resource not added successfully. " +
+				"id: "	+ resource.getId() +
+				"resourceType: " + resource.getClass().getCanonicalName());
 		}
 	}
 	

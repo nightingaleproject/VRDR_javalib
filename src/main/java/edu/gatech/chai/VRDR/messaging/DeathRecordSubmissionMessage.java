@@ -1,10 +1,13 @@
 package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.messaging.util.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.util.DocumentBundler;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
+import edu.gatech.chai.VRDR.model.DemographicCodedContentBundle;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.MessageHeader;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.ResourceType;
 
 @ResourceDef(name = "DeathRecordSubmissionMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage")
 public class DeathRecordSubmissionMessage extends BaseMessage implements DocumentBundler<DeathCertificateDocument> {
@@ -26,7 +29,7 @@ public class DeathRecordSubmissionMessage extends BaseMessage implements Documen
 
     public DeathRecordSubmissionMessage(Bundle messageBundle) {
         super(messageBundle);
-        updateDocumentBundle(DeathCertificateDocument.class, this);
+        setDocumentBundleFromMessageBundle(DeathCertificateDocument.class, this, messageBundle);
     }
 
     public DeathCertificateDocument getDocumentBundle() {
@@ -47,17 +50,9 @@ public class DeathRecordSubmissionMessage extends BaseMessage implements Documen
 
     public void setDeathRecord(DeathCertificateDocument deathRecord) {
         this.deathRecord = deathRecord;
-        updateMessageBundleRecord();
+        addBundleEntryAndLinkToHeader(this, messageHeader, deathRecord);
     }
 
-    protected Bundle getMessageBundleRecord() {
-        if (deathRecord != null) {
-            return deathRecord;
-        }
-        else {
-            return null;
-        }
-    }
 
     public String getDeathLocationJurisdiction() {
         return getDeathLocationJurisdiction(deathRecord);

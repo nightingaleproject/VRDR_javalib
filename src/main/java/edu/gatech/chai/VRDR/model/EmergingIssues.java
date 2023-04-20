@@ -1,4 +1,6 @@
-package edu.gatech.chai.VRDR.model;
+  
+
+     package edu.gatech.chai.VRDR.model;
 
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -32,14 +34,16 @@ public class EmergingIssues extends Observation {
 	 */
 	private static final long serialVersionUID = -2672514795721353562L;
 
-	//Redefining value and effective as min and max = 0 to disbar the fields.
+	/* Even though these fields are not allowed as per VRDR IG http://hl7.org/fhir/us/vrdr/StructureDefinition-vrdr-emerging-issues.html
+	 * they are not redefined due to issues this causes in some clients.
 	@Child(name = "value", type = {Quantity.class, CodeableConcept.class, StringType.class, BooleanType.class, IntegerType.class, Range.class, Ratio.class, SampledData.class, TimeType.class, DateTimeType.class, Period.class}, order=2, min=0, max=0, modifier=false, summary=true)
     @Description(shortDefinition="Actual component result", formalDefinition="The information determined as a result of making the observation, if the information has a simple value." )
     protected Type value;
 	
-	@Child(name = "effective", type = {DateTimeType.class, Period.class, Timing.class, InstantType.class}, order=9, min=0, max=1, modifier=false, summary=true)
+    @Child(name = "effective", type = {DateTimeType.class, Period.class, Timing.class, InstantType.class}, order=9, min=0, max=1, modifier=false, summary=true)
     @Description(shortDefinition="Clinically relevant time/time-period for observation", formalDefinition="The time or time-period the observed value is asserted as being true. For biological subjects - e.g. human patients - this is usually called the \"physiologically relevant time\". This is usually either the time of the procedure or of specimen collection, but very often the source of the date/time is not known, only the date/time itself." )
     protected Type effective;
+    */
 	
 	public EmergingIssues() {
 		super();

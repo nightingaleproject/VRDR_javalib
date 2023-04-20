@@ -1,7 +1,7 @@
 package edu.gatech.chai.VRDR.cli;
 
 import edu.gatech.chai.VRDR.context.VRDRFhirContext;
-import edu.gatech.chai.VRDR.messaging.util.BaseMessage;
+import edu.gatech.chai.VRDR.messaging.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.util.MessagingExample;
 import org.hl7.fhir.r4.model.Bundle;
 import picocli.CommandLine;
@@ -51,10 +51,20 @@ public class Console {
         }
 
         if (outputXml) {
-            writeToFile(BaseMessage.bundleToXml(ctx, message, true), outputFile);
+            String bundleStr = ctx
+                    .getCtx()
+                    .newXmlParser()
+                    .setPrettyPrint(true)
+                    .encodeResourceToString(message);
+            writeToFile(bundleStr, outputFile);
         }
         else {
-            writeToFile(BaseMessage.bundleToJson(ctx, message, true), outputFile);
+            String bundleStr = ctx
+                    .getCtx()
+                    .newJsonParser()
+                    .setPrettyPrint(true)
+                    .encodeResourceToString(message);
+            writeToFile(bundleStr, outputFile);
         }
     }
 

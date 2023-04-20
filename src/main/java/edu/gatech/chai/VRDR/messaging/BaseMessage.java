@@ -1,9 +1,10 @@
-package edu.gatech.chai.VRDR.messaging.util;
+package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.LenientErrorHandler;
 import edu.gatech.chai.VRDR.context.VRDRFhirContext;
-import edu.gatech.chai.VRDR.messaging.DeathRecordSubmissionMessage;
+import edu.gatech.chai.VRDR.messaging.util.DocumentBundler;
+import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 import edu.gatech.chai.VRDR.model.DeathDate;
 import edu.gatech.chai.VRDR.model.DeathLocation;
@@ -16,30 +17,131 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public abstract class BaseMessage extends Bundle {
+public class BaseMessage extends Bundle {
 
-    protected Bundle messageBundle;
-    protected Parameters record;
-    protected MessageHeader header;
+    protected Parameters messageParameters;
+    protected MessageHeader messageHeader;
+
+    public static void addBundleEntryAndLinkToHeader(Bundle bundle, MessageHeader header, Bundle innerBundle) {
+        // remove any existing entries of the same type
+        bundle.getEntry().removeIf(entry ->
+                innerBundle.getResourceType().equals(entry.getResource().getResourceType()));
+        // remove the header link
+        header.setFocus(null);
+        // create a new bundle entry
+        Bundle.BundleEntryComponent newEntry = new Bundle.BundleEntryComponent();
+        String innerBundleRef = innerBundle.getId();
+        if (innerBundleRef != null && !innerBundleRef.startsWith("urn:uuid:")) {
+            innerBundleRef = "urn:uuid:" + innerBundleRef;
+        }
+        newEntry.setFullUrl(innerBundleRef);
+        newEntry.setResource(innerBundle);
+        newEntry.getResource().setId(ensureBareId(innerBundle.getId()));
+        // add the new entry to the bundle
+        bundle.addEntry(newEntry);
+        // add the new entry reference to the header
+        header.addFocus(new Reference(innerBundleRef));
+    }
+
+    public static String ensureRefPrefix(String id) {
+        if (id != null && !id.startsWith("urn:uuid:")) {
+            id = "urn:uuid:" + id;
+        }
+        return id;
+    }
+
+    public static String ensureBareId(String id) {
+        if (id != null && id.startsWith("urn:uuid:")) {
+            id = id.substring("urn:uuid:".length(), id.length());
+        }
+        return id;
+    }
+
+    protected BaseMessage() {
+        super();
+        setId(UUID.randomUUID().toString());
+        setType(BundleType.MESSAGE);
+        setTimestamp(new Date());
+    }
 
     protected BaseMessage(Bundle messageBundle) {
-        this(messageBundle, false, false, false);
+        this(messageBundle, false);
     }
 
-    protected BaseMessage(Bundle messageBundle, boolean ignoreMissingEntries, boolean ignoreBundleType, boolean ignoreEventType) {
-        this.messageBundle = messageBundle;
+    protected BaseMessage(Bundle messageBundle, boolean ignoreExceptions) {
+        this();
+
+        // configure bundle
+        setId(messageBundle.getId());
+        setTimestamp(messageBundle.getTimestamp());
         BundleType bundleType = messageBundle == null ? BundleType.NULL : messageBundle.getType();
-        if (!ignoreBundleType && bundleType != BundleType.MESSAGE) {
+        if (!ignoreExceptions && bundleType != BundleType.MESSAGE) {
             throw new MessageParseException("The FHIR Bundle must be of type message, not " + bundleType.toString(), messageBundle);
         }
-        header = CommonUtil.findEntry(messageBundle, MessageHeader.class, ignoreMissingEntries);
-        record = CommonUtil.findEntry(messageBundle, Parameters.class, ignoreMissingEntries);
-        if (!ignoreEventType && !isMessageEventMatchingMessageType(getIGMessageType())) {
+        setType(bundleType);
+
+        messageHeader = CommonUtil.findEntry(messageBundle, MessageHeader.class, ignoreExceptions);
+        messageParameters = CommonUtil.findEntry(messageBundle, Parameters.class, ignoreExceptions);
+        if (!ignoreExceptions && !isMessageEventMatchingMessageType(getIGMessageType())) {
             throw new MessageParseException(getMessageEventTypeMismatchErrorMessage(getIGMessageType()), messageBundle);
         }
+
+        addBundleEntryForHeaderAndParameters();
+    }
+    protected BaseMessage(String messageType) {
+        this(messageType, true);
     }
 
-    protected <T extends Bundle> void updateDocumentBundle(Class<T> tClass, DocumentBundler<T> documentBundler) {
+    // to support jurisdictions who want to bypass adding meta profile by default
+    protected BaseMessage(String messageType, boolean includeMetaProfiles) {
+        this();
+
+        // Start with a message header
+        messageHeader = new MessageHeader();
+        if (includeMetaProfiles) {
+            messageHeader.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-SubmissionHeader");
+        }
+        messageHeader.setId(UUID.randomUUID().toString());
+        messageHeader.setEvent(new UriType(messageType));
+
+        // add message header source
+        MessageHeader.MessageSourceComponent source = new MessageHeader.MessageSourceComponent();
+        messageHeader.setSource(source);
+
+        // add message header destination
+        MessageHeader.MessageDestinationComponent destination = new MessageHeader.MessageDestinationComponent();
+        destination.setEndpoint(DeathRecordSubmissionMessage.MESSAGE_TYPE);
+        List<MessageHeader.MessageDestinationComponent> destinationComponents = new ArrayList<>();
+        destinationComponents.add(destination);
+        messageHeader.setDestination(destinationComponents);
+
+        // setup parameters and reference in header
+        messageParameters = new Parameters();
+        if (includeMetaProfiles) {
+            messageParameters.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-MessageParameters");
+        }
+        messageParameters.setId(UUID.randomUUID().toString());
+        messageHeader.addFocus(new Reference(ensureRefPrefix(messageParameters.getId())));
+        addBundleEntryForHeaderAndParameters();
+    }
+
+    protected void addBundleEntryForHeaderAndParameters() {
+        // add message header to bundle
+        Bundle.BundleEntryComponent headerBundleComponent = new Bundle.BundleEntryComponent();
+        headerBundleComponent.setFullUrl(ensureRefPrefix(messageHeader.getId()));
+        headerBundleComponent.setResource(messageHeader);
+        headerBundleComponent.getResource().setId(ensureBareId(messageHeader.getId()));
+        addEntry(headerBundleComponent);
+
+        // add parameters resource to bundle
+        Bundle.BundleEntryComponent parametersBundleComponent = new Bundle.BundleEntryComponent();
+        parametersBundleComponent.setFullUrl(ensureRefPrefix(messageParameters.getId()));
+        parametersBundleComponent.setResource(messageParameters);
+        parametersBundleComponent.getResource().setId(ensureBareId(messageParameters.getId()));
+        addEntry(parametersBundleComponent);
+    }
+
+    protected <T extends Bundle> void setDocumentBundleFromMessageBundle(Class<T> tClass, DocumentBundler<T> documentBundler, Bundle messageBundle) {
         try {
             Bundle bundle = CommonUtil.findEntry(messageBundle, tClass);
             if (bundle == null) {
@@ -55,10 +157,13 @@ public abstract class BaseMessage extends Bundle {
         }
     }
 
-    protected abstract String getIGMessageType(); // override for specific IG message types in subclass
+    protected String getIGMessageType() {
+        return null; // override for specific IG message types in subclass
+    }
+
 
     protected String getMessageEventType() {
-        return header != null && header.hasEventUriType() ? header.getEventUriType().getValue() : null;
+        return messageHeader != null && messageHeader.hasEventUriType() ? messageHeader.getEventUriType().getValue() : null;
     }
 
     protected boolean isMessageEventMatchingMessageType(String messageType) {
@@ -68,50 +173,6 @@ public abstract class BaseMessage extends Bundle {
 
     protected String getMessageEventTypeMismatchErrorMessage(String messageType) {
         return "Message event uri type " + getMessageEventType() + " does not match the expected message type " + messageType;
-    }
-
-    protected BaseMessage(String messageType) {
-        // start with a bundle
-        messageBundle = new Bundle();
-        messageBundle.setId(UUID.randomUUID().toString());
-        messageBundle.setType(Bundle.BundleType.MESSAGE);
-        messageBundle.setTimestamp(new Date());
-        messageBundle.getMeta().setLastUpdated(new Date());
-
-        // Start with a message header
-        header = new MessageHeader();
-        header.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-SubmissionHeader");
-        header.setId(UUID.randomUUID().toString());
-        header.setEvent(new UriType(messageType));
-
-        // add message header source
-        MessageHeader.MessageSourceComponent source = new MessageHeader.MessageSourceComponent();
-        header.setSource(source);
-
-        // add message header destination
-        MessageHeader.MessageDestinationComponent destination = new MessageHeader.MessageDestinationComponent();
-        destination.setEndpoint(DeathRecordSubmissionMessage.MESSAGE_TYPE);
-        List<MessageHeader.MessageDestinationComponent> destinationComponents = new ArrayList<>();
-        destinationComponents.add(destination);
-        header.setDestination(destinationComponents);
-
-        // setup parameters and reference in header
-        record = new Parameters();
-        record.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-MessageParameters");
-        record.setId(UUID.randomUUID().toString());
-        header.addFocus(new Reference("urn:uuid:" + record.getId()));
-
-        // add message header to bundle
-        Bundle.BundleEntryComponent headerBundleComponent = new Bundle.BundleEntryComponent();
-        headerBundleComponent.setFullUrl("urn:uuid:" + header.getId());
-        headerBundleComponent.setResource(header);
-        messageBundle.addEntry(headerBundleComponent);
-
-        // add parameters resource to bundle
-        Bundle.BundleEntryComponent parametersBundleComponent = new Bundle.BundleEntryComponent();
-        parametersBundleComponent.setFullUrl("urn:uuid:" + record.getId());
-        parametersBundleComponent.setResource(record);
-        messageBundle.addEntry(parametersBundleComponent);
     }
 
     protected void extractBusinessIdentifiers(DeathCertificateDocument from) {
@@ -199,15 +260,15 @@ public abstract class BaseMessage extends Bundle {
     }
 
     protected void setSingleStringValue(String key, String value) {
-        record.setParameter(key, (String)null);
+        messageParameters.setParameter(key, (String)null);
         if (value != null && !value.trim().isEmpty()) {
-            record.setParameter(key, value);
+            messageParameters.setParameter(key, value);
         }
     }
 
     public Integer getCertNo() {
-        if (record.hasParameter("cert_no") && record.getParameter("cert_no") instanceof IntegerType) {
-            IntegerType certNoIntegerType = (IntegerType)record.getParameter("cert_no");
+        if (messageParameters.hasParameter("cert_no") && messageParameters.getParameter("cert_no") instanceof IntegerType) {
+            IntegerType certNoIntegerType = (IntegerType) messageParameters.getParameter("cert_no");
             if (certNoIntegerType.hasValue()) {
                 return certNoIntegerType.getValue();
             } else {
@@ -220,18 +281,18 @@ public abstract class BaseMessage extends Bundle {
     }
 
     public void setCertNo(Integer value) {
-        record.setParameter("cert_no", (IntegerType)null);
+        messageParameters.setParameter("cert_no", (UnsignedIntType)null);
         if (value != null) {
             if (value > 999999) {
                 throw new IllegalArgumentException("Certificate number must be a maximum of six digits");
             }
-            record.addParameter("cert_no", new IntegerType(value));
+            messageParameters.addParameter("cert_no", new UnsignedIntType(value));
         }
     }
 
     public String getStateAuxiliaryId() {
-        if (record.hasParameter("state_auxiliary_id") && record.getParameter("state_auxiliary_id") instanceof StringType) {
-            StringType stateAuxiliaryIdStringType = (StringType)record.getParameter("state_auxiliary_id");
+        if (messageParameters.hasParameter("state_auxiliary_id") && messageParameters.getParameter("state_auxiliary_id") instanceof StringType) {
+            StringType stateAuxiliaryIdStringType = (StringType) messageParameters.getParameter("state_auxiliary_id");
             if (stateAuxiliaryIdStringType.hasValue()) {
                 return stateAuxiliaryIdStringType.getValue();
             } else {
@@ -248,8 +309,8 @@ public abstract class BaseMessage extends Bundle {
     }
 
     public Integer getDeathYear() {
-        if (record.hasParameter() && record.getParameter("death_year") instanceof IntegerType) {
-            IntegerType deathYearIntegerType = (IntegerType)record.getParameter("death_year");
+        if (messageParameters.hasParameter() && messageParameters.getParameter("death_year") instanceof IntegerType) {
+            IntegerType deathYearIntegerType = (IntegerType) messageParameters.getParameter("death_year");
             if (deathYearIntegerType.hasValue()) {
                 return deathYearIntegerType.getValue();
             } else {
@@ -262,18 +323,18 @@ public abstract class BaseMessage extends Bundle {
     }
 
     public void setDeathYear(Integer value) {
-        record.setParameter("death_year", (IntegerType)null);
+        messageParameters.setParameter("death_year", (UnsignedIntType)null);
         if (value != null) {
             if (value < 1000 || value > 9999) {
                 throw new IllegalArgumentException("Year of death must be specified using four digits");
             }
-            record.addParameter("death_year", new IntegerType(value));
+            messageParameters.addParameter("death_year", new UnsignedIntType(value));
         }
     }
 
     public String getJurisdictionId() {
-        if (record.hasParameter("jurisdiction_id") && record.getParameter("jurisdiction_id") instanceof StringType) {
-            StringType jurisdictionIdStringType = (StringType)record.getParameter("jurisdiction_id");
+        if (messageParameters.hasParameter("jurisdiction_id") && messageParameters.getParameter("jurisdiction_id") instanceof StringType) {
+            StringType jurisdictionIdStringType = (StringType) messageParameters.getParameter("jurisdiction_id");
             if (jurisdictionIdStringType.hasValue()) {
                 return jurisdictionIdStringType.getValue();
             } else {
@@ -286,7 +347,7 @@ public abstract class BaseMessage extends Bundle {
     }
 
     public void setJurisdictionId(String value) {
-        record.setParameter("jurisdiction_id", (StringType)null);
+        messageParameters.setParameter("jurisdiction_id", (StringType)null);
         if (value != null) {
             if (value.length() != 2) {
                 throw new IllegalArgumentException("Jurisdiction ID must be a two character string");
@@ -295,30 +356,27 @@ public abstract class BaseMessage extends Bundle {
         }
     }
 
-    protected Bundle getBundle() {
-        return messageBundle;
-    }
-
-    protected Bundle getMessageBundleRecord() {
-        return null; // can be overridden in some cases
-    }
-
-    protected void updateMessageBundleRecord() {
-        messageBundle.getEntry().removeIf(entry -> entry.getResource() instanceof Bundle);
-        header.setFocus(null);
-        Bundle newBundle = getMessageBundleRecord();
-        if (newBundle != null) {
-            Bundle.BundleEntryComponent newEntry = new Bundle.BundleEntryComponent();
-            newEntry.setFullUrl("urn:uuid:" + newBundle.getId());
-            newEntry.setResource(newBundle);
-            messageBundle.addEntry(newEntry);
-            header.addFocus(new Reference("urn:uuid:" + newBundle.getId()));
+    public Bundle cloneAsBundle() {
+        // All messages have resource type Bundle according to the VRDR Messaging IG
+        // so we have to reconstruct the Bundle object before outputting it
+        // otherwise the parser uses the class name as the resource type
+        Bundle bundle = new Bundle();
+        bundle.setId(getId());
+        bundle.setType(BundleType.MESSAGE);
+        bundle.setTimestamp(getTimestamp());
+        for (Bundle.BundleEntryComponent entry : getEntry()) {
+            bundle.addEntry(entry);
         }
+        return bundle;
     }
 
     public String toJson(VRDRFhirContext ctx, boolean prettyPrint) {
-        updateMessageBundleRecord();
-        return ctx.getCtx().newJsonParser().setPrettyPrint(prettyPrint).encodeResourceToString(messageBundle);
+        return ctx
+                .getCtx()
+                .newJsonParser()
+                .setPrettyPrint(prettyPrint)
+                .encodeResourceToString(
+                        cloneAsBundle());
     }
 
     public String toJson(VRDRFhirContext ctx) {
@@ -326,92 +384,58 @@ public abstract class BaseMessage extends Bundle {
     }
 
     public String toXML(VRDRFhirContext ctx, boolean prettyPrint) {
-        updateMessageBundleRecord();
-        return ctx.getCtx().newXmlParser().setPrettyPrint(prettyPrint).encodeResourceToString(messageBundle);
+        return ctx
+                .getCtx()
+                .newXmlParser()
+                .setPrettyPrint(prettyPrint)
+                .encodeResourceToString(
+                        cloneAsBundle());
     }
 
     public String toXML(VRDRFhirContext ctx) {
         return toXML(ctx, false);
     }
 
-    public static String bundleToJson(VRDRFhirContext ctx, Bundle bundle) {
-        return bundleToJson(ctx, bundle, false);
-    }
-
-    public static String bundleToJson(VRDRFhirContext ctx, Bundle bundle, boolean prettyPrint) {
-        return ctx.getCtx().newJsonParser().setPrettyPrint(prettyPrint).encodeResourceToString(bundle);
-    }
-
-    public static String bundleToXml(VRDRFhirContext ctx, Bundle bundle, boolean prettyPrint) {
-        return ctx.getCtx().newXmlParser().setPrettyPrint(prettyPrint).encodeResourceToString(bundle);
-    }
-
-    public Date getMessageTimestamp() {
-        return messageBundle.getTimestamp();
-    }
-
-    public void setMessageTimestamp(Date value) {
-        messageBundle.setTimestamp(value);
-    }
-
-    public String getMessageId() {
-        if (header != null) {
-            return header.getId();
-        } else {
-            return null;
-        }
-    }
-
-    public void setMessageId(String value) {
-        header.setId(value);
-        Bundle.BundleEntryComponent messageEntry = messageBundle.getEntry().stream().filter(entry -> entry.getResource() instanceof MessageHeader).findFirst().orElse(null);
-        if (messageEntry == null) {
-            throw new IllegalArgumentException("MessageHeader not found in message bundle");
-        }
-        messageEntry.setFullUrl("urn:uuid:" + header.getId());
-        messageEntry.setResource(header);
-    }
-
     public String getMessageType() {
-        if (header != null && header.getEvent() != null && header.getEvent() instanceof UriType) {
-            return ((UriType)header.getEvent()).getValue();
+        if (messageHeader != null && messageHeader.getEvent() != null && messageHeader.getEvent() instanceof UriType) {
+            return ((UriType) messageHeader.getEvent()).getValue();
         } else {
             return null;
         }
     }
 
     public void setMessageType(String value) {
-        header.setEvent(new UriType(value));
+        messageHeader.setEvent(new UriType(value));
     }
 
     public String getMessageSource() {
-        if (header != null && header.getSource() != null) {
-            return header.getSource().getEndpoint();
+        if (messageHeader != null && messageHeader.getSource() != null) {
+            return messageHeader.getSource().getEndpoint();
         } else {
             return null;
         }
     }
 
     public void setMessageSource(String value) {
-        if (header.getSource() == null) {
-            header.setSource(new MessageHeader.MessageSourceComponent());
+        if (messageHeader.getSource() == null) {
+            messageHeader.setSource(new MessageHeader.MessageSourceComponent());
         }
-        header.getSource().setEndpoint(value);
+        messageHeader.getSource().setEndpoint(value);
     }
 
     public String getMessageDestination() {
-        if (header != null && header.getDestination().size() > 0) {
-            return header.getDestination().get(0).getEndpoint();
+        if (messageHeader != null && messageHeader.getDestination().size() > 0) {
+            return messageHeader.getDestination().get(0).getEndpoint();
         } else {
             return null;
         }
     }
 
     public void setMessageDestination(String value) {
-        header.getDestination().clear();
+        messageHeader.getDestination().clear();
         MessageHeader.MessageDestinationComponent dest = new MessageHeader.MessageDestinationComponent();
         dest.setEndpoint(value);
-        header.getDestination().add(dest);
+        messageHeader.getDestination().add(dest);
     }
 
     public String getNCHSIdentifier() {
@@ -422,10 +446,6 @@ public abstract class BaseMessage extends Bundle {
             return null;
         }
         return String.format("%04d", deathYear) + jurisdictionId + String.format("%06d", certNo);
-    }
-
-    public Bundle getMessageBundle() {
-        return messageBundle;
     }
 
     public static String getAbsoluteFilePath(String filePath) {

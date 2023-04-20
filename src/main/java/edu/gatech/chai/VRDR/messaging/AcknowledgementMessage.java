@@ -1,10 +1,10 @@
 package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.messaging.util.BaseMessage;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.MessageHeader;
+import org.hl7.fhir.r4.model.ResourceType;
 
 @ResourceDef(name = "AcknowledgementMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-AcknowledgementMessage")
 public class AcknowledgementMessage extends BaseMessage {
@@ -20,7 +20,7 @@ public class AcknowledgementMessage extends BaseMessage {
     }
 
     public AcknowledgementMessage(BaseMessage messageToAck) {
-        this(messageToAck == null ? null : messageToAck.getMessageId(),
+        this(messageToAck == null ? null : messageToAck.getId(),
                 messageToAck == null ? null : messageToAck.getMessageSource(),
                 messageToAck == null ? null : messageToAck.getMessageDestination());
         setCertNo(messageToAck == null ? null : messageToAck.getCertNo());
@@ -36,12 +36,14 @@ public class AcknowledgementMessage extends BaseMessage {
 
     public AcknowledgementMessage(String messageId, String destination, String source) {
         super(MESSAGE_TYPE);
-        header.getSource().setEndpoint(source);
+        messageHeader.getSource().setEndpoint(source);
         setMessageDestination(destination);
         MessageHeader.MessageHeaderResponseComponent resp = new MessageHeader.MessageHeaderResponseComponent();
+        // strip off if messageId of header.id has prefix 'urn:uuid:'
+        messageId = messageId != null && messageId.startsWith("urn:uuid:") ?  messageId.substring(9) : messageId;
         resp.setIdentifier(messageId);
         resp.setCode(MessageHeader.ResponseType.OK);
-        header.setResponse(resp);
+        messageHeader.setResponse(resp);
     }
 
     public AcknowledgementMessage(String messageId, String destination) {
@@ -53,28 +55,28 @@ public class AcknowledgementMessage extends BaseMessage {
     }
 
     public String getAckedMessageId() {
-        return header != null && header.getResponse() != null ? header.getResponse().getIdentifier() : null;
+        return messageHeader != null && messageHeader.getResponse() != null ? messageHeader.getResponse().getIdentifier() : null;
     }
 
     public void setAckedMessageId(String value) {
-        if (header.getResponse() == null) {
-            header.setResponse(new MessageHeader.MessageHeaderResponseComponent());
-            header.getResponse().setCode(MessageHeader.ResponseType.OK);
+        if (messageHeader.getResponse() == null) {
+            messageHeader.setResponse(new MessageHeader.MessageHeaderResponseComponent());
+            messageHeader.getResponse().setCode(MessageHeader.ResponseType.OK);
         }
-        header.getResponse().setIdentifier(value);
+        messageHeader.getResponse().setIdentifier(value);
     }
 
     public Integer getBlockCount() {
-        if (record == null) {
+        if (messageParameters == null) {
             return null;
         }
-        if (!record.hasParameter("block_count")) {
+        if (!messageParameters.hasParameter("block_count")) {
             return null;
         }
-        if (!(record.getParameter("block_count") instanceof IntegerType)) {
+        if (!(messageParameters.getParameter("block_count") instanceof IntegerType)) {
             return null;
         }
-        IntegerType blockCountType = (IntegerType) record.getParameter("block_count");
+        IntegerType blockCountType = (IntegerType) messageParameters.getParameter("block_count");
         if (blockCountType == null) {
             return null;
         }
@@ -83,11 +85,10 @@ public class AcknowledgementMessage extends BaseMessage {
 
     public void setBlockCount(Integer value) {
         if (value != null && value > 1) {
-            record.setParameter("block_count", new IntegerType(value));
+            messageParameters.setParameter("block_count", new IntegerType(value));
         }
         else {
-            record.setParameter("block_count", (IntegerType)null);
+            messageParameters.setParameter("block_count", (IntegerType)null);
         }
     }
-
 }

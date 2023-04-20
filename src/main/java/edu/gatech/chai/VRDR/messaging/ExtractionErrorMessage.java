@@ -1,13 +1,9 @@
 package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.messaging.util.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.MessageHeader;
-import org.hl7.fhir.r4.model.OperationOutcome;
-import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +21,7 @@ public class ExtractionErrorMessage extends BaseMessage {
     }
 
     public ExtractionErrorMessage(BaseMessage sourceMessage) {
-        this(sourceMessage == null ? null : sourceMessage.getMessageId(),
+        this(sourceMessage == null ? null : sourceMessage.getId(),
                 sourceMessage == null ? null : sourceMessage.getMessageSource(),
                 sourceMessage == null ? null : sourceMessage.getMessageDestination());
         setCertNo(sourceMessage == null ? null : sourceMessage.getCertNo());
@@ -49,20 +45,20 @@ public class ExtractionErrorMessage extends BaseMessage {
 
     public ExtractionErrorMessage(String messageId, String destination, String source) {
         super(MESSAGE_TYPE);
-        header.getSource().setEndpoint(source != null ? source : "http://nchs.cdc.gov/vrdr_submission");
+        messageHeader.getSource().setEndpoint(source != null ? source : "http://nchs.cdc.gov/vrdr_submission");
         setMessageDestination(destination);
         MessageHeader.MessageHeaderResponseComponent resp = new MessageHeader.MessageHeaderResponseComponent();
         resp.setIdentifier(messageId);
         resp.setCode(MessageHeader.ResponseType.FATALERROR);
-        header.setResponse(resp);
+        messageHeader.setResponse(resp);
 
         details = new OperationOutcome();
         details.setId(UUID.randomUUID().toString());
         Bundle.BundleEntryComponent entry = new Bundle.BundleEntryComponent();
-        entry.setFullUrl("urn:uuid:" + details.getId());
+        entry.setFullUrl(ensureRefPrefix(details.getId()));
         entry.setResource(details);
-        messageBundle.addEntry(entry);
-        header.getResponse().setDetails(new Reference("urn:uuid:" + details.getId()));
+        addEntry(entry);
+        messageHeader.getResponse().setDetails(new Reference(ensureRefPrefix(details.getId())));
     }
 
     public ExtractionErrorMessage(String messageId, String destination) {
@@ -74,15 +70,15 @@ public class ExtractionErrorMessage extends BaseMessage {
     }
 
     public String getFailedMessageId() {
-        return header != null && header.getResponse() != null ? header.getResponse().getIdentifier() : null;
+        return messageHeader != null && messageHeader.getResponse() != null ? messageHeader.getResponse().getIdentifier() : null;
     }
 
     public void setFailedMessageId(String value) {
-        if (header.getResponse() == null) {
-            header.setResponse(new MessageHeader.MessageHeaderResponseComponent());
-            header.getResponse().setCode(MessageHeader.ResponseType.FATALERROR);
+        if (messageHeader.getResponse() == null) {
+            messageHeader.setResponse(new MessageHeader.MessageHeaderResponseComponent());
+            messageHeader.getResponse().setCode(MessageHeader.ResponseType.FATALERROR);
         }
-        header.getResponse().setIdentifier(value);
+        messageHeader.getResponse().setIdentifier(value);
     }
 
     public void addIssue(OperationOutcome.IssueSeverity issueSeverity, OperationOutcome.IssueType issueType, String message) {
@@ -133,4 +129,10 @@ public class ExtractionErrorMessage extends BaseMessage {
             this.description = description;
         }
     }
+
+    @Override
+    public ResourceType getResourceType() {
+        return ResourceType.Bundle;
+    }
+
 }

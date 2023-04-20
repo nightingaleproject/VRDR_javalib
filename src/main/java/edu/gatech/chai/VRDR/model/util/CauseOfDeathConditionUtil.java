@@ -9,7 +9,6 @@ import org.hl7.fhir.r4.model.Coding;
 public class CauseOfDeathConditionUtil {
 	public static final String conditionalClinicalSystemUrl = "http://terminology.hl7.org/CodeSystem/condition-clinical";
 	public static final String verificationSystemUrl = "http://terminology.hl7.org/CodeSystem/condition-ver-status";
-	public static final String categorySystemUrl = "http://hl7.org/fhir/us/core/ValueSet/us-core-condition-category";
 	public static final HashSet<CodeableConcept> conditionClinicalStatusSet = new HashSet<>(Arrays.asList(
 			new CodeableConcept().addCoding(new Coding(conditionalClinicalSystemUrl,"active","Active")),
 			new CodeableConcept().addCoding(new Coding(conditionalClinicalSystemUrl,"recurrence","Recurrence")),
@@ -24,10 +23,6 @@ public class CauseOfDeathConditionUtil {
 			new CodeableConcept().addCoding(new Coding(verificationSystemUrl,"confirmed","Confirmed")),
 			new CodeableConcept().addCoding(new Coding(verificationSystemUrl,"refuted","Refuted")),
 			new CodeableConcept().addCoding(new Coding(verificationSystemUrl,"entered-in-error","Entered-in-Error"))));
-	/*public static final HashSet<CodeableConcept> categorySet = new HashSet<>(Arrays.asList(
-			new CodeableConcept().addCoding(new Coding(categorySystemUrl,"problem-list-item","Problem List Item")),
-			new CodeableConcept().addCoding(new Coding(categorySystemUrl,"encounter-diagnosis","Encounter Diagnosis")),
-			new CodeableConcept().addCoding(new Coding(categorySystemUrl,"health-concern","Health Concern"))));*/
 	public static final CodeableConcept code = new CodeableConcept().addCoding(new Coding(CommonUtil.loincSystemUrl, "69453-9", "Cause of death [US Standard Certificate of Death]"));
 	public static final CodeableConcept intervalComponentCode = new CodeableConcept().addCoding(new Coding(CommonUtil.loincSystemUrl, "69440-6", "Disease onset to death interval"));
 

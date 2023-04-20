@@ -8,6 +8,7 @@ public class VRDRFhirContextDataStructuresOnly {
 
 	public VRDRFhirContextDataStructuresOnly() {
 		ctx = FhirContext.forR4();
+		// these types come from http://hl7.org/fhir/us/vrdr/index.html
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-activity-at-time-of-death",
 				ActivityAtTimeOfDeath.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-automated-underlying-cause-of-death",
@@ -16,7 +17,7 @@ public class VRDRFhirContextDataStructuresOnly {
 				AutopsyPerformedIndicator.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-birth-record-identifier",
 				BirthRecordIdentifier.class);
-		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-coded-content-bundle",
+		ctx.setDefaultTypeForProfile( "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-coded-bundle",
 				CauseOfDeathCodedContentBundle.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part1",
 				CauseOfDeathPart1.class);
@@ -58,7 +59,7 @@ public class VRDRFhirContextDataStructuresOnly {
 				DecedentSpouse.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-usual-work",
 				DecedentUsualWork.class);
-		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-demographic-coded-content-bundle",
+		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-demographic-coded-bundle",
 				DemographicCodedContentBundle.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-disposition-location",
 				DispositionLocation.class);
@@ -86,7 +87,7 @@ public class VRDRFhirContextDataStructuresOnly {
 				RecordAxisCauseOfDeath.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-surgery-date",
 				SurgeryDate.class);
-		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Tobacco-Use-Contributed-To-Death",
+		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-tobacco-use-contributed-to-death",
 				TobaccoUseContributedToDeath.class);
 	}
 

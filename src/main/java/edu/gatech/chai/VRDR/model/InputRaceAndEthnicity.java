@@ -13,6 +13,8 @@ import edu.gatech.chai.VRDR.model.util.InputRaceAndEthnicityUtil;
 @ResourceDef(name = "Observation", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-input-race-and-ethnicity")
 public class InputRaceAndEthnicity extends Observation {
 	public InputRaceAndEthnicity() {
+		super();
+		CommonUtil.initResource(this);
 		this.setCode(InputRaceAndEthnicityUtil.code);
 	}
 	
@@ -60,11 +62,7 @@ public class InputRaceAndEthnicity extends Observation {
 	public void addHispanicBooleanComponentUnknown(String codeName) {
 		addComponent(codeName, CommonUtil.findConceptFromCollectionUsingSimpleString("unknown", CommonUtil.yesNoUnknownSet));
 	}
-	
-	public void addHispanicBooleanComponent(String codeName, CodeableConcept value) {
-		addComponent(codeName, value);
-	}
-	
+
 	public void addMissingRaceValueReason(String value) {
 		CodeableConcept mrvrCodeableConcept = CommonUtil.findConceptFromCollectionUsingSimpleString(value, InputRaceAndEthnicityUtil.raceMissingValueReasonList);
 		addComponent("RACEMVR",mrvrCodeableConcept);
@@ -73,16 +71,19 @@ public class InputRaceAndEthnicity extends Observation {
 	public void addComponent(String codeName, BooleanType value) {
 		ObservationComponentComponent occ = addComponentCommon(codeName);
 		occ.setValue(value);
+		this.addComponent(occ);
 	}
 	
 	public void addComponent(String codeName, CodeableConcept value) {
 		ObservationComponentComponent occ = addComponentCommon(codeName);
 		occ.setValue(value);
+		this.addComponent(occ);
 	}
 	
 	public void addComponent(String codeName, StringType value) {
 		ObservationComponentComponent occ = addComponentCommon(codeName);
 		occ.setValue(value);
+		this.addComponent(occ);
 	}
 	
 	private ObservationComponentComponent addComponentCommon(String codeName) {
