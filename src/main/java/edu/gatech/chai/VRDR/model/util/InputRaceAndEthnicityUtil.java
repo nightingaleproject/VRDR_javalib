@@ -13,7 +13,7 @@ public class InputRaceAndEthnicityUtil {
 
     public static final CodeableConcept code = new CodeableConcept().addCoding(new Coding(codeAndComponentSystemUrl, "inputraceandethnicity", "Race and Ethnicity Data submitted by Jurisdictions to NCHS"));
 
-    public static final String hispanicCodingSystemUrl= "http://terminology.hl7.org/CodeSystem/v2-0136";
+    public static final String hispanicCodingSystemUrl= "http://hl7.org/CodeSystem/v2-0136";
     
 	public static Set<String> raceBooleanSystemStrings = new HashSet<String>(DecedentUtil.raceBooleanNVSSSet);
 	public static Set<String> raceLiteralSystemStrings = new HashSet<String>(DecedentUtil.raceLiteralNVSSSet);

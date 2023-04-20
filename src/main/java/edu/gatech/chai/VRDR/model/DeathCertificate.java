@@ -93,14 +93,9 @@ public class DeathCertificate extends Composition {
 			addResource(resource, DeathCertificateUtil.codedContentSectionCode);
 		}
 		else {
-<<<<<<< HEAD
 			throw new IllegalArgumentException("Resource not added successfully. " +
 				"id: "	+ resource.getId() +
 				"resourceType: " + resource.getClass().getCanonicalName());
-=======
-			System.out.println("resource not added successfuly Id: " + resource.getId());
-			System.out.println("resourceType: " + resource.getClass().getCanonicalName());
->>>>>>> 909bcd3 (first pass review of fixing library conformnace after first round of testing)
 		}
 	}
 	

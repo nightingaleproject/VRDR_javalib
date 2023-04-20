@@ -51,12 +51,8 @@ public class InputRaceAndEthnicity extends Observation {
 		addComponent(codeName, value);
 	}
 	
-	public void addRaceEthnicityLiteralComponent(String codeName, String value) {
-		addComponent(codeName, new StringType(value));
-	}
-
 	public void addRaceLiteralComponent(String codeName, String value) {
-		addComponent(codeName, value);
+		addComponent(codeName, new StringType(value));
 	}
 
 	public void addRaceLiteralComponent(String codeName, StringType value) {
