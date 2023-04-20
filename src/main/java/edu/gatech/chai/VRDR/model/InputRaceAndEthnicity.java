@@ -18,40 +18,50 @@ public class InputRaceAndEthnicity extends Observation {
 	
 	public InputRaceAndEthnicity(String... racesAndEthnicities) {
 		for(String raceOrEth:racesAndEthnicities) {
-			if(InputRaceAndEthnicityUtil.raceSystemStrings.contains(raceOrEth)) {
-				addRaceComponent(raceOrEth);
+			if(InputRaceAndEthnicityUtil.raceBooleanSystemStrings.contains(raceOrEth)) {
+				addRaceBooleanComponent(raceOrEth);
 			}
-			else if(InputRaceAndEthnicityUtil.ethnicitySystemStrings.contains(raceOrEth)) {
-				addHispanicEthnicityComponent(raceOrEth);
+			else if(InputRaceAndEthnicityUtil.raceLiteralSystemStrings.contains(raceOrEth)) {
+				addRaceLiteralComponent(raceOrEth, (String)null);
+			}
+			else if(InputRaceAndEthnicityUtil.hispanicCodedSystemStrings.contains(raceOrEth)) {
+				addHispanicBooleanComponent(raceOrEth);
 			}
 		}
 	}
-	
-	public void addRaceComponent(String codeName) {
+
+	public void addRaceBooleanComponent(String codeName) {
 		addComponent(codeName, new BooleanType(true));
 	}
-	
-	public void addRaceComponent(String codeName, boolean value) {
+	public void addRaceBooleanComponent(String codeName, boolean value) {
 		addComponent(codeName, new BooleanType(value));
 	}
 	
-	public void addRaceComponent(String codeName, BooleanType value) {
+	public void addRaceBooleanComponent(String codeName, BooleanType value) {
 		addComponent(codeName, value);
 	}
-	
-	public void addHispanicEthnicityComponent(String codeName) {
-		addComponent(codeName, CommonUtil.findConceptFromCollectionUsingSimpleString("Yes", CommonUtil.yesNoUnknownSet));
-	}
-	
-	public void addHispanicEthnicityComponent(String codeName, CodeableConcept value) {
-		addComponent(codeName, value);
-	}
-	
-	public void addHispanicEthnicityLiteralComponent(String codeName, String value) {
+
+	public void addRaceLiteralComponent(String codeName, String value) {
 		addComponent(codeName, new StringType(value));
 	}
+
+	public void addRaceLiteralComponent(String codeName, StringType value) {
+		addComponent(codeName, value);
+	}
+
+	public void addHispanicBooleanComponent(String codeName) {
+		addComponent(codeName, CommonUtil.findConceptFromCollectionUsingSimpleString("unknown", CommonUtil.yesNoUnknownSet));
+	}
+
+	public void addHispanicBooleanComponent(String codeName, boolean value) {
+		addComponent(codeName, CommonUtil.findConceptFromCollectionUsingSimpleString(value ? "Yes" : "No", CommonUtil.yesNoUnknownSet));
+	}
+
+	public void addHispanicBooleanComponentUnknown(String codeName) {
+		addComponent(codeName, CommonUtil.findConceptFromCollectionUsingSimpleString("unknown", CommonUtil.yesNoUnknownSet));
+	}
 	
-	public void addHispanicEthnicityLiteralComponent(String codeName, StringType value) {
+	public void addHispanicBooleanComponent(String codeName, CodeableConcept value) {
 		addComponent(codeName, value);
 	}
 	
@@ -78,6 +88,7 @@ public class InputRaceAndEthnicity extends Observation {
 	private ObservationComponentComponent addComponentCommon(String codeName) {
 		ObservationComponentComponent occ = new ObservationComponentComponent();
 		occ.setCode(new CodeableConcept().addCoding(new Coding(InputRaceAndEthnicityUtil.codeAndComponentSystemUrl,codeName,"")));
+		addComponent(occ);
 		return occ;
 	}
 

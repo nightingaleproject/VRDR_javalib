@@ -29,16 +29,33 @@ public class DecedentUtil {
 			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"M","Married")),
 			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"W","Widowed")),
 			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"D","Divorced")),
-			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"S","Never Marriew")),
+			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"S","Never Married")),
 			new CodeableConcept().addCoding(new Coding(maritalStatusURL,"L","Legally Separated")),
 			CommonUtil.unknownCode));
-	
-	public static final List<String> raceNVSSSet = Arrays.asList("White", "BlackOrAfricanAmerican",
-		"AmericanIndianOrAlaskaNative", "AsianIndian", "Chinese", "Filipino", "Japanese", "Korean", "Vietnamese",
-		"OtherAsian", "NativeHawaiian", "GuamanianOrChamorro", "Samoan","OtherPacificIslander","OtherRace",
-		"AmericanIndianOrAlaskaNativeLiteral","OtherAsianLiteral","OtherPacificIslanderLiteral","OtherRaceLiteral");
-	public static final List<String> ethnicityNVSSSet = Arrays.asList("HispanicMexican", "HispanicPuertoRican",
-			"HispanicOther", "HispanicCuban", "HispanicLiteral");
+
+	public static final List<String> raceBooleanNVSSSet = Arrays.asList("White", "BlackOrAfricanAmerican",
+			"AmericanIndianOrAlaskaNative", "AsianIndian", "Chinese", "Filipino", "Japanese", "Korean", "Vietnamese",
+			"OtherAsian", "NativeHawaiian", "GuamanianOrChamorro", "Samoan","OtherPacificIslander","OtherRace",
+			"FirstAmericanIndianOrAlaskaNativeLiteral",
+			"SecondAmericanIndianOrAlaskaNativeLiteral",
+			"FirstOtherAsianLiteral",
+			"SecondOtherAsianLiteral",
+			"FirstOtherPacificIslanderLiteral",
+			"SecondOtherPacificIslanderLiteral",
+			"FirstOtherRaceLiteral",
+			"SecondOtherRaceLiteral");
+	public static final List<String> raceLiteralNVSSSet = Arrays.asList(
+		"FirstAmericanIndianOrAlaskaNativeLiteral",
+		"SecondAmericanIndianOrAlaskaNativeLiteral",
+		"FirstOtherAsianLiteral",
+		"SecondOtherAsianLiteral",
+		"FirstOtherPacificIslanderLiteral",
+		"SecondOtherPacificIslanderLiteral",
+		"FirstOtherRaceLiteral",
+		"SecondOtherRaceLiteral",
+		"HispanicLiteral");
+	public static final List<String> hispanicCodedNVSSSet = Arrays.asList("HispanicMexican", "HispanicPuertoRican",
+			"HispanicOther", "HispanicCuban");
 	
 	public static Set<CodeableConcept> sexAtDeathSet = new HashSet<CodeableConcept>(Arrays.asList(
 			new CodeableConcept().addCoding(new Coding(administrativeGenderURL,"Male","Male")),

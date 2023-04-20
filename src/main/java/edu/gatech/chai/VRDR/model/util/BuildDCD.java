@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import edu.gatech.chai.VRDR.model.*;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Address.AddressUse;
 import org.hl7.fhir.r4.model.BooleanType;
@@ -23,33 +24,6 @@ import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.StringType;
 
-import edu.gatech.chai.VRDR.model.AutopsyPerformedIndicator;
-import edu.gatech.chai.VRDR.model.BirthRecordIdentifier;
-import edu.gatech.chai.VRDR.model.CauseOfDeathPart1;
-import edu.gatech.chai.VRDR.model.CauseOfDeathPart2;
-import edu.gatech.chai.VRDR.model.Certifier;
-import edu.gatech.chai.VRDR.model.DeathCertificate;
-import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
-import edu.gatech.chai.VRDR.model.DeathCertificationProcedure;
-import edu.gatech.chai.VRDR.model.DeathDate;
-import edu.gatech.chai.VRDR.model.DeathLocation;
-import edu.gatech.chai.VRDR.model.Decedent;
-import edu.gatech.chai.VRDR.model.DecedentAge;
-import edu.gatech.chai.VRDR.model.DecedentDispositionMethod;
-import edu.gatech.chai.VRDR.model.DecedentEducationLevel;
-import edu.gatech.chai.VRDR.model.DecedentFather;
-import edu.gatech.chai.VRDR.model.DecedentMilitaryService;
-import edu.gatech.chai.VRDR.model.DecedentMother;
-import edu.gatech.chai.VRDR.model.DecedentPregnancyStatus;
-import edu.gatech.chai.VRDR.model.DecedentSpouse;
-import edu.gatech.chai.VRDR.model.DecedentUsualWork;
-import edu.gatech.chai.VRDR.model.DispositionLocation;
-import edu.gatech.chai.VRDR.model.ExaminerContacted;
-import edu.gatech.chai.VRDR.model.FuneralHome;
-import edu.gatech.chai.VRDR.model.InjuryIncident;
-import edu.gatech.chai.VRDR.model.InjuryLocation;
-import edu.gatech.chai.VRDR.model.MannerOfDeath;
-import edu.gatech.chai.VRDR.model.TobaccoUseContributedToDeath;
 import edu.gatech.chai.VRDR.model.util.AddressUtil;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
 import edu.gatech.chai.VRDR.model.util.DecedentUtil;
@@ -243,7 +217,15 @@ public class BuildDCD {
     	tobaccoUseContributedToDeath.setSubject(decedentReference);
     	initResourceForTesting(tobaccoUseContributedToDeath);
     	contents.add(tobaccoUseContributedToDeath);
-    	
+		// Input Race and Ethnicity
+		InputRaceAndEthnicity inputRaceAndEthnicity = new InputRaceAndEthnicity();
+		inputRaceAndEthnicity.addRaceBooleanComponent("AmericanIndianOrAlaskanNative", true);
+		inputRaceAndEthnicity.addRaceLiteralComponent("FirstAmericanIndianOrAlaskanNativeLiteral", "Apache");
+		inputRaceAndEthnicity.addRaceLiteralComponent("SecondAmericanIndianOrAlaskanNativeLiteral", "Lipan Apache");
+		inputRaceAndEthnicity.addHispanicBooleanComponent("HispanicOther", true);
+		initResourceForTesting(inputRaceAndEthnicity);
+		contents.add(inputRaceAndEthnicity);
+
     	for(Resource resource:contents) {
     		deathCertificateDocument.addResource(resource);
     	}
