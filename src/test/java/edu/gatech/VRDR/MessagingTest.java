@@ -6,6 +6,7 @@ import edu.gatech.chai.VRDR.messaging.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
 import edu.gatech.chai.VRDR.model.*;
 import edu.gatech.chai.VRDR.model.util.CodedRaceAndEthnicityUtil;
+import edu.gatech.chai.VRDR.model.util.CommonUtil;
 import edu.gatech.chai.VRDR.model.util.MannerOfDeathUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -829,6 +830,39 @@ public class MessagingTest extends TestCase {
         assertEquals(OperationOutcome.IssueSeverity.WARNING, issues.get(1).getIssueSeverity());
         assertEquals(OperationOutcome.IssueType.EXPIRED, issues.get(1).getIssueType());
         assertEquals("The message was very old", issues.get(1).getDescription());
+    }
+
+    public void testCreateSubmissionWithRaceLiterals() {
+        // create a new death certificate and add it to a death record
+        DeathCertificate deathCertificate = new DeathCertificate();
+        DeathCertificateDocument deathRecord = new DeathCertificateDocument();
+        CommonUtil.initResource(deathCertificate);
+        deathRecord.addEntry(new Bundle.BundleEntryComponent().setResource(deathCertificate));
+
+        // create input race and ethnicity resource and add it to the death record
+        InputRaceAndEthnicity inputRaceAndEthnicity = new InputRaceAndEthnicity();
+        inputRaceAndEthnicity.addRaceBooleanComponent("AmericanIndianOrAlaskanNative", true);
+        inputRaceAndEthnicity.addRaceLiteralComponent("FirstAmericanIndianOrAlaskanNativeLiteral", "Apache");
+        inputRaceAndEthnicity.addRaceLiteralComponent("SecondAmericanIndianOrAlaskanNativeLiteral", "Lipan Apache");
+        inputRaceAndEthnicity.addHispanicBooleanComponent("HispanicOther", true);
+        CommonUtil.setUUID(inputRaceAndEthnicity);
+        deathRecord.addResource(inputRaceAndEthnicity);
+
+        // create a new submission message and add the death record to it
+        DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
+        submission.setDeathRecord(deathRecord);
+        submission.setCertNo(42);
+        submission.setStateAuxiliaryId("identifier");
+
+        // check that the added input race and ethnicity display in the json submission
+        String submissionBundleStr = submission.toJson(ctx);
+        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"AmericanIndianOrAlaskanNative\"}]},\"valueBoolean\":true}"));
+        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"FirstAmericanIndianOrAlaskanNativeLiteral\"}]},\"valueString\":\"Apache\"}"));
+        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"SecondAmericanIndianOrAlaskanNativeLiteral\"}]},\"valueString\":\"Lipan Apache\"}"));
+        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"HispanicOther\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://hl7.org/CodeSystem/v2-0136\",\"code\":\"Y\",\"display\":\"Yes\"}]}}"));
+
+        DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
+        assertNotNull(parsed); // make sure we can parse the race values without crashing
     }
 
 }
