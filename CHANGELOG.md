@@ -1,5 +1,10 @@
 ## Changelog
 
+### v1.4.1-STU2.1 - 2023-04-20
+
+* Numerous bug fixes found as part of testing certification with UT
+* Race Literal handling update as per VRDR IG
+
 ### v1.4.0-STU2 - 2023-02-10
 
 * Added support for VRDR Messaging IG
