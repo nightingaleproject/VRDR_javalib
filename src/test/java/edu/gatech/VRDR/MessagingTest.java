@@ -11,6 +11,7 @@ import edu.gatech.chai.VRDR.model.util.MannerOfDeathUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.StringType;
 
@@ -859,7 +860,7 @@ public class MessagingTest extends TestCase {
         assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"AmericanIndianOrAlaskanNative\"}]},\"valueBoolean\":true}"));
         assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"FirstAmericanIndianOrAlaskanNativeLiteral\"}]},\"valueString\":\"Apache\"}"));
         assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"SecondAmericanIndianOrAlaskanNativeLiteral\"}]},\"valueString\":\"Lipan Apache\"}"));
-        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"HispanicOther\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://hl7.org/CodeSystem/v2-0136\",\"code\":\"Y\",\"display\":\"Yes\"}]}}"));
+        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"HispanicOther\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0136\",\"code\":\"Y\",\"display\":\"Yes\"}]}}"));
 
         DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
         assertNotNull(parsed); // make sure we can parse the race values without crashing
