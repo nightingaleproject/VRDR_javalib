@@ -62,11 +62,7 @@ public class InputRaceAndEthnicity extends Observation {
 	public void addHispanicBooleanComponentUnknown(String codeName) {
 		addComponent(codeName, CommonUtil.findConceptFromCollectionUsingSimpleString("unknown", CommonUtil.yesNoUnknownSet));
 	}
-	
-	public void addHispanicBooleanComponent(String codeName, CodeableConcept value) {
-		addComponent(codeName, value);
-	}
-	
+
 	public void addMissingRaceValueReason(String value) {
 		CodeableConcept mrvrCodeableConcept = CommonUtil.findConceptFromCollectionUsingSimpleString(value, InputRaceAndEthnicityUtil.raceMissingValueReasonList);
 		addComponent("RACEMVR",mrvrCodeableConcept);
