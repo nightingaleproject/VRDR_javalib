@@ -1,5 +1,9 @@
 ## Changelog
 
+### v1.4.2-STU2.1 - 2023-04-25
+
+* Race Literal AlaskanNative typo fix
+
 ### v1.4.1-STU2.1 - 2023-04-20
 
 * Numerous bug fixes found as part of testing certification with UT
