@@ -42,19 +42,13 @@ public class DecedentUtil {
 			CommonUtil.unknownCode
 	));
 	public static final List<String> raceBooleanNVSSSet = Arrays.asList("White", "BlackOrAfricanAmerican",
-			"AmericanIndianOrAlaskaNative", "AsianIndian", "Chinese", "Filipino", "Japanese", "Korean", "Vietnamese",
-			"OtherAsian", "NativeHawaiian", "GuamanianOrChamorro", "Samoan","OtherPacificIslander","OtherRace",
-			"FirstAmericanIndianOrAlaskaNativeLiteral",
-			"SecondAmericanIndianOrAlaskaNativeLiteral",
-			"FirstOtherAsianLiteral",
-			"SecondOtherAsianLiteral",
-			"FirstOtherPacificIslanderLiteral",
-			"SecondOtherPacificIslanderLiteral",
-			"FirstOtherRaceLiteral",
-			"SecondOtherRaceLiteral");
+			"AmericanIndianOrAlaskanNative", "AsianIndian", "Chinese", "Filipino", "Japanese", "Korean", "Vietnamese",
+			"OtherAsian", "NativeHawaiian", "GuamanianOrChamorro", "Samoan","OtherPacificIslander","OtherRace"
+	);
+
 	public static final List<String> raceLiteralNVSSSet = Arrays.asList(
-		"FirstAmericanIndianOrAlaskaNativeLiteral",
-		"SecondAmericanIndianOrAlaskaNativeLiteral",
+		"FirstAmericanIndianOrAlaskanNativeLiteral",
+		"SecondAmericanIndianOrAlaskanNativeLiteral",
 		"FirstOtherAsianLiteral",
 		"SecondOtherAsianLiteral",
 		"FirstOtherPacificIslanderLiteral",
