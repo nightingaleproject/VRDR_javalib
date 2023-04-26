@@ -11,9 +11,7 @@ import edu.gatech.chai.VRDR.model.util.MannerOfDeathUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.OperationOutcome;
-import org.hl7.fhir.r4.model.StringType;
+import org.hl7.fhir.r4.model.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -848,6 +846,15 @@ public class MessagingTest extends TestCase {
         inputRaceAndEthnicity.addHispanicBooleanComponent("HispanicOther", true);
         CommonUtil.setUUID(inputRaceAndEthnicity);
         deathRecord.addResource(inputRaceAndEthnicity);
+
+        // test that bundle literals are readable
+        InputRaceAndEthnicity race = deathRecord.getInputRaceAndEthnicity().get(0);
+        assertTrue(race.getAmericanIndianOrAlaskaNativeBooleanValue());
+        assertEquals("Apache", race.getFirstAmericanIndianOrAlaskaNativeLiteralValue());
+        assertEquals("Lipan Apache", race.getSecondAmericanIndianOrAlaskaNativeLiteralValue());
+        assertEquals("Y", race.getHispanicOtherCodedValue());
+        assertFalse(race.getSamoanBooleanValue()); // should be false because it is not set
+        assertNull(race.getFirstOtherRaceLiteralValue()); // should be null because it is not set
 
         // create a new submission message and add the death record to it
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
