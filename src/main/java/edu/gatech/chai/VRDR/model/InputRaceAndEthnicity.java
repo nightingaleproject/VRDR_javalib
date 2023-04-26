@@ -1,5 +1,6 @@
 package edu.gatech.chai.VRDR.model;
 
+import edu.gatech.chai.VRDR.model.util.CodedRaceAndEthnicityUtil;
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -98,4 +99,131 @@ public class InputRaceAndEthnicity extends Observation {
 				codeableConcept.getCodingFirstRep());
 	}
 
+	public String getHispanicMexicanCodedValue() {
+		return getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicMexicanCodeComponentCode);
+	}
+
+	public String getHispanicPuertoRicanCodedValue() {
+		return getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicPuertoRicanCodeComponentCode);
+	}
+
+	public String getHispanicCubeanCodedValue() {
+		return getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicCubanCodeComponentCode);
+	}
+
+	public String getHispanicOtherCodedValue() {
+		return getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicOtherCodeComponentCode);
+	}
+
+	public String getHispanicLiteralValue() {
+		return getStringValueForCode("HispanicLiteral");
+	}
+
+	public boolean getWhiteBooleanValue() {
+		return getBooleanValueForCode("White");
+	}
+
+	public boolean getBlackOrAfricanAmericanBooleanValue() {
+		return getBooleanValueForCode("BlackOrAfricanAmerican");
+	}
+
+	public boolean getAmericanIndianOrAlaskaNativeBooleanValue() {
+		return getBooleanValueForCode("AmericanIndianOrAlaskanNative");
+	}
+
+	public boolean getAsianIndianBooleanValue() {
+		return getBooleanValueForCode("AsianIndian");
+	}
+
+	public boolean getChineseBooleanValue() {
+		return getBooleanValueForCode("Chinese");
+	}
+
+	public boolean getFilipinoBooleanValue() {
+		return getBooleanValueForCode("Filipino");
+	}
+
+	public boolean getJapaneseBooleanValue() {
+		return getBooleanValueForCode("Japanese");
+	}
+
+	public boolean getKoreanBooleanValue() {
+		return getBooleanValueForCode("Korean");
+	}
+
+	public boolean getVietnameseBooleanValue() {
+		return getBooleanValueForCode("Vietnamese");
+	}
+
+	public boolean getOtherAsianBooleanValue() {
+		return getBooleanValueForCode("OtherAsian");
+	}
+
+	public boolean getNativeHawaiianBooleanValue() {
+		return getBooleanValueForCode("NativeHawaiian");
+	}
+
+	public boolean getGuamanianOrChamorroBooleanValue() {
+		return getBooleanValueForCode("GuamanianOrChamorro");
+	}
+
+	public boolean getSamoanBooleanValue() {
+		return getBooleanValueForCode("Samoan");
+	}
+
+	public boolean getOtherPacificIslanderBooleanValue() {
+		return getBooleanValueForCode("OtherPacificIslander");
+	}
+
+	public boolean getOtherRaceBooleanValue() {
+		return getBooleanValueForCode("OtherRace");
+	}
+
+	public String getFirstAmericanIndianOrAlaskaNativeLiteralValue() {
+		return getStringValueForCode("FirstAmericanIndianOrAlaskanNativeLiteral");
+	}
+
+	public String getSecondAmericanIndianOrAlaskaNativeLiteralValue() {
+		return getStringValueForCode("SecondAmericanIndianOrAlaskanNativeLiteral");
+	}
+
+	public String getFirstOtherAsianLiteralValue() {
+		return getStringValueForCode("FirstOtherAsianLiteral");
+	}
+
+	public String getSecondOtherAsianLiteralValue() {
+		return getStringValueForCode("SecondOtherAsianLiteral");
+	}
+
+	public String getFirstOtherPacificIslanderLiteralValue() {
+		return getStringValueForCode("FirstOtherPacificIslanderLiteral");
+	}
+
+	public String getSecondOtherPacificIslanderLiteralValue() {
+		return getStringValueForCode("SecondOtherPacificIslanderLiteral");
+	}
+
+	public String getFirstOtherRaceLiteralValue() {
+		return getStringValueForCode("FirstOtherRaceLiteral");
+	}
+
+	public String getSecondOtherRaceLiteralValue() {
+		return getStringValueForCode("SecondOtherRaceLiteral");
+	}
+
+	public boolean getBooleanValueForCode(String codeName) {
+		return getComponent().stream().filter(x ->
+			x.getCode().getCodingFirstRep().getCode().equals(codeName))
+			.findFirst()
+			.orElse(new Observation.ObservationComponentComponent().setValue(new BooleanType(false)))
+			.getValueBooleanType().booleanValue();
+	}
+
+	public String getStringValueForCode(String codeName) {
+		return getComponent().stream().filter(x ->
+			x.getCode().getCodingFirstRep().getCode().equals(codeName))
+			.findFirst()
+			.orElse(new Observation.ObservationComponentComponent())
+			.getValueStringType().getValue();
+	}
 }
