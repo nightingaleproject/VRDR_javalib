@@ -157,6 +157,10 @@ public class BaseMessage extends Bundle {
         }
     }
 
+    public String getMessageHeaderId() {
+        return messageHeader != null ? messageHeader.getId() : null;
+    }
+
     protected String getIGMessageType() {
         return null; // override for specific IG message types in subclass
     }

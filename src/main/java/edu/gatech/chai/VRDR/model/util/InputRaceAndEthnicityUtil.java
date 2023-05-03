@@ -9,9 +9,10 @@ import org.hl7.fhir.r4.model.Coding;
 
 public class InputRaceAndEthnicityUtil {
 
-    public static final String codeAndComponentSystemUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs";
+    public static final String codeSystemUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-observations-cs";
+    public static final String componentSystemUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs";
 
-    public static final CodeableConcept code = new CodeableConcept().addCoding(new Coding(codeAndComponentSystemUrl, "inputraceandethnicity", "Race and Ethnicity Data submitted by Jurisdictions to NCHS"));
+    public static final CodeableConcept code = new CodeableConcept().addCoding(new Coding(codeSystemUrl, "inputraceandethnicity", "Race and Ethnicity Data submitted by Jurisdictions to NCHS"));
 
     public static final String hispanicCodingSystemUrl= "http://hl7.org/CodeSystem/v2-0136";
     

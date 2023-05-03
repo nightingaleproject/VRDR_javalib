@@ -32,4 +32,10 @@ public class InjuryIncidentUtil {
 	public static final CodeableConcept POI_UNSPECIFIED = new CodeableConcept().addCoding(new Coding(componentPlaceOfInjuryValueSystem,"9","Unpecified Place"));
 	public static Set<CodeableConcept> placeOfInjuryValueSet = new HashSet<CodeableConcept>(Arrays.asList(
 			POI_HOME,POI_RES,POI_SCHOOL,POI_SPORT,POI_STREET,POI_TRADE,POI_INDUSTRY,POI_FARM,POI_OTHER,POI_UNSPECIFIED));
+	public static final CodeableConcept transportationRoleCode = new CodeableConcept().addCoding(new Coding(CommonUtil.loincSystemUrl, "69451-3", "Transportation role of decedent"));
+	public static final CodeableConcept driverRoleCode = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl, "236320001", "Vehicle driver"));
+	public static final CodeableConcept passengerRoleCode = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl, "257500003", "Passenger"));
+	public static final CodeableConcept pedestrianRoleCode = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl, "257518000", "Pedestrian"));
+	public static Set<CodeableConcept> transportationRoleValueSet = new HashSet<CodeableConcept>(Arrays.asList(
+		driverRoleCode,passengerRoleCode,pedestrianRoleCode,CommonUtil.otherCode, CommonUtil.unknownCode));
 }

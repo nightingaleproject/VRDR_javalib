@@ -192,12 +192,12 @@ public class DeathCertificateDocument extends Bundle {
 		List<Resource> resources = getRecords(MannerOfDeath.class);
 		return castListOfRecords(resources);
 	}
-	
-	public List<Mortician> getMortician(){
-		List<Resource> resources = getRecords(Mortician.class);
+
+	public List<Practitioner> getMortician(){
+		List<Resource> resources = getRecords(Practitioner.class);
 		return castListOfRecords(resources);
 	}
-	
+
 	public List<TobaccoUseContributedToDeath> getTobaccoUseContributedToDeath(){
 		List<Resource> resources = getRecords(TobaccoUseContributedToDeath.class);
 		return castListOfRecords(resources);

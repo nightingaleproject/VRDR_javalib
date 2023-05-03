@@ -229,7 +229,7 @@ public class MessagingTest extends TestCase {
                 "src/test/resources/json/DeathRecordSubmissionMessage.json");
         AcknowledgementMessage ack = new AcknowledgementMessage(submission);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
-        assertEquals(submission.getId(), ack.getAckedMessageId());
+        assertEquals(submission.getMessageHeaderId(), ack.getAckedMessageId());
         assertEquals(submission.getMessageSource(), ack.getMessageDestination());
         assertEquals(submission.getMessageDestination(), ack.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
@@ -252,7 +252,7 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         AcknowledgementMessage ack = new AcknowledgementMessage(submission);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
-        assertEquals(submission.getId(), ack.getAckedMessageId());
+        assertEquals(submission.getMessageHeaderId(), ack.getAckedMessageId());
         assertEquals(submission.getMessageSource(), ack.getMessageDestination());
         assertEquals(submission.getMessageDestination(), ack.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
@@ -265,7 +265,7 @@ public class MessagingTest extends TestCase {
                 "src/test/resources/json/DeathRecordSubmissionMessage.json");
         CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(submission);
         assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingMessage", coding.getMessageType());
-        assertEquals(submission.getId(), coding.getCodedMessageId());
+        assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
@@ -288,7 +288,7 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(submission);
         assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingMessage", coding.getMessageType());
-        assertEquals(submission.getId(), coding.getCodedMessageId());
+        assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
@@ -300,7 +300,7 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json");
         DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
         assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingMessage", coding.getMessageType());
-        assertEquals(submission.getId(), coding.getCodedMessageId());
+        assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
@@ -323,7 +323,7 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
         assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingMessage", coding.getMessageType());
-        assertEquals(submission.getId(), coding.getCodedMessageId());
+        assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
@@ -561,7 +561,7 @@ public class MessagingTest extends TestCase {
         StatusMessage status = new StatusMessage(submission, "manualCauseOfDeathCoding");
         assertEquals("http://nchs.cdc.gov/vrdr_status", status.getMessageType());
         assertEquals("manualCauseOfDeathCoding", status.getStatus());
-        assertEquals(submission.getId(), status.getStatusedMessageId());
+        assertEquals(submission.getMessageHeaderId(), status.getStatusedMessageId());
         assertEquals(submission.getMessageSource(), status.getMessageDestination());
         assertEquals(submission.getMessageDestination(), status.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), status.getStateAuxiliaryId());
@@ -583,7 +583,7 @@ public class MessagingTest extends TestCase {
         status = new StatusMessage(submission, "manualCauseOfDeathCoding");
         assertEquals("http://nchs.cdc.gov/vrdr_status", status.getMessageType());
         assertEquals("manualCauseOfDeathCoding", status.getStatus());
-        assertEquals(submission.getId(), status.getStatusedMessageId());
+        assertEquals(submission.getMessageHeaderId(), status.getStatusedMessageId());
         assertEquals(submission.getMessageSource(), status.getMessageDestination());
         assertEquals(submission.getMessageDestination(), status.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), status.getStateAuxiliaryId());
@@ -596,7 +596,7 @@ public class MessagingTest extends TestCase {
         DeathRecordVoidMessage voidMessage = BaseMessage.parseJsonFile(DeathRecordVoidMessage.class, ctx, "src/test/resources/json/DeathRecordVoidMessage.json");
         AcknowledgementMessage ack = new AcknowledgementMessage(voidMessage);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
-        assertEquals(voidMessage.getId(), ack.getAckedMessageId());
+        assertEquals(voidMessage.getMessageHeaderId(), ack.getAckedMessageId());
         assertEquals(voidMessage.getMessageSource(), ack.getMessageDestination());
         assertEquals(voidMessage.getMessageDestination(), ack.getMessageSource());
         assertEquals(voidMessage.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
@@ -618,7 +618,7 @@ public class MessagingTest extends TestCase {
         voidMessage = new DeathRecordVoidMessage();
         ack = new AcknowledgementMessage(voidMessage);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
-        assertEquals(voidMessage.getId(), ack.getAckedMessageId());
+        assertEquals(voidMessage.getMessageHeaderId(), ack.getAckedMessageId());
         assertEquals(voidMessage.getMessageSource(), ack.getMessageDestination());
         assertEquals(voidMessage.getMessageDestination(), ack.getMessageSource());
         assertEquals(voidMessage.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
@@ -632,7 +632,7 @@ public class MessagingTest extends TestCase {
                 "src/test/resources/json/StatusMessage.json");
         AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
-        assertEquals(statusMessage.getId(), ack.getAckedMessageId());
+        assertEquals(statusMessage.getMessageHeaderId(), ack.getAckedMessageId());
         assertEquals(statusMessage.getMessageSource(), ack.getMessageDestination());
         assertEquals(statusMessage.getMessageDestination(), ack.getMessageSource());
         assertEquals(statusMessage.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
@@ -652,7 +652,7 @@ public class MessagingTest extends TestCase {
         statusMessage = new StatusMessage();
         ack = new AcknowledgementMessage(statusMessage);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
-        assertEquals(statusMessage.getId(), ack.getAckedMessageId());
+        assertEquals(statusMessage.getMessageHeaderId(), ack.getAckedMessageId());
         assertEquals(statusMessage.getMessageSource(), ack.getMessageDestination());
         assertEquals(statusMessage.getMessageDestination(), ack.getMessageSource());
         assertEquals(statusMessage.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
@@ -733,7 +733,7 @@ public class MessagingTest extends TestCase {
         DeathRecordAliasMessage message = BaseMessage.parseJsonFile(DeathRecordAliasMessage.class, ctx, "src/test/resources/json/DeathRecordAliasMessage.json");
         AcknowledgementMessage ack = new AcknowledgementMessage(message);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
-        assertEquals(message.getId(), ack.getAckedMessageId());
+        assertEquals(message.getMessageHeaderId(), ack.getAckedMessageId());
         assertEquals(message.getMessageSource(), ack.getMessageDestination());
         assertEquals(message.getMessageDestination(), ack.getMessageSource());
         assertEquals(message.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
