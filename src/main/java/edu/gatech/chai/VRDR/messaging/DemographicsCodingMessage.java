@@ -44,7 +44,7 @@ public class DemographicsCodingMessage extends BaseMessage implements DocumentBu
     }
 
     public DemographicsCodingMessage(BaseMessage messageToCode) {
-        this(messageToCode == null ? null : messageToCode.getId(),
+        this(messageToCode == null ? null : messageToCode.getMessageHeaderId(),
                 messageToCode == null ? null : messageToCode.getMessageDestination(),
                 messageToCode == null ? null : messageToCode.getMessageSource());
         setCertNo(messageToCode == null ? null : messageToCode.getCertNo());

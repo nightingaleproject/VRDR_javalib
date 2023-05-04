@@ -2,6 +2,7 @@ package edu.gatech.chai.VRDR.context;
 
 import ca.uhn.fhir.context.FhirContext;
 import edu.gatech.chai.VRDR.model.*;
+import org.hl7.fhir.r4.model.Practitioner;
 
 public class VRDRFhirContextDataStructuresOnly {
 	FhirContext ctx;
@@ -79,8 +80,8 @@ public class VRDRFhirContextDataStructuresOnly {
 				MannerOfDeath.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-manual-underlying-cause-of-death",
 				ManualUnderlyingCauseOfDeath.class);
-		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-mortician",
-				Mortician.class);
+		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/us-core-practitioner",
+				Practitioner.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-place-of-injury",
 				PlaceOfInjury.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-record-axis-cause-of-death",

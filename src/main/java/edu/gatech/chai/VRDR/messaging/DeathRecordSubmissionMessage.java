@@ -12,13 +12,15 @@ import org.hl7.fhir.r4.model.ResourceType;
 @ResourceDef(name = "DeathRecordSubmissionMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage")
 public class DeathRecordSubmissionMessage extends BaseMessage implements DocumentBundler<DeathCertificateDocument> {
 
+    private static final long serialVersionUID = 1L;
+
     public static final String MESSAGE_TYPE = "http://nchs.cdc.gov/vrdr_submission";
 
     protected DeathCertificateDocument deathRecord;
 
     public static DeathRecordSubmissionMessage fromDeathRecord(DeathCertificateDocument deathRecord) {
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
-        submission.deathRecord = deathRecord;
+        submission.setDeathRecord(deathRecord);
         submission.extractBusinessIdentifiers(deathRecord);
         return submission;
     }
@@ -50,7 +52,9 @@ public class DeathRecordSubmissionMessage extends BaseMessage implements Documen
 
     public void setDeathRecord(DeathCertificateDocument deathRecord) {
         this.deathRecord = deathRecord;
-        addBundleEntryAndLinkToHeader(this, messageHeader, deathRecord);
+        if (deathRecord != null) {
+            addBundleEntryAndLinkToHeader(this, messageHeader, deathRecord);
+        }
     }
 
 

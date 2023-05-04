@@ -190,10 +190,6 @@ public class BuildDCD {
     	FuneralHome funeralHome = new FuneralHome("Home Bodies Funeral Services", hospitalAddress);
     	initResourceForTesting(funeralHome);
     	contents.add(funeralHome);
-    	//Mortician TODO: Change from Mortician Resource -> USCorePractitioner
-    	/*Mortician mortician = new Mortician(pronouncerName,"1",qualifierCode);
-    	initResourceForTesting(mortician);
-    	contents.add(mortician); */
     	//InjuryIncident
     	InjuryIncident injuryIncident = new InjuryIncident(decedent, "Home", "No", "No");
     	initResourceForTesting(injuryIncident);

@@ -17,7 +17,7 @@ public class StatusMessage extends BaseMessage {
     }
 
     public StatusMessage(BaseMessage messageToStatus) {
-        this(messageToStatus == null ? null : messageToStatus.getId(),
+        this(messageToStatus == null ? null : messageToStatus.getMessageHeaderId(),
                 messageToStatus == null ? null : messageToStatus.getMessageSource(),
                 messageToStatus == null ? null : messageToStatus.getMessageDestination());
         setCertNo(messageToStatus == null ? null : messageToStatus.getCertNo());

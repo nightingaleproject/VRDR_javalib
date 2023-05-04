@@ -63,10 +63,14 @@ public class DeathCertificate extends Composition {
 	private void addAttesterBase(Resource resource,Date time) {
 		CompositionAttesterComponent component = addAttesterCommon();
 		component.setTime(time);
-		component.setParty(new Reference(resource.getId()));
+		String resourceId = resource.getId();
+		Reference resourceRef = !resourceId.startsWith("urn:uuid:")
+			? new Reference("urn:uuid:" + resourceId)
+			: new Reference(resourceId);
+		component.setParty(resourceRef);
 		addAttester(component);
 		// author is required from VRDR IG http://hl7.org/fhir/us/vrdr/StructureDefinition-vrdr-death-certificate.html
-		addAuthor(new Reference(resource.getId()));
+		addAuthor(resourceRef);
 	}
 
 	public void addEvent(DeathCertificationProcedure resource) {

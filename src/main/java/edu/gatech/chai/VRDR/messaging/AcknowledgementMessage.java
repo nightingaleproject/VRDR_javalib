@@ -20,7 +20,7 @@ public class AcknowledgementMessage extends BaseMessage {
     }
 
     public AcknowledgementMessage(BaseMessage messageToAck) {
-        this(messageToAck == null ? null : messageToAck.getId(),
+        this(messageToAck == null ? null : messageToAck.getMessageHeaderId(),
                 messageToAck == null ? null : messageToAck.getMessageSource(),
                 messageToAck == null ? null : messageToAck.getMessageDestination());
         setCertNo(messageToAck == null ? null : messageToAck.getCertNo());

@@ -89,7 +89,7 @@ public class InputRaceAndEthnicity extends Observation {
 	
 	private ObservationComponentComponent addComponentCommon(String codeName) {
 		ObservationComponentComponent occ = new ObservationComponentComponent();
-		occ.setCode(new CodeableConcept().addCoding(new Coding(InputRaceAndEthnicityUtil.codeAndComponentSystemUrl,codeName,"")));
+		occ.setCode(new CodeableConcept().addCoding(new Coding(InputRaceAndEthnicityUtil.componentSystemUrl,codeName,"")));
 		addComponent(occ);
 		return occ;
 	}
