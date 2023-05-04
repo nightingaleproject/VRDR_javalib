@@ -24,6 +24,7 @@ public class MessagingTest extends TestCase {
     private DeathCertificateDocument deathRecord1FromXML;
     private DeathCertificateDocument deathRecord1;
     private DeathCertificateDocument deathRecordNoIdentifiers;
+    private DeathCertificateDocument deathRecordPronouncementTimeOnly;
 
     public MessagingTest(String testName) {
         super(testName);
@@ -31,6 +32,7 @@ public class MessagingTest extends TestCase {
         deathRecord1FromXML = BaseMessage.parseXMLFile(DeathCertificateDocument.class, ctx, "src/test/resources/xml/DeathRecord1.xml");
         deathRecord1 = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1.json");
         deathRecordNoIdentifiers = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecordNoIdentifiers.json");
+        deathRecordPronouncementTimeOnly = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecordPronouncementTimeOnly.json");
     }
 
     public static Test suite() {
@@ -91,6 +93,12 @@ public class MessagingTest extends TestCase {
         assertNull(submission.getCertNo());
         assertNull(submission.getStateAuxiliaryId());
         assertNull(submission.getNCHSIdentifier());
+    }
+
+    public void testCreateSubmissionFromDeathRecordPronouncementTimeOnly() {
+        DeathRecordSubmissionMessage submission = DeathRecordSubmissionMessage.fromDeathRecord(deathRecordPronouncementTimeOnly);
+        assertNotNull(submission.getDeathRecord());
+        assertEquals("16:48:06", submission.getDeathRecord().getDateOfDeathPronouncement());
     }
 
     public void testCreateSubmissionFromJson() {

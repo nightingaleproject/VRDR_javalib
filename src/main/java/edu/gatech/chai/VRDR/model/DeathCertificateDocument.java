@@ -211,7 +211,13 @@ public class DeathCertificateDocument extends Bundle {
 			for (Observation.ObservationComponentComponent component : date.getComponent()) {
 				for (Coding coding : component.getCode().getCoding()) {
 					if (coding.getCode().equals(LOINC_CODE_DATE_PRONOUNCED_DEAD)) {
-						return component.getValueDateTimeType().getValueAsString();
+						Type value = component.getValue();
+						if (value instanceof DateTimeType) {
+							return ((DateTimeType) value).getValueAsString();
+						}
+						else if (value instanceof TimeType) {
+							return ((TimeType) value).getValueAsString();
+						}
 					}
 				}
 			}
