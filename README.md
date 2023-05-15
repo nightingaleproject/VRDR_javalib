@@ -245,8 +245,8 @@ Optionally, use the command line tool to generate example records for Canary tes
 You can also output XML instead of JSON by passing the ```--xml``` option.
 
 
-# Creating death record
-
+#### Creating death record
+```cs
 VRDRFhirContext ctx = new VRDRFhirContext();
 
 // creating death record from xml data file 
@@ -257,10 +257,10 @@ DeathCertificateDocument deathRecordFromJson = BaseMessage.parseJsonFile(DeathCe
 
 // creating death record with no identifiers from json data file
 DeathCertificateDocument deathRecordNoIdentifiers = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "path-to-json-data-file/DeathRecordNoIdentifiers.json");
-  
+```
 
-# Create submission message for death record
-
+#### Create submission message for death record
+```cs
 // Create submission message from Bundle
 DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
 submission.setDeathRecord(new DeathCertificateDocument());
@@ -292,15 +292,13 @@ DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordS
 VRDRFhirContext ctx = new VRDRFhirContext();
 DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "path-to-json-data-file/EmptySubmission.json");
 
-
 // Create submission message from wrong structure in json data file
 VRDRFhirContext ctx = new VRDRFhirContext();
 AcknowledgementMessage acknowledgementMessage = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "path-to-json-data-file/DeathRecordSubmissionMessage.json");
+```
 
-
-
-# Create acknowledgenent for submission message
-
+#### Create acknowledgenent for submission message
+```cs
 // Create general Ack
 VRDRFhirContext ctx = new VRDRFhirContext();
 DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "path-to-json-data-file/DeathRecordSubmissionMessage.json");
@@ -323,10 +321,10 @@ VRDRFhirContext ctx = new VRDRFhirContext();
 AcknowledgementMessage ackBundle = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "path-to-json-data-file/AcknowledgementMessage.json");
 String bundleString = ackBundle.toJson(ctx, false);
 AcknowledgementMessage ack = BaseMessage.parseJson(AcknowledgementMessage.class, ctx, bundleString);
+```
 
-
-# Create coding message
-
+#### Create coding message
+```cs
 // Create cause of death coding message
 VRDRFhirContext ctx = new VRDRFhirContext();
 DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "path-to-json-data-file/DeathRecordSubmissionMessage.json");
@@ -343,10 +341,10 @@ CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(submission);
 VRDRFhirContext ctx = new VRDRFhirContext();
 StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx, "src/test/resources/json/StatusMessage.json");
 AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
+```
 
-
-# Create coding response
-
+#### Create coding response
+```cs
 // Create cause of death coding response from json data file
 VRDRFhirContext ctx = new VRDRFhirContext();
 CauseOfDeathCodingMessage message = BaseMessage.parseJsonFile(CauseOfDeathCodingMessage.class, ctx, "path-to-json-data-file/CauseOfDeathCodingMessage.json");
@@ -359,15 +357,14 @@ CauseOfDeathCodedContentBundle bundle = message.getCauseOfDeathCodedContentBundl
 
     // By getting CodingStatusValues from bundle
     CodingStatusValues codingStatusValues = bundle.getCodingStatusValues();
+```
 
-
-# Create status message
-
+#### Create status message
+```cs
 VRDRFhirContext ctx = new VRDRFhirContext();
 DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json");
 StatusMessage status = new StatusMessage(submission, "manualCauseOfDeathCoding");
-
-
+```
 
 # Publishing a Version
 
