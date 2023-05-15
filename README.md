@@ -371,11 +371,11 @@ StatusMessage status = new StatusMessage(submission, "manualCauseOfDeathCoding")
 To create a new release of the VRDR Java Library:
 
 1. Update the CHANGELOG.md file with information on what is changing in the release
-2. Create a pull request and merge the above changes to master
-3. Create a GitHub release
+1. Create a pull request and merge the above changes to master
+1. Create a GitHub release
     1. Go to the Releases page
-    2. Click on "Draft a new release"
-    3. Create a new release version on the tag and release (e.g., v1.4.0-STU2.1)
-    4. Copy the information from the CHANGELOG.md file from this version into the release description
-    5. Do not check the "pre-release" button, even for preview releases, since those don't show up on the main GitHub page
+    1. Click on "Draft a new release"
+    1. Create a new release version on the tag and release (e.g., v1.4.0-STU2.1)
+    1. Copy the information from the CHANGELOG.md file from this version into the release description
+    1. Do not check the "pre-release" button, even for preview releases, since those don't show up on the main GitHub page
 
