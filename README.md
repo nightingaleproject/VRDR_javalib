@@ -244,7 +244,7 @@ Optionally, use the command line tool to generate example records for Canary tes
 
 You can also output XML instead of JSON by passing the ```--xml``` option.
 
-
+# Coding Examples
 #### Creating death record
 ```cs
 VRDRFhirContext ctx = new VRDRFhirContext();
