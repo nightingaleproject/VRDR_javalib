@@ -349,14 +349,15 @@ AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
 VRDRFhirContext ctx = new VRDRFhirContext();
 CauseOfDeathCodingMessage message = BaseMessage.parseJsonFile(CauseOfDeathCodingMessage.class, ctx, "path-to-json-data-file/CauseOfDeathCodingMessage.json");
 CauseOfDeathCodedContentBundle bundle = message.getCauseOfDeathCodedContentBundle();
-    // By getting list of RecordAxisCauseOfDeath from bundle
-    List<RecordAxisCauseOfDeath> recordAxis = bundle.getRecordAxisCauseOfDeath();
 
-    // By getting list of EntityAxisCauseOfDeath from bundle
-    List<EntityAxisCauseOfDeath> entityAxis = bundle.getEntityAxisCauseOfDeath();
+// By getting list of RecordAxisCauseOfDeath from bundle
+List<RecordAxisCauseOfDeath> recordAxis = bundle.getRecordAxisCauseOfDeath();
 
-    // By getting CodingStatusValues from bundle
-    CodingStatusValues codingStatusValues = bundle.getCodingStatusValues();
+// By getting list of EntityAxisCauseOfDeath from bundle
+List<EntityAxisCauseOfDeath> entityAxis = bundle.getEntityAxisCauseOfDeath();
+
+// By getting CodingStatusValues from bundle
+CodingStatusValues codingStatusValues = bundle.getCodingStatusValues();
 ```
 
 #### Create status message
