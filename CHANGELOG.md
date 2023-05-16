@@ -1,5 +1,12 @@
 ## Changelog
 
+### 4.0.1 - 2023-05-16
+
+* Sync of race and ethnicity literal fields with VRDR IG latest build
+* Added support for valueTime in Date of Death Pronounced as per VRDR IG
+* Removed Mortician class as not useful or used in the library
+* Corrected numerous FHIR profile ID and mapping errors
+
 ### v1.4.3-STU2.1 - 2023-04-26
 
 * Race Literal Helper Methods
