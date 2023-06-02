@@ -128,9 +128,6 @@
             <reference value="urn:uuid:8094a2a5-5725-4c97-9b0e-86bcc6388cdd" />
           </entry>
           <entry>
-            <reference value="urn:uuid:e84c4aaf-7ba8-468a-8aea-227860574b9a" />
-          </entry>
-          <entry>
             <reference value="urn:uuid:a9a45b6c-566c-4ad7-bce7-8c23751b669d" />
           </entry>
         </section>
@@ -385,7 +382,7 @@
       <Practitioner>
         <id value="66d3d773-2056-4180-865d-ef0bb0eb13ef" />
         <meta>
-          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-mortician" />
+          <profile value="http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner" />
         </meta>
         <identifier>
           <system value="http://hl7.org/fhir/sid/us-npi" />
@@ -407,7 +404,7 @@
       <Practitioner>
         <id value="a9a45b6c-566c-4ad7-bce7-8c23751b669d" />
         <meta>
-          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-pronouncement-performer" />
+          <profile value="http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner" />
         </meta>
         <identifier>
           <system value="http://hl7.org/fhir/sid/us-npi" />
@@ -671,7 +668,7 @@
       <PractitionerRole>
         <id value="e7f8c2e3-a865-48a2-8284-a7adc22e2372" />
         <meta>
-          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-funeral-service-licensee" />
+          <profile value="http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner" />
         </meta>
         <practitioner>
           <reference value="urn:uuid:66d3d773-2056-4180-865d-ef0bb0eb13ef" />
@@ -812,7 +809,7 @@
         </performer>
         <valueCodeableConcept>
           <coding>
-            <system value="http://hl7.org/fhir/sid/icd-10" />
+            <system value="http://hl7.org/fhir/ValueSet/icd-10" />
             <code value="I21.0" />
             <display value="Acute transmural myocardial infarction of anterior wall" />
           </coding>
@@ -866,7 +863,7 @@
         </performer>
         <valueCodeableConcept>
           <coding>
-            <system value="http://hl7.org/fhir/sid/icd-10" />
+            <system value="http://hl7.org/fhir/ValueSet/icd-10" />
             <code value="I21.9" />
             <display value="Acute myocardial infarction, unspecified" />
           </coding>
@@ -1361,7 +1358,7 @@
       <Observation>
         <id value="437fe2c1-7701-4b72-a9f3-bc6e7575508e" />
         <meta>
-          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-pregnancy" />
+          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-pregnancy-status" />
         </meta>
         <status value="final" />
         <code>
@@ -1388,35 +1385,6 @@
             <system value="http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-pregnancy-status-cs" />
             <code value="1" />
             <display value="Not pregnant within past year" />
-          </coding>
-        </valueCodeableConcept>
-      </Observation>
-    </resource>
-  </entry>
-  <entry>
-    <fullUrl value="urn:uuid:e84c4aaf-7ba8-468a-8aea-227860574b9a" />
-    <resource>
-      <Observation>
-        <id value="e84c4aaf-7ba8-468a-8aea-227860574b9a" />
-        <meta>
-          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-transportation-role" />
-        </meta>
-        <status value="final" />
-        <code>
-          <coding>
-            <system value="http://loinc.org" />
-            <code value="69451-3" />
-            <display value="Transportation role of decedent " />
-          </coding>
-        </code>
-        <subject>
-          <reference value="urn:uuid:0042d54e-25fe-426d-8a3e-d002369951d8" />
-        </subject>
-        <valueCodeableConcept>
-          <coding>
-            <system value="http://snomed.info/sct" />
-            <code value="257500003" />
-            <display value="Passenger" />
           </coding>
         </valueCodeableConcept>
       </Observation>
@@ -1520,7 +1488,7 @@
       <Observation>
         <id value="90989981-753d-4443-b137-7feac80d7271" />
         <meta>
-          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-injuryincident" />
+          <profile value="	http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-injury-incident" />
         </meta>
         <status value="final" />
         <code>
@@ -1547,22 +1515,6 @@
               <system value="http://terminology.hl7.org/CodeSystem/v2-0136" />
               <code value="N" />
               <display value="No" />
-            </coding>
-          </valueCodeableConcept>
-        </component>
-        <component>
-          <code>
-            <coding>
-              <system value="http://loinc.org" />
-              <code value="69451-3" />
-              <display value="Transportation role of decedent" />
-            </coding>
-          </code>
-          <valueCodeableConcept>
-            <coding>
-              <system value="http://snomed.info/sct" />
-              <code value="257500003" />
-              <display value="Passenger" />
             </coding>
           </valueCodeableConcept>
         </component>
@@ -1697,42 +1649,6 @@
           </valueCodeableConcept>
         </component>
       </Observation>
-    </resource>
-  </entry>
-  <entry>
-    <fullUrl value="urn:uuid:7d5ecb87-4b05-4365-9a8d-7cf75024390c" />
-    <resource>
-      <DocumentReference>
-        <id value="7d5ecb87-4b05-4365-9a8d-7cf75024390c" />
-        <meta>
-          <profile value="http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate-reference" />
-        </meta>
-        <identifier>
-          <value value="42" />
-        </identifier>
-        <status value="current" />
-        <type>
-          <coding>
-            <system value="http://loinc.org" />
-            <code value="64297-5" />
-            <display value="Death certificate" />
-          </coding>
-        </type>
-        <date value="2020-08-07T16:41:57.698163-04:00" />
-        <author>
-          <reference value="urn:uuid:7afbe14f-932f-4639-966a-84c4e9d2f7c6" />
-        </author>
-        <content>
-          <attachment>
-            <url value="urn:uuid:cf96ffd9-fb38-479f-ba3c-5f3f36752fdb" />
-          </attachment>
-        </content>
-        <context>
-          <related>
-            <reference value="urn:uuid:cf96ffd9-fb38-479f-ba3c-5f3f36752fdb" />
-          </related>
-        </context>
-      </DocumentReference>
     </resource>
   </entry>
   <entry>
