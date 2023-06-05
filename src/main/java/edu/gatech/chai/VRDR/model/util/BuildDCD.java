@@ -199,8 +199,7 @@ public class BuildDCD {
     	injuryLocation.setName("Hospital");
     	injuryLocation.setDescription("Gracie Hospital");
     	injuryLocation.addType(new CodeableConcept().addCoding(new Coding().setCode("HOSP").setSystem("http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType")));
-    	injuryLocation.setPhysicalType(new CodeableConcept().addCoding(new Coding().setCode("ro").setSystem("http://hl7.org/fhir/ValueSet/location-physical-type")));
-    	injuryLocation.setAddress(decedentsHome);
+		injuryLocation.setAddress(decedentsHome);
     	initResourceForTesting(injuryLocation);
     	contents.add(injuryLocation);
     	//MannerOfDeath

@@ -76,8 +76,6 @@
                 }, {
                     "reference": "Observation/81a3015d-19b9-42b8-b6ae-a97acebfb472"
                 }, {
-                    "reference": "Observation/c5589102-5f9e-4364-bdd9-24123e200e94"
-                }, {
                     "reference": "Location/df72f504-fe0c-4d42-92a5-d7cec3754bd2"
                 }, {
                     "reference": "Observation/3f574bcf-38cc-4238-883e-33bc4801ccdd"
@@ -85,8 +83,6 @@
                     "reference": "Organization/093ab18c-8646-4dab-8df9-caa65462669d"
                 }, {
                     "reference": "Practitioner/c95094e3-ff60-4756-b0ee-21f572e7aa66"
-                }, {
-                    "reference": "PractitionerRole/ed116a75-36f2-42cb-88b9-b4f1145e1902"
                 }, {
                     "reference": "Observation/22124500-cb95-4d88-82c6-a3ceb176762f"
                 }, {
@@ -130,7 +126,7 @@
                 "url": "http://hl7.org/fhir/StructureDefinition/birthPlace",
                 "valueAddress": {
                     "extension": [{
-                        "url": "http://hl7.org/fhir/us/vrdr/StructureDefinition/Within-City-Limits-Indicator",
+                        "url": "http://hl7.org/fhir/us/vrdr/StructureDefinition/WithinCityLimitsIndicator",
                         "valueBoolean": true
                     }],
                     "use": "home",
@@ -202,7 +198,7 @@
         "resource": {
             "resourceType": "Observation",
             "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-BirthRecordIdentifier"]
+                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-birth-record-identifier"]
             },
             "status": "final",
             "code": {
@@ -383,10 +379,10 @@
     }, {
         "fullUrl": "4749a3eb-f7a0-4971-a28c-e30054b85adf",
         "resource": {
-            "resourceType": "Condition",
+            "resourceType": "Observation",
             "id": "4749a3eb-f7a0-4971-a28c-e30054b85adf",
             "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Condition-Contributing-To-Death"]
+                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part2"]
             },
             "code": {
                 "coding": [{
@@ -401,57 +397,6 @@
             "asserter": {
                 "reference": "Practitioner/62234754-e590-4e08-b809-13da4b933f79"
             }
-        }
-    }, {
-        "resource": {
-            "resourceType": "List",
-            "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-pathway"]
-            },
-            "status": "current",
-            "mode": "snapshot",
-            "source": {
-                "reference": "Practitioner/62234754-e590-4e08-b809-13da4b933f79"
-            },
-            "orderedBy": {
-                "coding": [{
-                    "system": "http://terminology.hl7.org/CodeSystem/list-order",
-                    "code": "priority",
-                    "display": "Sorted by Priority"
-                }]
-            },
-            "entry": [{
-                "item": {
-                    "reference": "1ab50431-a6d7-48a2-b678-d3ccdd916fbc"
-                }
-            }]
-        }
-    }, {
-        "resource": {
-            "resourceType": "DocumentReference",
-            "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate-reference"]
-            },
-            "status": "current",
-            "type": {
-                "coding": [{
-                    "system": "http://loinc.org",
-                    "code": "64297-5",
-                    "display": "Death certificate"
-                }]
-            },
-            "subject": {
-                "reference": "Patient/8abd8768-f97f-4f76-b59a-6d1e42186fd5"
-            },
-            "date": "2020-11-10T14:34:20.358-05:00",
-            "author": [{
-                "reference": "Practitioner/62234754-e590-4e08-b809-13da4b933f79"
-            }],
-            "content": [{
-                "attachment": {
-                    "url": "https://www.examplemecfilestore.com/some/filepath/to/thisdocument.pdf"
-                }
-            }]
         }
     }, {
         "fullUrl": "f40d82e3-9777-41f6-94a1-d6a9b88117d7",
@@ -498,12 +443,6 @@
             "meta": {
                 "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-date"]
             },
-            "extension": [{
-                "url": "http://hl7.org/fhir/us/vrdr/StructureDefinition/Observation-Location",
-                "valueReference": {
-                    "reference": "Location/48d431cc-ad9b-4ced-9cb2-d1a5b5be2a84"
-                }
-            }],
             "status": "final",
             "code": {
                 "coding": [{
@@ -551,13 +490,6 @@
                 "state": "GA",
                 "postalCode": "30303",
                 "country": "USA"
-            },
-            "physicalType": {
-                "coding": [{
-                    "system": "http://hl7.org/fhir/location-physical-type",
-                    "code": "HOSP",
-                    "display": "Hospital"
-                }]
             }
         }
     }, {
@@ -566,7 +498,7 @@
             "resourceType": "Practitioner",
             "id": "44912ec1-8685-47d9-ab9c-80fa5f1f572e",
             "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-pronouncement-performer"]
+                "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"]
             },
             "name": [{
                 "family": "Bladerslad",
@@ -746,7 +678,7 @@
             "resourceType": "Observation",
             "id": "81a3015d-19b9-42b8-b6ae-a97acebfb472",
             "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-pregnancy"]
+                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-pregnancy-status"]
             },
             "status": "final",
             "code": {
@@ -758,33 +690,6 @@
             },
             "subject": {
                 "reference": "Patient/8abd8768-f97f-4f76-b59a-6d1e42186fd5"
-            }
-        }
-    }, {
-        "fullUrl": "c5589102-5f9e-4364-bdd9-24123e200e94",
-        "resource": {
-            "resourceType": "Observation",
-            "id": "c5589102-5f9e-4364-bdd9-24123e200e94",
-            "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-transportation-role"]
-            },
-            "status": "final",
-            "code": {
-                "coding": [{
-                    "system": "http://loinc.org",
-                    "code": "69451-3",
-                    "display": "Transportation role of decedent"
-                }]
-            },
-            "subject": {
-                "reference": "Patient/8abd8768-f97f-4f76-b59a-6d1e42186fd5"
-            },
-            "valueCodeableConcept": {
-                "coding": [{
-                    "system": "http://snomed.info/sct",
-                    "code": "236320001",
-                    "display": "Driver/Operator"
-                }]
             }
         }
     }, {
@@ -856,7 +761,7 @@
             "resourceType": "Practitioner",
             "id": "c95094e3-ff60-4756-b0ee-21f572e7aa66",
             "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-mortician"]
+                "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"]
             },
             "name": [{
                 "family": "Bladerslad",
@@ -873,28 +778,6 @@
                         "display": "Doctor of Medicine"
                     }]
                 }
-            }]
-        }
-    }, {
-        "fullUrl": "ed116a75-36f2-42cb-88b9-b4f1145e1902",
-        "resource": {
-            "resourceType": "PractitionerRole",
-            "id": "ed116a75-36f2-42cb-88b9-b4f1145e1902",
-            "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/VRDR_FuneralServiceLicensee"]
-            },
-            "practitioner": {
-                "reference": "Practitioner/c95094e3-ff60-4756-b0ee-21f572e7aa66"
-            },
-            "organization": {
-                "reference": "Organization/093ab18c-8646-4dab-8df9-caa65462669d"
-            },
-            "code": [{
-                "coding": [{
-                    "system": "http://hl7.org/fhir/practitioner-role",
-                    "code": "doctor",
-                    "display": "Doctor"
-                }]
             }]
         }
     }, {
@@ -978,7 +861,7 @@
             }],
             "address": {
                 "extension": [{
-                    "url": "http://hl7.org/fhir/us/vrdr/StructureDefinition/Within-City-Limits-Indicator",
+                    "url": "http://hl7.org/fhir/us/vrdr/StructureDefinition/WithinCityLimitsIndicator",
                     "valueBoolean": true
                 }],
                 "use": "home",
@@ -987,12 +870,6 @@
                 "state": "GA",
                 "postalCode": "30303",
                 "country": "USA"
-            },
-            "physicalType": {
-                "coding": [{
-                    "system": "http://hl7.org/fhir/ValueSet/location-physical-type",
-                    "code": "ro"
-                }]
             }
         }
     }, {
@@ -1001,7 +878,7 @@
             "resourceType": "Organization",
             "id": "bf1afd1d-70ee-41be-b18d-cf62a793e64a",
             "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-interested-party"]
+                "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"]
             },
             "identifier": [{
                 "value": "54673-2"
@@ -1058,7 +935,7 @@
             "resourceType": "Observation",
             "id": "a33e80d8-d34b-456d-b377-6909c20f4a96",
             "meta": {
-                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Tobacco-Use-Contributed-To-Death"]
+                "profile": ["http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-tobacco-use-contributed-to-death"]
             },
             "status": "final",
             "code": {

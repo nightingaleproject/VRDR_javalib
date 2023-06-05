@@ -269,14 +269,6 @@
           "state": "GA",
           "postalCode": "30303",
           "country": "USA"
-        },
-        "physicalType": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/ValueSet/location-physical-type",
-              "code": "ro"
-            }
-          ]
         }
       }
     },
@@ -362,7 +354,7 @@
         "id": "fc66500a-4e75-4c6d-bc7f-035c7f54cce5",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/-vrdr-Cause-Of-Death-Condition"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part1"
           ]
         },
         "subject": {

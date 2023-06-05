@@ -36,17 +36,6 @@ public class InjuryIncident extends Observation {
 		addInjuredAtWorkComponent(injuredAtWorkBoolean);
 		addTransportationEventIndicatorComponent(transportationRelationship);
 	}
-
-	public void addPatientLocationExtension(Location location) {
-		Extension extension = new Extension(DeathDateUtil.patientLocationExtensionURL);
-		Reference reference = new Reference(location.getId());
-		extension.setValue(reference);
-		this.addExtension(extension);
-	}
-
-	public Extension getPatientLocationExtension() {
-		return CommonUtil.getExtension(this, DeathDateUtil.patientLocationExtensionURL);
-	}
 	
 	public void addPlaceOfInjuryComponent(String placeOfInjury) {
 		CodeableConcept placeOfInjuryCode = CommonUtil.findConceptFromCollectionUsingSimpleString(placeOfInjury, InjuryIncidentUtil.placeOfInjuryValueSet);
