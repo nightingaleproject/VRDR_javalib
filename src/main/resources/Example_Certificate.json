@@ -94,9 +94,6 @@
                 "reference": "urn:uuid:5f20c366-d87d-4f0f-ae67-08f940808cbf"
               },
               {
-                "reference": "urn:uuid:40c5009a-498b-4d2b-bf47-249fe4b07cc2"
-              },
-              {
                 "reference": "urn:uuid:1fedd3b1-d977-4436-8767-bcb75de0b3f1"
               },
               {
@@ -122,9 +119,6 @@
               },
               {
                 "reference": "urn:uuid:69d59eae-db87-41ca-a683-b51595e37a48"
-              },
-              {
-                "reference": "urn:uuid:fa8c8f2e-584f-401a-af1f-3aa4e44f0a05"
               },
               {
                 "reference": "urn:uuid:ec586503-afcd-4017-a630-8e4c22a2347d"
@@ -332,7 +326,7 @@
         "id": "urn:uuid:ed43ff32-fea5-4eb5-affd-7d30416c968c",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-mortician"
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
           ]
         },
         "name": [
@@ -414,7 +408,7 @@
         "id": "urn:uuid:406a59d1-f659-487d-872f-2d87be3adf2d",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-interested-party"
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
           ]
         },
         "identifier": [
@@ -478,65 +472,6 @@
             "district": "Norfolk",
             "state": "Massachusetts",
             "country": "United States"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl": "urn:uuid:5f20c366-d87d-4f0f-ae67-08f940808cbf",
-      "resource": {
-        "resourceType": "PractitionerRole",
-        "id": "urn:uuid:5f20c366-d87d-4f0f-ae67-08f940808cbf",
-        "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-funeral-home-Director"
-          ]
-        },
-        "practitioner": {
-          "reference": "urn:uuid:ed43ff32-fea5-4eb5-affd-7d30416c968c"
-        },
-        "organization": {
-          "reference": "urn:uuid:a38ecee0-bdd0-4d62-a80a-c91e56667099"
-        }
-      }
-    },
-    {
-      "fullUrl": "urn:uuid:40c5009a-498b-4d2b-bf47-249fe4b07cc2",
-      "resource": {
-        "resourceType": "List",
-        "id": "urn:uuid:40c5009a-498b-4d2b-bf47-249fe4b07cc2",
-        "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-pathway"
-          ]
-        },
-        "status": "current",
-        "mode": "snapshot",
-        "source": {
-          "reference": "urn:uuid:96fdd214-8009-4834-b4ca-e96cd16b682a"
-        },
-        "orderedBy": {
-          "coding": [
-            {
-              "code": "priority"
-            }
-          ]
-        },
-        "entry": [
-          {
-            "item": {
-              "reference": "urn:uuid:7c25579a-6afc-4a6f-b822-61568ca96772"
-            }
-          },
-          {
-            "item": {
-              "reference": "urn:uuid:2c3f417f-116f-4786-a690-08b25f2009ac"
-            }
-          },
-          {
-            "item": {
-              "reference": "urn:uuid:5207d570-bc00-40ac-9f6b-a3c60f881720"
-            }
           }
         ]
       }
@@ -817,93 +752,6 @@
       }
     },
     {
-      "fullUrl": "urn:uuid:fa8c8f2e-584f-401a-af1f-3aa4e44f0a05",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "urn:uuid:fa8c8f2e-584f-401a-af1f-3aa4e44f0a05",
-        "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-Employment-History"
-          ]
-        },
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "74165-2",
-              "display": "History of employment status"
-            }
-          ]
-        },
-        "subject": {
-          "reference": "urn:uuid:ffd2b893-df92-4164-a562-a9347f449124"
-        },
-        "component": [
-          {
-            "code": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "21847-9",
-                  "display": "Usual occupation"
-                }
-              ]
-            },
-            "valueCodeableConcept": {
-              "coding": [
-                {
-                  "system": "http://hl7.org/fhir/ValueSet/occupation-cdc-census-2010",
-                  "code": "3510",
-                  "display": "Medical records and health information technicians"
-                }
-              ]
-            }
-          },
-          {
-            "code": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "21844-6",
-                  "display": "Usual industry"
-                }
-              ]
-            },
-            "valueCodeableConcept": {
-              "coding": [
-                {
-                  "system": "http://hl7.org/fhir/ValueSet/industry-cdc-census-2010",
-                  "code": "7380",
-                  "display": "Computer systems design and related services"
-                }
-              ]
-            }
-          },
-          {
-            "code": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "55280-2",
-                  "display": "Military service"
-                }
-              ]
-            },
-            "valueCodeableConcept": {
-              "coding": [
-                {
-                  "system": "http://hl7.org/fhir/ValueSet/v2-0532",
-                  "code": "N",
-                  "display": "No"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "fullUrl": "urn:uuid:ec586503-afcd-4017-a630-8e4c22a2347d",
       "resource": {
         "resourceType": "Observation",
@@ -992,11 +840,11 @@
     {
       "fullUrl": "urn:uuid:7c25579a-6afc-4a6f-b822-61568ca96772",
       "resource": {
-        "resourceType": "Condition",
+        "resourceType": "Observation",
         "id": "urn:uuid:7c25579a-6afc-4a6f-b822-61568ca96772",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Cause-Of-Death-Condition"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part1"
           ]
         },
         "code": {
@@ -1014,11 +862,11 @@
     {
       "fullUrl": "urn:uuid:2c3f417f-116f-4786-a690-08b25f2009ac",
       "resource": {
-        "resourceType": "Condition",
+        "resourceType": "Observation",
         "id": "urn:uuid:2c3f417f-116f-4786-a690-08b25f2009ac",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Cause-Of-Death-Condition"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part1"
           ]
         },
         "code": {
@@ -1036,11 +884,11 @@
     {
       "fullUrl": "urn:uuid:5207d570-bc00-40ac-9f6b-a3c60f881720",
       "resource": {
-        "resourceType": "Condition",
+        "resourceType": "Observation",
         "id": "urn:uuid:5207d570-bc00-40ac-9f6b-a3c60f881720",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Cause-Of-Death-Condition"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part1"
           ]
         },
         "code": {
@@ -1058,11 +906,11 @@
     {
       "fullUrl": "urn:uuid:73fcec84-2f4e-459a-aa68-86ac56b63505",
       "resource": {
-        "resourceType": "Condition",
+        "resourceType": "Observation",
         "id": "urn:uuid:73fcec84-2f4e-459a-aa68-86ac56b63505",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Condition-Contributing-To-Death"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part2"
           ]
         },
         "code": {
@@ -1162,7 +1010,7 @@
         "id": "urn:uuid:56755927-e140-4b19-abc9-b4157889e3a8",
         "meta": {
           "profile": [
-            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Tobacco-Use-Contributed-To-Death"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-tobacco-use-contributed-to-death"
           ]
         },
         "status": "final",

@@ -127,21 +127,7 @@
           {
             "entry": [
               {
-                "reference": "95de8c99-2271-4fd4-828f-c410e7c69768"
-              }
-            ]
-          },
-          {
-            "entry": [
-              {
                 "reference": "0c34de92-b854-4ae2-8524-546159318965"
-              }
-            ]
-          },
-          {
-            "entry": [
-              {
-                "reference": "ed9ecc24-1e93-4587-ab35-f0f7afbf3f3e"
               }
             ]
           },
@@ -190,21 +176,7 @@
           {
             "entry": [
               {
-                "reference": "463f7135-aaec-4719-8f6f-a7b627db9dbc"
-              }
-            ]
-          },
-          {
-            "entry": [
-              {
                 "reference": "3b6e7806-4c19-4727-82d1-5740305348bf"
-              }
-            ]
-          },
-          {
-            "entry": [
-              {
-                "reference": "71392409-1c0d-4f33-a4e1-13f519615da1"
               }
             ]
           },
@@ -679,11 +651,11 @@
     {
       "fullUrl": "d895ec4b-08c1-474f-b203-4847c0081510",
       "resource": {
-        "resourceType": "Condition",
+        "resourceType": "Observation",
         "id": "d895ec4b-08c1-474f-b203-4847c0081510",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Condition-Contributing-To-Death"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part2"
           ]
         },
         "code": {
@@ -704,46 +676,13 @@
       }
     },
     {
-      "fullUrl": "95de8c99-2271-4fd4-828f-c410e7c69768",
-      "resource": {
-        "resourceType": "List",
-        "id": "95de8c99-2271-4fd4-828f-c410e7c69768",
-        "meta": {
-          "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/vrdr-cause-of-death-pathway"
-          ]
-        },
-        "status": "current",
-        "mode": "snapshot",
-        "source": {
-          "reference": "6f0c4995-8f2b-4c52-b4e7-e6f3ffd7f718"
-        },
-        "orderedBy": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/ValueSet/list-order",
-              "code": "priority",
-              "display": "Sorted by Priority"
-            }
-          ]
-        },
-        "entry": [
-          {
-            "item": {
-              "reference": "d895ec4b-08c1-474f-b203-4847c0081510"
-            }
-          }
-        ]
-      }
-    },
-    {
       "fullUrl": "0c34de92-b854-4ae2-8524-546159318965",
       "resource": {
-        "resourceType": "Condition",
+        "resourceType": "Observation",
         "id": "0c34de92-b854-4ae2-8524-546159318965",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Condition-Contributing-To-Death"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-cause-of-death-part2"
           ]
         },
         "code": {
@@ -756,36 +695,6 @@
           ],
           "text": "Plaster ulcer"
         }
-      }
-    },
-    {
-      "fullUrl": "ed9ecc24-1e93-4587-ab35-f0f7afbf3f3e",
-      "resource": {
-        "resourceType": "DocumentReference",
-        "id": "ed9ecc24-1e93-4587-ab35-f0f7afbf3f3e",
-        "meta": {
-          "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate-reference"
-          ]
-        },
-        "status": "current",
-        "type": {
-          "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "64297-5"
-            }
-          ]
-        },
-        "subject": {
-          "reference": "5fcc65dc-274f-4db2-adfd-e8a809c9b8e5"
-        },
-        "indexed": "2019-08-29T15:53:50.086-04:00",
-        "author": [
-          {
-            "reference": "6f0c4995-8f2b-4c52-b4e7-e6f3ffd7f718"
-          }
-        ]
       }
     },
     {
@@ -849,7 +758,7 @@
         "id": "ffbb9a9a-e589-47bf-ac80-673f56d50952",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/@ResourceDef(name=\"Death Certificate Reference\", profile=\"http://www.hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-location"
+            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/@ResourceDef(profile=\"http://www.hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-location"
           ]
         },
         "name": "Grady Hospital",
@@ -891,7 +800,7 @@
         "id": "ae826c4d-9b97-4185-a9ba-0c110add243f",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/@ResourceDef(name=\"Death Certificate Reference\", profile=\"http://www.hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-pronouncement-performer"
+            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/@ResourceDef(profile=\"http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
           ]
         },
         "name": [
@@ -929,7 +838,7 @@
         "id": "7dcfbbc4-2b1d-485c-9c32-d6cf63d5a4c2",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/decedentAge"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-age"
           ]
         },
         "status": "final",
@@ -988,70 +897,13 @@
       }
     },
     {
-      "fullUrl": "463f7135-aaec-4719-8f6f-a7b627db9dbc",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "463f7135-aaec-4719-8f6f-a7b627db9dbc",
-        "meta": {
-          "profile": [
-            "http://www.hl7.org/fhir/us/StructureDefinition/vrdr-decedent-Employment-History"
-          ]
-        },
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "74165-2"
-            }
-          ]
-        },
-        "subject": {
-          "reference": "5fcc65dc-274f-4db2-adfd-e8a809c9b8e5"
-        },
-        "component": [
-          {
-            "code": {
-              "coding": [
-                {
-                  "system": "http://terminology.www.hl7.org/CodeSystem/v2-0136",
-                  "code": "Y",
-                  "display": "Yes"
-                }
-              ]
-            }
-          },
-          {
-            "code": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "21844-6"
-                }
-              ]
-            }
-          },
-          {
-            "code": {
-              "coding": [
-                {
-                  "system": "http://loinc.org",
-                  "code": "21847-9"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "fullUrl": "3b6e7806-4c19-4727-82d1-5740305348bf",
       "resource": {
         "resourceType": "Observation",
         "id": "3b6e7806-4c19-4727-82d1-5740305348bf",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/StructureDefinition/vrdr-decedent-pregnancy"
+            "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-pregnancy-status"
           ]
         },
         "status": "final",
@@ -1073,40 +925,6 @@
               "system": "http://terminology.www.hl7.org/CodeSystem/v2-0136",
               "code": "N",
               "display": "No"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl": "71392409-1c0d-4f33-a4e1-13f519615da1",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "71392409-1c0d-4f33-a4e1-13f519615da1",
-        "meta": {
-          "profile": [
-            "http://www.hl7.org/fhir/us/StructureDefinition/vrdr-decedent-transportation-role"
-          ]
-        },
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "system": "http://loinc.org",
-              "code": "69442-2",
-              "display": "Timing of recent pregnancy in relation to death"
-            }
-          ]
-        },
-        "subject": {
-          "reference": "5fcc65dc-274f-4db2-adfd-e8a809c9b8e5"
-        },
-        "valueCodeableConcept": {
-          "coding": [
-            {
-              "system": "http://snomed.info/sct",
-              "code": "1",
-              "display": "Vechicle driver"
             }
           ]
         }
@@ -1202,7 +1020,7 @@
         "id": "837fa65a-b3b3-4253-aac7-3c6f7ab76fd0",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-mortician"
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
           ]
         },
         "name": [
@@ -1210,35 +1028,6 @@
             "family": "Bladerslad",
             "given": [
               "Bernard"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl": "9ddb6e24-eddd-4750-91f5-35122e92e6a6",
-      "resource": {
-        "resourceType": "PractitionerRole",
-        "id": "9ddb6e24-eddd-4750-91f5-35122e92e6a6",
-        "meta": {
-          "profile": [
-            "http://www.hl7.org/fhir/us/StructureDefinition/vrdr-funeral-home-Director"
-          ]
-        },
-        "practitioner": {
-          "reference": "837fa65a-b3b3-4253-aac7-3c6f7ab76fd0"
-        },
-        "organization": {
-          "reference": "317488e7-addf-435d-aaf0-d3e9fea173eb"
-        },
-        "code": [
-          {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/practitioner-role",
-                "code": "doctor",
-                "display": "Doctor"
-              }
             ]
           }
         ]
@@ -1295,14 +1084,6 @@
           "state": "GA",
           "postalCode": "30303",
           "country": "USA"
-        },
-        "physicalType": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/ValueSet/location-physical-type",
-              "code": "ro"
-            }
-          ]
         }
       }
     },
@@ -1313,7 +1094,7 @@
         "id": "41faecd9-3596-4c41-9e9a-80bbc9c91db9",
         "meta": {
           "profile": [
-            "http://www.hl7.org/fhir/us/StructureDefinition/vrdr-interested-party"
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
           ]
         },
         "identifier": [

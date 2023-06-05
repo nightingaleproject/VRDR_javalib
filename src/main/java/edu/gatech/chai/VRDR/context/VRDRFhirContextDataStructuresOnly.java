@@ -54,7 +54,7 @@ public class VRDRFhirContextDataStructuresOnly {
 				DecedentMilitaryService.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-mother",
 				DecedentMother.class);
-		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-pregnancy",
+		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-pregnancy-status",
 				DecedentPregnancyStatus.class);
 		ctx.setDefaultTypeForProfile("http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-spouse",
 				DecedentSpouse.class);
