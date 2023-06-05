@@ -3,15 +3,24 @@
 ### 4.0.2 - 2023-06-05
 * Update and sync examples files (json and xml) with IG as follows:
     Remove Transport Role and its references
+    
     Remove Death Certificate Reference and its references
+    
     Remove Death Pronouncement Performer and its references
+    
     Remove Decedent Employment History and its references
+    
     Remove Cause of Death Pathway and its references
+    
     Change Mortician, Funeral Home Director, Funeral Service Licensee to us-core-practitioner
+    
     Change Interested Party to us-core-organization
+    
     Change Decendent Pregnancy to decedent-pregnancy-status
-    Change Cause of Death Condition to Cause of Death Part 1
-    Change Cause of Death Condition Contributing Death to Cause of Death Part 2
+    
+    Change Cause of Death Condition to cause-of-death-part1
+    
+    Change Cause of Death Condition Contributing Death to cause-of-death-part2
 
 ### 4.0.1 - 2023-05-16
 
