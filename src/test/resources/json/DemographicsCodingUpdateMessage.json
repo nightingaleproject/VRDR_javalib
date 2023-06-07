@@ -9,7 +9,7 @@
       "resource": {
         "resourceType": "MessageHeader",
         "id": "f569dea9-a824-4751-b7c8-34dde4b94e9a",
-        "eventUri": "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingUpdateMessage",
+        "eventUri": "http://nchs.cdc.gov/vrdr_demographics_coding_update",
         "destination": [
           {
             "endpoint": "http://nchs.cdc.gov/vrdr_submission"
