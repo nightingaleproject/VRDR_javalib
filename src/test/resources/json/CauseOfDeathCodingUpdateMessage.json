@@ -9,7 +9,7 @@
       "resource": {
         "resourceType": "MessageHeader",
         "id": "43e25b3b-6501-4eeb-81de-a3efddf19692",
-        "eventUri": "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingUpdateMessage",
+        "eventUri": "http://nchs.cdc.gov/vrdr_causeofdeath_coding_update", 
         "destination": [
           {
             "endpoint": "http://nchs.cdc.gov/vrdr_submission"
