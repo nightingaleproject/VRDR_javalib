@@ -9,7 +9,7 @@
       "resource": {
         "resourceType": "MessageHeader",
         "id": "43e25b3b-6501-4eeb-81de-a3efddf19692",
-        "eventUri": "http://nchs.cdc.gov/vrdr_causeofdeath_coding_update", 
+        "eventUri": "http://nchs.cdc.gov/vrdr_causeofdeath_coding_update1", 
         "destination": [
           {
             "endpoint": "http://nchs.cdc.gov/vrdr_submission"
