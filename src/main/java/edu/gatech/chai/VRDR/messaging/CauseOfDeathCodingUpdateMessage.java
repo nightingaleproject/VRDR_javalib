@@ -12,7 +12,7 @@ import org.hl7.fhir.r4.model.ResourceType;
 public class CauseOfDeathCodingUpdateMessage extends BaseMessage implements DocumentBundler<CauseOfDeathCodedContentBundle> {
 
     // from the VRDR Messaging IG http://build.fhir.org/ig/nightingaleproject/vital_records_fhir_messaging_ig/branches/main/StructureDefinition-VRM-CauseOfDeathCodingUpdateMessage.html
-    public static final String MESSAGE_TYPE = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingUpdateMessage";
+    public static final String MESSAGE_TYPE = "http://nchs.cdc.gov/vrdr_causeofdeath_coding_update";
 
     private CauseOfDeathCodedContentBundle causeOfDeathCodedContentBundle;
 

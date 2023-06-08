@@ -272,7 +272,7 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
                 "src/test/resources/json/DeathRecordSubmissionMessage.json");
         CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(submission);
-        assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingMessage", coding.getMessageType());
+        assertEquals("http://nchs.cdc.gov/vrdr_causeofdeath_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
@@ -283,7 +283,7 @@ public class MessagingTest extends TestCase {
 
     public void testCreateCauseOfDeathCodingMessageWithNoIdentifiers() {
         CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage((DeathRecordSubmissionMessage)null);
-        assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingMessage", coding.getMessageType());
+        assertEquals("http://nchs.cdc.gov/vrdr_causeofdeath_coding", coding.getMessageType());
         assertNull(coding.getCodedMessageId());
         assertNull(coding.getMessageDestination());
         assertEquals("http://nchs.cdc.gov/vrdr_submission", coding.getMessageSource());
@@ -295,7 +295,7 @@ public class MessagingTest extends TestCase {
     public void testCreateCauseOfDeathCodingMessageWithNoMessage() {
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(submission);
-        assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-CauseOfDeathCodingMessage", coding.getMessageType());
+        assertEquals("http://nchs.cdc.gov/vrdr_causeofdeath_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
@@ -307,7 +307,7 @@ public class MessagingTest extends TestCase {
     public void testCreateDemographicsCodingMessage() {
         DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json");
         DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
-        assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingMessage", coding.getMessageType());
+        assertEquals("http://nchs.cdc.gov/vrdr_demographics_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
@@ -318,7 +318,7 @@ public class MessagingTest extends TestCase {
 
     public void testCreateDemographicsCodingMessageWithNoIdentifiers() {
         DemographicsCodingMessage coding = new DemographicsCodingMessage((DeathRecordSubmissionMessage)null);
-        assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingMessage", coding.getMessageType());
+        assertEquals("http://nchs.cdc.gov/vrdr_demographics_coding", coding.getMessageType());
         assertNull(coding.getCodedMessageId());
         assertNull(coding.getMessageDestination());
         assertEquals("http://nchs.cdc.gov/vrdr_submission", coding.getMessageSource());
@@ -330,7 +330,7 @@ public class MessagingTest extends TestCase {
     public void testCreateDemographicsCodingMessageWithNoMessage() {
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
-        assertEquals("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DemographicsCodingMessage", coding.getMessageType());
+        assertEquals("http://nchs.cdc.gov/vrdr_demographics_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
         assertEquals(submission.getMessageSource(), coding.getMessageDestination());
         assertEquals(submission.getMessageDestination(), coding.getMessageSource());
