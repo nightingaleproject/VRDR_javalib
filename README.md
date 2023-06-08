@@ -372,6 +372,7 @@ StatusMessage status = new StatusMessage(submission, "manualCauseOfDeathCoding")
 To create a new release of the VRDR Java Library:
 
 1. Update the CHANGELOG.md file with information on what is changing in the release
+1. Update `pom.xml` with the new release version
 1. Create a pull request and merge the above changes to master
 1. Create a GitHub release
     1. Go to the Releases page
