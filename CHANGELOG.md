@@ -1,6 +1,13 @@
 ## Changelog
 
+### 4.0.3 - 2023-06-07
+
+* Update and sync examples files (json and xml) with IG as follows:
+    * Revert removal of transportation role as a component of injury incident (but keeping removal as a no longer valid profile)
+    * Update cause of death coding and demographic coding message eventUri to match IG
+
 ### 4.0.2 - 2023-06-05
+
 * Update and sync examples files (json and xml) with IG as follows:
     * Remove Transport Role and its references
     * Remove Death Certificate Reference and its references
@@ -12,7 +19,6 @@
     * Change Decendent Pregnancy to decedent-pregnancy-status
     * Change Cause of Death Condition to cause-of-death-part1
     * Change Cause of Death Condition Contributing Death to cause-of-death-part2
-
 
 ### 4.0.1 - 2023-05-16
 
