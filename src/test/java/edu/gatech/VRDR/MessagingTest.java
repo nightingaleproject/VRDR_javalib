@@ -16,6 +16,8 @@ import org.hl7.fhir.r4.model.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import edu.gatech.chai.VRDR.model.util.UploadUtil;
 
 public class MessagingTest extends TestCase {
 
@@ -879,5 +881,44 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
         assertNotNull(parsed); // make sure we can parse the race values without crashing
     }
+	
+	public void testCreateBulkUploadPayload() {
+		// create a new death certificate "deathCertificate1" and add it to a death record
+		DeathCertificate deathCertificate1 = new DeathCertificate();
+		DeathCertificateDocument deathRecord1 = new DeathCertificateDocument();
+		CommonUtil.initResource((Resource)deathCertificate1);
+		deathRecord1.addEntry((new Bundle.BundleEntryComponent()).setResource((Resource)deathCertificate1));
+		
+		// create a new death certificate "deathCertificate2" and add it to a death record
+		DeathCertificate deathCertificate2 = new DeathCertificate();
+		DeathCertificateDocument deathRecord2 = new DeathCertificateDocument();
+		CommonUtil.initResource((Resource)deathCertificate2);
+		deathRecord2.addEntry((new Bundle.BundleEntryComponent()).setResource((Resource)deathCertificate2));
+		
+		// create a new submission message "message1" and add the death record to it
+		DeathRecordSubmissionMessage message1 = new DeathRecordSubmissionMessage();
+		message1.setDeathRecord(deathRecord1);
+		message1.setCertNo(Integer.valueOf(42));
+		message1.setStateAuxiliaryId("identifier");
+		
+		// create a new submission message "message2" and add the death record to it
+		DeathRecordSubmissionMessage message2 = new DeathRecordSubmissionMessage();
+		message2.setDeathRecord(deathRecord2);
+		message2.setCertNo(Integer.valueOf(43));
+		message2.setStateAuxiliaryId("identifier");
+		
+		// create a list and add the messages to it
+		List<BaseMessage> messages = new ArrayList<>();
+		messages.add(message1);
+		messages.add(message2);
+		
+		// test method
+		String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
+		assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
+		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
+		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), 2);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), 2);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 6);
+	}
 
 }
