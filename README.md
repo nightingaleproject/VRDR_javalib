@@ -344,7 +344,7 @@ AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
 ```
 
 #### Create coding response
-```java
+```Java
 // Create cause of death coding response from json data file
 VRDRFhirContext ctx = new VRDRFhirContext();
 CauseOfDeathCodingMessage message = BaseMessage.parseJsonFile(CauseOfDeathCodingMessage.class, ctx, "path-to-json-data-file/CauseOfDeathCodingMessage.json");
