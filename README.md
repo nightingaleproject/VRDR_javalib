@@ -382,4 +382,4 @@ To create a new release of the VRDR Java Library:
     1. Ensure that the "pre-release" button remains unchecked, even for preview releases, as pre-releases will not be displayed on the main GitHub page
 1. Review the recently created [package](https://github.com/orgs/nightingaleproject/packages) and update the package description as necessary.
 
-Following each release, the compiled package is published on GitHub Packages, accessible through https://github.com/orgs/nightingaleproject/packages.
+Following each release, the compiled package is published on GitHub Packages, accessible through https://github.com/orgs/nightingaleproject/packages and the repository landing page.
