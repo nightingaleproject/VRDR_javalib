@@ -298,7 +298,7 @@ AcknowledgementMessage acknowledgementMessage = BaseMessage.parseJsonFile(Acknow
 ```
 
 #### Create acknowledgenent for submission message
-```cs
+```java
 // Create general Ack
 VRDRFhirContext ctx = new VRDRFhirContext();
 DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "path-to-json-data-file/DeathRecordSubmissionMessage.json");
@@ -324,7 +324,7 @@ AcknowledgementMessage ack = BaseMessage.parseJson(AcknowledgementMessage.class,
 ```
 
 #### Create coding message
-```cs
+```java
 // Create cause of death coding message
 VRDRFhirContext ctx = new VRDRFhirContext();
 DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "path-to-json-data-file/DeathRecordSubmissionMessage.json");
@@ -344,7 +344,7 @@ AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
 ```
 
 #### Create coding response
-```cs
+```java
 // Create cause of death coding response from json data file
 VRDRFhirContext ctx = new VRDRFhirContext();
 CauseOfDeathCodingMessage message = BaseMessage.parseJsonFile(CauseOfDeathCodingMessage.class, ctx, "path-to-json-data-file/CauseOfDeathCodingMessage.json");
@@ -361,7 +361,7 @@ CodingStatusValues codingStatusValues = bundle.getCodingStatusValues();
 ```
 
 #### Create status message
-```cs
+```java
 VRDRFhirContext ctx = new VRDRFhirContext();
 DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json");
 StatusMessage status = new StatusMessage(submission, "manualCauseOfDeathCoding");
@@ -371,12 +371,15 @@ StatusMessage status = new StatusMessage(submission, "manualCauseOfDeathCoding")
 
 To create a new release of the VRDR Java Library:
 
-1. Update the CHANGELOG.md file with information on what is changing in the release
-1. Create a pull request and merge the above changes to master
-1. Create a GitHub release
+1. Incorporate the changes into the `CHANGELOG.md` file, providing a summary account of the modifications made in this release.
+1. Modify the `pom.xml` file by updating the release version, specifically adjusting the version element.
+1. Generate a pull request to merge the aforementioned modifications into the master branch.
+1. Publish a new GitHub release by following these steps:
     1. Go to the Releases page
-    1. Click on "Draft a new release"
+    1. Select "Draft a new release"
     1. Create a new release version on the tag and release (e.g., v1.4.0-STU2.1)
-    1. Copy the information from the CHANGELOG.md file from this version into the release description
-    1. Do not check the "pre-release" button, even for preview releases, since those don't show up on the main GitHub page
+    1. Copy the information from the CHANGELOG.md file relevant to this version and paste it into the release description
+    1. Ensure that the "pre-release" button remains unchecked, even for preview releases, as pre-releases will not be displayed on the main GitHub page
+1. Review the recently created [package](https://github.com/orgs/nightingaleproject/packages) and update the package description as necessary.
 
+Following each release, the compiled package is published on GitHub Packages, accessible through https://github.com/orgs/nightingaleproject/packages and the repository landing page.

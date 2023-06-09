@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.gatech</groupId>
-    <artifactId>VRDR</artifactId>
-    <version>v1.4.0-STU2</version>
+    <artifactId>vrdr</artifactId>
+    <version>4.0.3</version>
     <packaging>jar</packaging>
 
     <name>VRDR</name>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/nightingaleproject/VRDR_javalib</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -74,5 +74,12 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/whichwit/playground</url>
+        </repository>
+    </distributionManagement>
 </project>
 
