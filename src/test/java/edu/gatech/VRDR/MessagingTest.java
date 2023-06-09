@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import edu.gatech.chai.VRDR.model.util.UploadUtil;
+import java.util.Random;
 
 public class MessagingTest extends TestCase {
 
@@ -883,42 +884,36 @@ public class MessagingTest extends TestCase {
     }
 	
 	public void testCreateBulkUploadPayload() {
-		// create a new death certificate "deathCertificate1" and add it to a death record
-		DeathCertificate deathCertificate1 = new DeathCertificate();
-		DeathCertificateDocument deathRecord1 = new DeathCertificateDocument();
-		CommonUtil.initResource((Resource)deathCertificate1);
-		deathRecord1.addEntry((new Bundle.BundleEntryComponent()).setResource((Resource)deathCertificate1));
-		
-		// create a new death certificate "deathCertificate2" and add it to a death record
-		DeathCertificate deathCertificate2 = new DeathCertificate();
-		DeathCertificateDocument deathRecord2 = new DeathCertificateDocument();
-		CommonUtil.initResource((Resource)deathCertificate2);
-		deathRecord2.addEntry((new Bundle.BundleEntryComponent()).setResource((Resource)deathCertificate2));
-		
-		// create a new submission message "message1" and add the death record to it
-		DeathRecordSubmissionMessage message1 = new DeathRecordSubmissionMessage();
-		message1.setDeathRecord(deathRecord1);
-		message1.setCertNo(Integer.valueOf(42));
-		message1.setStateAuxiliaryId("identifier");
-		
-		// create a new submission message "message2" and add the death record to it
-		DeathRecordSubmissionMessage message2 = new DeathRecordSubmissionMessage();
-		message2.setDeathRecord(deathRecord2);
-		message2.setCertNo(Integer.valueOf(43));
-		message2.setStateAuxiliaryId("identifier");
-		
-		// create a list and add the messages to it
-		List<BaseMessage> messages = new ArrayList<>();
-		messages.add(message1);
-		messages.add(message2);
-		
+        // set message counter > 0, note that the value is proportional to run time
+        int msgCounter = 100;
+
+        // create a list
+        List<BaseMessage> messages = new ArrayList<BaseMessage>();
+
+        // create a new death certificate "deathCertificate" and add it to a death record "deathRecord"
+        DeathCertificate deathCertificate = new DeathCertificate();
+        DeathCertificateDocument deathRecord = new DeathCertificateDocument();
+        CommonUtil.initResource((Resource)deathCertificate);
+        deathRecord.addEntry((new Bundle.BundleEntryComponent()).setResource((Resource)deathCertificate));
+
+        // loop from 1 to 100 to create 100 messages and their contents
+        for(int i=1; i<=msgCounter; i++) {
+            // create a new submission message "message" and add the death record "deathRecord" to it
+            DeathRecordSubmissionMessage message = new DeathRecordSubmissionMessage();
+            message.setDeathRecord(deathRecord);
+            message.setCertNo(Integer.valueOf(i));
+            message.setJurisdictionId("TT");
+            message.setStateAuxiliaryId(Integer.toString((int) Math.random() * msgCounter + 1));
+            messages.add(message);
+        }
+
 		// test method
 		String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
 		assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
 		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
-		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), 2);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), 2);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 6);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3*msgCounter);
 	}
 
 }
