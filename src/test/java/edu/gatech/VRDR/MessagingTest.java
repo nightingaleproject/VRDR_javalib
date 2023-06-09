@@ -884,7 +884,7 @@ public class MessagingTest extends TestCase {
     }
 	
 	public void testCreateBulkUploadPayload() {
-        // set message counter > 0, note that the value is proportional to run time
+        // set message counter to a value > 0. Note that the higher the value, the longer the run time
         int msgCounter = 100;
 
         // create a list
@@ -913,7 +913,7 @@ public class MessagingTest extends TestCase {
 		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
 		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
 		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3*msgCounter);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
 	}
 
 }
