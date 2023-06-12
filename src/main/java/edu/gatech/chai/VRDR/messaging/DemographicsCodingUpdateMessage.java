@@ -40,7 +40,7 @@ public class DemographicsCodingUpdateMessage extends BaseMessage implements Docu
 
     public DemographicsCodingUpdateMessage(BaseMessage messageToCode) {
         this(messageToCode == null ? null : messageToCode.getMessageHeaderId(),
-				messageToCode == null ? null : messageToCode.getMessageSource(),
+		messageToCode == null ? null : messageToCode.getMessageSource(),
                 messageToCode == null ? null : messageToCode.getMessageDestination());
         setCertNo(messageToCode == null ? null : messageToCode.getCertNo());
         setStateAuxiliaryId(messageToCode == null ? null : messageToCode.getStateAuxiliaryId());
