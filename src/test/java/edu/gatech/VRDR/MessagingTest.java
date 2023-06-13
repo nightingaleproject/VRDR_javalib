@@ -44,7 +44,7 @@ public class MessagingTest extends TestCase {
         return new TestSuite(MessagingTest.class);
     }
 
-    public void testCreateSubmission() {);
+    public void testCreateSubmission() {
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         assertEquals("http://nchs.cdc.gov/vrdr_submission", submission.getMessageType());
         assertNull(submission.getDeathRecord());
