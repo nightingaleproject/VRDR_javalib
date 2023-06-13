@@ -558,6 +558,7 @@ public class MessagingTest extends TestCase {
         InputRaceAndEthnicity inputRaceAndEthnicity = bundle.getInputRaceAndEthnicity();
         assertEquals("N", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicMexicanCodeComponentCode));
         assertEquals("Y", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicCubanCodeComponentCode));
+	System.out.println("**********messageSource="+message.getMessageSource());
     }
 
     public void testCreateDeathRecordVoidMessage() {
