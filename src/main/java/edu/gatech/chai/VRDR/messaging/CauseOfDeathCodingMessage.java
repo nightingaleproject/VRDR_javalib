@@ -44,8 +44,8 @@ public class CauseOfDeathCodingMessage extends BaseMessage implements DocumentBu
 
     public CauseOfDeathCodingMessage(BaseMessage messageToCode) {
         this(messageToCode == null ? null : messageToCode.getMessageHeaderId(),
-		messageToCode == null ? null : messageToCode.getMessageSource(),
-                messageToCode == null ? null : messageToCode.getMessageDestination());
+	     messageToCode == null ? null : messageToCode.getMessageDestination(),
+	     messageToCode == null ? null : messageToCode.getMessageSource());
         setCertNo(messageToCode == null ? null : messageToCode.getCertNo());
         setStateAuxiliaryId(messageToCode == null ? null : messageToCode.getStateAuxiliaryId());
         setDeathYear(messageToCode == null ? null : messageToCode.getDeathYear());
