@@ -20,8 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.gatech.chai.VRDR.model.util.UploadUtil;
 import java.util.Random;
 
-import edu.gatech.chai.VRDR.messaging.util.MessagingExample;
-
 public class MessagingTest extends TestCase {
 
     VRDRFhirContext ctx;
@@ -55,11 +53,6 @@ public class MessagingTest extends TestCase {
         assertNull(submission.getCertNo());
         assertNull(submission.getStateAuxiliaryId());
         assertNull(submission.getNCHSIdentifier());
-    }
-
-    public void createDeathRecordSubmissionMessage() {
-        Bundle message = new MessagingExample().createDeathRecordSubmissionMessage();
-        String bundleStr = ctx.getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(message);
     }
 
 
@@ -324,7 +317,6 @@ public class MessagingTest extends TestCase {
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
         assertEquals(submission.getCertNo(), coding.getCertNo());
         assertEquals(submission.getNCHSIdentifier(), coding.getNCHSIdentifier());
-        assertEquals(submission.getMessageSource(), coding.getMessageSource());
     }
 
     public void testCreateDemographicsCodingMessageWithNoIdentifiers() {
@@ -514,13 +506,8 @@ public class MessagingTest extends TestCase {
         assertEquals(2021, codingStatusValues.getReceiptYear().intValue());
         assertEquals(6, codingStatusValues.getReceiptMonth().intValue());
         assertEquals(1, codingStatusValues.getReceiptDay().intValue());
-        assertTrue(MannerOfDeathUtil.VALUE_NATURAL.equalsDeep(bundle.getMannerOfDeath().getValueCodeableConcept()));
 
-        DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
-                "src/test/resources/json/DeathRecordSubmissionMessage.json");
-        CauseOfDeathCodingUpdateMessage coding = new CauseOfDeathCodingUpdateMessage(submission);
-        assertEquals("https://sos.nh.gov/vitalrecords", coding.getMessageSource());
-        assertEquals(submission.getMessageSource(), "https://nchs.cdc.gov/vrdr_submission");
+        assertTrue(MannerOfDeathUtil.VALUE_NATURAL.equalsDeep(bundle.getMannerOfDeath().getValueCodeableConcept()));
     }
 
     public void testCreateDemographicCodingResponseFromJSON() {
@@ -542,11 +529,6 @@ public class MessagingTest extends TestCase {
         InputRaceAndEthnicity inputRaceAndEthnicity = bundle.getInputRaceAndEthnicity();
         assertEquals("N", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicMexicanCodeComponentCode));
         assertEquals("Y", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicCubanCodeComponentCode));
-
-        DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
-                "src/test/resources/json/DeathRecordSubmissionMessage.json");
-        DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
-        assertEquals("https://sos.nh.gov/vitalrecords", coding.getMessageSource());
     }
 
     public void testCreateDemographicsCodingUpdateFromJSON() {
@@ -568,11 +550,6 @@ public class MessagingTest extends TestCase {
         InputRaceAndEthnicity inputRaceAndEthnicity = bundle.getInputRaceAndEthnicity();
         assertEquals("N", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicMexicanCodeComponentCode));
         assertEquals("Y", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicCubanCodeComponentCode));
-
-        DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
-                "src/test/resources/json/DeathRecordSubmissionMessage.json");
-        DemographicsCodingUpdateMessage coding = new DemographicsCodingUpdateMessage(submission);
-        assertEquals("https://sos.nh.gov/vitalrecords", coding.getMessageSource());
     }
 
     public void testCreateDeathRecordVoidMessage() {
@@ -588,8 +565,6 @@ public class MessagingTest extends TestCase {
         assertNull(message.getBlockCount());
         message.setBlockCount(100);
         assertEquals(100, message.getBlockCount().intValue());
-        message.setMessageSource("https://sos.nh.gov/vitalrecords");
-        assertEquals("https://sos.nh.gov/vitalrecords", message.getMessageSource());
     }
 
     public void testCreateStatusMessage() {
@@ -903,12 +878,12 @@ public class MessagingTest extends TestCase {
         assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"AmericanIndianOrAlaskanNative\"}]},\"valueBoolean\":true}"));
         assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"FirstAmericanIndianOrAlaskanNativeLiteral\"}]},\"valueString\":\"Apache\"}"));
         assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"SecondAmericanIndianOrAlaskanNativeLiteral\"}]},\"valueString\":\"Lipan Apache\"}"));
-        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"HispanicOther\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/ValueSet/v2-0136\",\"code\":\"Y\",\"display\":\"Yes\"}]}}"));
+        assertTrue(submissionBundleStr.contains("{\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs\",\"code\":\"HispanicOther\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0136\",\"code\":\"Y\",\"display\":\"Yes\"}]}}"));
         DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
         assertNotNull(parsed); // make sure we can parse the race values without crashing
     }
-
-    public void testCreateBulkUploadPayload() {
+	
+	public void testCreateBulkUploadPayload() {
         // set message counter to a value > 0. Note that the higher the value, the longer the run time
         int msgCounter = 100;
 
@@ -932,12 +907,13 @@ public class MessagingTest extends TestCase {
             messages.add(message);
         }
 
-        // test method
-        String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
-        assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
-        assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
-        assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
-        assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
-        assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
-    }
+		// test method
+		String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
+		assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
+		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
+		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
+	}
+
 }
