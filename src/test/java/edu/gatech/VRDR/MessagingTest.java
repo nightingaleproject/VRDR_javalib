@@ -44,8 +44,7 @@ public class MessagingTest extends TestCase {
         return new TestSuite(MessagingTest.class);
     }
 
-    public void testCreateSubmission() {
-        System.out.println("******************TEST**************");
+    public void testCreateSubmission() {);
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         assertEquals("http://nchs.cdc.gov/vrdr_submission", submission.getMessageType());
         assertNull(submission.getDeathRecord());
@@ -56,14 +55,11 @@ public class MessagingTest extends TestCase {
         assertNull(submission.getCertNo());
         assertNull(submission.getStateAuxiliaryId());
         assertNull(submission.getNCHSIdentifier());
-
-        //createDeathRecordSubmissionMessage();
     }
 
     public void createDeathRecordSubmissionMessage() {
         Bundle message = new MessagingExample().createDeathRecordSubmissionMessage();
         String bundleStr = ctx.getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(message);
-        System.out.println("******************bundleStr**************"+bundleStr);
     }
 
 
