@@ -943,5 +943,4 @@ public class MessagingTest extends TestCase {
 		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
 		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
 	}
-
 }
