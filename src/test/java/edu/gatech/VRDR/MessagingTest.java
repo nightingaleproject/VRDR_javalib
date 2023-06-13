@@ -519,7 +519,8 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
                 "src/test/resources/json/DeathRecordSubmissionMessage.json");
         CauseOfDeathCodingUpdateMessage coding = new CauseOfDeathCodingUpdateMessage(submission);
-        assertEquals(submission.getMessageSource(), coding.getMessageSource());
+        assertEquals("https://sos.nh.gov/vitalrecords", coding.getMessageSource());
+        assertEquals(submission.getMessageSource(), "https://nchs.cdc.gov/vrdr_submission");
     }
 
     public void testCreateDemographicCodingResponseFromJSON() {
