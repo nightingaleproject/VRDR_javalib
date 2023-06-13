@@ -284,8 +284,8 @@ public class MessagingTest extends TestCase {
         CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(submission);
         assertEquals("http://nchs.cdc.gov/vrdr_causeofdeath_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
-        assertEquals(submission.getMessageSource(), coding.getMessageSource());
-        assertEquals(submission.getMessageDestination(), coding.getMessageDestination());
+        assertEquals(submission.getMessageSource(), coding.getMessageDestination());
+        assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
         assertEquals(submission.getCertNo(), coding.getCertNo());
         assertEquals(submission.getNCHSIdentifier(), coding.getNCHSIdentifier());
@@ -307,8 +307,8 @@ public class MessagingTest extends TestCase {
         CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(submission);
         assertEquals("http://nchs.cdc.gov/vrdr_causeofdeath_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
-        assertEquals(submission.getMessageSource(), null);
-        assertEquals(submission.getMessageDestination(), coding.getMessageDestination());
+        assertEquals(submission.getMessageSource(), coding.getMessageDestination());
+        assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
         assertEquals(submission.getCertNo(), coding.getCertNo());
         assertEquals(submission.getNCHSIdentifier(), coding.getNCHSIdentifier());
@@ -319,8 +319,8 @@ public class MessagingTest extends TestCase {
         DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
         assertEquals("http://nchs.cdc.gov/vrdr_demographics_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
-        assertEquals(submission.getMessageSource(), coding.getMessageSource());
-        assertEquals(submission.getMessageDestination(), coding.getMessageDestination());
+        assertEquals(submission.getMessageSource(), coding.getMessageDestination());
+        assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
         assertEquals(submission.getCertNo(), coding.getCertNo());
         assertEquals(submission.getNCHSIdentifier(), coding.getNCHSIdentifier());
@@ -343,8 +343,8 @@ public class MessagingTest extends TestCase {
         DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
         assertEquals("http://nchs.cdc.gov/vrdr_demographics_coding", coding.getMessageType());
         assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
-        assertEquals(submission.getMessageSource(), null);
-        assertEquals(submission.getMessageDestination(), coding.getMessageDestination());
+        assertEquals(submission.getMessageSource(), coding.getMessageDestination());
+        assertEquals(submission.getMessageDestination(), coding.getMessageSource());
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
         assertEquals(submission.getCertNo(), coding.getCertNo());
         assertEquals(submission.getNCHSIdentifier(), coding.getNCHSIdentifier());
