@@ -508,6 +508,14 @@ public class MessagingTest extends TestCase {
         assertEquals(1, codingStatusValues.getReceiptDay().intValue());
 
         assertTrue(MannerOfDeathUtil.VALUE_NATURAL.equalsDeep(bundle.getMannerOfDeath().getValueCodeableConcept()));
+	    
+	DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
+                "src/test/resources/json/DeathRecordSubmissionMessage.json");
+        CauseOfDeathCodingUpdateMessage coding = new CauseOfDeathCodingUpdateMessage(submission);
+        assertEquals("http://nchs.cdc.gov/vrdr_causeofdeath_coding_update", coding.getMessageType());
+        assertEquals(submission.getMessageHeaderId(), coding.getCodedMessageId());
+        assertEquals(submission.getMessageSource(), coding.getMessageDestination());
+        assertEquals(submission.getMessageDestination(), coding.getMessageSource());
     }
 
     public void testCreateDemographicCodingResponseFromJSON() {
