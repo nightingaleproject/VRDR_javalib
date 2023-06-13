@@ -27,8 +27,8 @@ public class DeathRecordVoidMessage extends BaseMessage {
 
     public DeathRecordVoidMessage(BaseMessage messageToVoid) {
         this(messageToVoid == null ? null : messageToVoid.getId(),
-		messageToVoid == null ? null : messageToVoid.getMessageSource(),
-                messageToVoid == null ? null : messageToVoid.getMessageDestination());
+	     messageToVoid == null ? null : messageToVoid.getMessageDestination(),
+	     messageToVoid == null ? null : messageToVoid.getMessageSource());
         setCertNo(messageToVoid == null ? null : messageToVoid.getCertNo());
         setStateAuxiliaryId(messageToVoid == null ? null : messageToVoid.getStateAuxiliaryId());
         setDeathYear(messageToVoid == null ? null : messageToVoid.getDeathYear());
