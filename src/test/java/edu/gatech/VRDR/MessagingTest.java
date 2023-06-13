@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import edu.gatech.chai.VRDR.model.util.UploadUtil;
 import java.util.Random;
 
+import edu.gatech.chai.VRDR.messaging.util.MessagingExample;
+
 public class MessagingTest extends TestCase {
 
     VRDRFhirContext ctx;
@@ -43,6 +45,7 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateSubmission() {
+		System.out.println("******************TEST**************");
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         assertEquals("http://nchs.cdc.gov/vrdr_submission", submission.getMessageType());
         assertNull(submission.getDeathRecord());
@@ -53,7 +56,15 @@ public class MessagingTest extends TestCase {
         assertNull(submission.getCertNo());
         assertNull(submission.getStateAuxiliaryId());
         assertNull(submission.getNCHSIdentifier());
+		
+		//createDeathRecordSubmissionMessage();
     }
+	
+	public void createDeathRecordSubmissionMessage() {
+		Bundle message = new MessagingExample().createDeathRecordSubmissionMessage();
+		String bundleStr = ctx.getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(message);
+		System.out.println("******************bundleStr**************"+bundleStr);
+	}
 
 
     public void testCreateSubmissionFromDeathRecordXML() {
@@ -317,6 +328,7 @@ public class MessagingTest extends TestCase {
         assertEquals(submission.getStateAuxiliaryId(), coding.getStateAuxiliaryId());
         assertEquals(submission.getCertNo(), coding.getCertNo());
         assertEquals(submission.getNCHSIdentifier(), coding.getNCHSIdentifier());
+        assertEquals(submission.getMessageSource(), coding.getMessageSource());
     }
 
     public void testCreateDemographicsCodingMessageWithNoIdentifiers() {
@@ -506,8 +518,12 @@ public class MessagingTest extends TestCase {
         assertEquals(2021, codingStatusValues.getReceiptYear().intValue());
         assertEquals(6, codingStatusValues.getReceiptMonth().intValue());
         assertEquals(1, codingStatusValues.getReceiptDay().intValue());
-
         assertTrue(MannerOfDeathUtil.VALUE_NATURAL.equalsDeep(bundle.getMannerOfDeath().getValueCodeableConcept()));
+
+        DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
+                "src/test/resources/json/DeathRecordSubmissionMessage.json");
+        CauseOfDeathCodingUpdateMessage coding = new CauseOfDeathCodingUpdateMessage(submission);
+        assertEquals(submission.getMessageSource(), coding.getMessageSource());
     }
 
     public void testCreateDemographicCodingResponseFromJSON() {
@@ -529,6 +545,11 @@ public class MessagingTest extends TestCase {
         InputRaceAndEthnicity inputRaceAndEthnicity = bundle.getInputRaceAndEthnicity();
         assertEquals("N", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicMexicanCodeComponentCode));
         assertEquals("Y", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicCubanCodeComponentCode));
+
+        DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
+                "src/test/resources/json/DeathRecordSubmissionMessage.json");
+        DemographicsCodingMessage coding = new DemographicsCodingMessage(submission);
+        assertEquals("https://sos.nh.gov/vitalrecords", coding.getMessageSource());
     }
 
     public void testCreateDemographicsCodingUpdateFromJSON() {
@@ -550,6 +571,11 @@ public class MessagingTest extends TestCase {
         InputRaceAndEthnicity inputRaceAndEthnicity = bundle.getInputRaceAndEthnicity();
         assertEquals("N", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicMexicanCodeComponentCode));
         assertEquals("Y", inputRaceAndEthnicity.getValueCodeableConceptCodeForCoding(CodedRaceAndEthnicityUtil.hispanicCubanCodeComponentCode));
+
+        DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx,
+                "src/test/resources/json/DeathRecordSubmissionMessage.json");
+        DemographicsCodingUpdateMessage coding = new DemographicsCodingUpdateMessage(submission);
+        assertEquals("https://sos.nh.gov/vitalrecords", coding.getMessageSource());
     }
 
     public void testCreateDeathRecordVoidMessage() {
@@ -565,6 +591,8 @@ public class MessagingTest extends TestCase {
         assertNull(message.getBlockCount());
         message.setBlockCount(100);
         assertEquals(100, message.getBlockCount().intValue());
+        message.setMessageSource("https://sos.nh.gov/vitalrecords");
+        assertEquals("https://sos.nh.gov/vitalrecords", message.getMessageSource());
     }
 
     public void testCreateStatusMessage() {
