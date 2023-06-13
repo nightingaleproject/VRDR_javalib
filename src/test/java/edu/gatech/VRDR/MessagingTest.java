@@ -45,7 +45,7 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateSubmission() {
-		System.out.println("******************TEST**************");
+        System.out.println("******************TEST**************");
         DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
         assertEquals("http://nchs.cdc.gov/vrdr_submission", submission.getMessageType());
         assertNull(submission.getDeathRecord());
@@ -56,15 +56,15 @@ public class MessagingTest extends TestCase {
         assertNull(submission.getCertNo());
         assertNull(submission.getStateAuxiliaryId());
         assertNull(submission.getNCHSIdentifier());
-		
-		//createDeathRecordSubmissionMessage();
+
+        //createDeathRecordSubmissionMessage();
     }
-	
-	public void createDeathRecordSubmissionMessage() {
-		Bundle message = new MessagingExample().createDeathRecordSubmissionMessage();
-		String bundleStr = ctx.getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(message);
-		System.out.println("******************bundleStr**************"+bundleStr);
-	}
+
+    public void createDeathRecordSubmissionMessage() {
+        Bundle message = new MessagingExample().createDeathRecordSubmissionMessage();
+        String bundleStr = ctx.getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(message);
+        System.out.println("******************bundleStr**************"+bundleStr);
+    }
 
 
     public void testCreateSubmissionFromDeathRecordXML() {
@@ -910,8 +910,8 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
         assertNotNull(parsed); // make sure we can parse the race values without crashing
     }
-	
-	public void testCreateBulkUploadPayload() {
+
+    public void testCreateBulkUploadPayload() {
         // set message counter to a value > 0. Note that the higher the value, the longer the run time
         int msgCounter = 100;
 
@@ -935,12 +935,12 @@ public class MessagingTest extends TestCase {
             messages.add(message);
         }
 
-		// test method
-		String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
-		assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
-		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
-		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
-	}
+        // test method
+        String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
+        assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
+        assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
+        assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
+        assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
+        assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
+    }
 }
