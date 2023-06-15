@@ -49,7 +49,9 @@ public class DeathRecordUpdateMessage extends BaseMessage implements DocumentBun
     public void setDeathRecord(DeathCertificateDocument deathRecord) {
         this.deathRecord = deathRecord;
         extractBusinessIdentifiers(deathRecord);
-        addBundleEntryAndLinkToHeader(this, messageHeader, deathRecord);
+        if (deathRecord != null) {
+            addBundleEntryAndLinkToHeader(this, messageHeader, deathRecord);
+        }
     }
 
     public String getDeathLocationJurisdiction() {

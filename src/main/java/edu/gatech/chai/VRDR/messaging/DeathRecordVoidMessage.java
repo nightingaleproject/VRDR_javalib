@@ -3,9 +3,10 @@ package edu.gatech.chai.VRDR.messaging;
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.MessageHeader;
 import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.UnsignedIntType;
 
 @ResourceDef(name = "DeathRecordVoidMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordVoidMessage")
 public class DeathRecordVoidMessage extends BaseMessage {
@@ -67,11 +68,8 @@ public class DeathRecordVoidMessage extends BaseMessage {
     }
 
     public void setBlockCount(Integer value) {
-        if (value != null && value > 1) {
-            messageParameters.setParameter("block_count", new IntegerType(value));
-        }
-        else {
-            messageParameters.setParameter("block_count", (IntegerType)null);
+        if (value != null && value >= 0) {
+            messageParameters.setParameter("block_count", new UnsignedIntType(value));
         }
     }
 

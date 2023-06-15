@@ -19,6 +19,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import edu.gatech.chai.VRDR.model.util.UploadUtil;
 import java.util.Random;
+import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.UnsignedIntType;
+
 
 public class MessagingTest extends TestCase {
 
@@ -636,6 +639,25 @@ public class MessagingTest extends TestCase {
         assertEquals(voidMessage.getCertNo(), ack.getCertNo());
         assertEquals(voidMessage.getNCHSIdentifier(), ack.getNCHSIdentifier());
         assertEquals(voidMessage.getBlockCount(), ack.getBlockCount());
+    }
+	
+    public void testSetBlockCountDeathRecordVoidMessage() {
+	DeathRecordVoidMessage voidMessage = new DeathRecordVoidMessage();
+	Integer value = null;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), null);
+	value = -1;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), null);
+	value = 0;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), value);
+	value = 1;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), value);
+	value = 2;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), value);
     }
 
     public void testCreateAckForStatusMessage() {
