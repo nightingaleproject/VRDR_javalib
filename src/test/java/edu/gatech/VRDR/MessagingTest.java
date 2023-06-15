@@ -16,6 +16,11 @@ import org.hl7.fhir.r4.model.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import edu.gatech.chai.VRDR.model.util.UploadUtil;
+import java.util.Random;
+import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.UnsignedIntType;
 
 public class MessagingTest extends TestCase {
 
@@ -634,6 +639,27 @@ public class MessagingTest extends TestCase {
         assertEquals(voidMessage.getNCHSIdentifier(), ack.getNCHSIdentifier());
         assertEquals(voidMessage.getBlockCount(), ack.getBlockCount());
     }
+	
+    public void testSetBlockCountDeathRecordVoidMessage() {
+	DeathRecordVoidMessage voidMessage = new DeathRecordVoidMessage();
+	Integer value = null;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), null);
+	value = 2;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), value);
+	value = 1;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), value);
+	value = 0;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), value);
+
+	DeathRecordVoidMessage voidMessage1 = new DeathRecordVoidMessage();
+	value = -1;
+	voidMessage1.setBlockCount(value);
+	assertEquals(voidMessage1.getBlockCount(), null);
+    }
 
     public void testCreateAckForStatusMessage() {
         StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx,
@@ -879,5 +905,38 @@ public class MessagingTest extends TestCase {
         DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
         assertNotNull(parsed); // make sure we can parse the race values without crashing
     }
+	
+	public void testCreateBulkUploadPayload() {
+        // set message counter to a value > 0. Note that the higher the value, the longer the run time
+        int msgCounter = 100;
+
+        // create a list
+        List<BaseMessage> messages = new ArrayList<BaseMessage>();
+
+        // create a new death certificate "deathCertificate" and add it to a death record "deathRecord"
+        DeathCertificate deathCertificate = new DeathCertificate();
+        DeathCertificateDocument deathRecord = new DeathCertificateDocument();
+        CommonUtil.initResource((Resource)deathCertificate);
+        deathRecord.addEntry((new Bundle.BundleEntryComponent()).setResource((Resource)deathCertificate));
+
+        // loop from 1 to 100 to create 100 messages and their contents
+        for(int i=1; i<=msgCounter; i++) {
+            // create a new submission message "message" and add the death record "deathRecord" to it
+            DeathRecordSubmissionMessage message = new DeathRecordSubmissionMessage();
+            message.setDeathRecord(deathRecord);
+            message.setCertNo(Integer.valueOf(i));
+            message.setJurisdictionId("TT");
+            message.setStateAuxiliaryId(Integer.toString((int) Math.random() * msgCounter + 1));
+            messages.add(message);
+        }
+
+		// test method
+		String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
+		assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
+		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
+		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
+		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
+	}
 
 }
