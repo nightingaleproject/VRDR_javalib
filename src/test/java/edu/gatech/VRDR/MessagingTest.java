@@ -649,13 +649,13 @@ public class MessagingTest extends TestCase {
 	value = -1;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount(), null);
-	value = 2;
+	value = 0;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount(), value);
 	value = 1;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount(), value);
-	value = 0;
+	value = 2;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount(), value);
     }
