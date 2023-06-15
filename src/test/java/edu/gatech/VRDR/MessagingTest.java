@@ -646,6 +646,9 @@ public class MessagingTest extends TestCase {
 	Integer value = null;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount(), null);
+	value = -1;
+	voidMessage.setBlockCount(value);
+	assertEquals(voidMessage.getBlockCount(), null);
 	value = 2;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount(), value);
@@ -655,11 +658,6 @@ public class MessagingTest extends TestCase {
 	value = 0;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount(), value);
-
-	DeathRecordVoidMessage voidMessage1 = new DeathRecordVoidMessage();
-	value = -1;
-	voidMessage1.setBlockCount(value);
-	assertEquals(voidMessage1.getBlockCount(), null);
     }
 
     public void testCreateAckForStatusMessage() {
