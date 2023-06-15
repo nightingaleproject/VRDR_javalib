@@ -689,6 +689,11 @@ public class MessagingTest extends TestCase {
         assertEquals("http://nchs.cdc.gov/vrdr_submission", message.getMessageDestination());
         assertEquals("nightingale", message.getMessageSource());
     }
+	
+	public void testGetDeathRecordVoidMessageBlockCount16FromJson() {
+        DeathRecordVoidMessage message = BaseMessage.parseJsonFile(DeathRecordVoidMessage.class, ctx, "src/test/resources/json/DeathRecordVoidMessageBlockCount16.json");
+        assertEquals(16, message.getBlockCount().intValue());
+    }
 
     public void testCreateVoidForDocument() {
         DeathCertificateDocument deathRecord = deathRecord1FromXML;
