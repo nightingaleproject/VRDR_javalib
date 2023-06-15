@@ -17,7 +17,7 @@ import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
 
 public class CommonUtil {
 	public static final String identifierTypeHL7System = "http://terminology.hl7.org/CodeSystem/v2-0203";
-	public static final String basicBooleanHL7System = "http://terminology.hl7.org/ValueSet/v2-0136";
+	public static final String basicBooleanHL7System = "http://terminology.hl7.org/CodeSystem/v2-0136";
 	public static final String yesNoNASystemOID = "urn:oid:2.16.840.1.113883.12.136";
 	public static final String nullFlavorSystemOID = "urn:oid:2.16.840.1.113883.5.1008";
 	public static final String nullFlavorHL7System = "http://terminology.hl7.org/CodeSystem/v3-NullFlavor";
