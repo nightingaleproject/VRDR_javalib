@@ -916,12 +916,11 @@ public class MessagingTest extends TestCase {
         assertTrue(listOfMessages.stream().filter(message -> message.getClass().getName().equals("edu.gatech.chai.VRDR.model.CodedRaceAndEthnicity")).findFirst().isPresent());
         assertTrue(listOfMessages.stream().filter(message -> message.getClass().getName().equals("edu.gatech.chai.VRDR.model.InputRaceAndEthnicity")).findFirst().isPresent());
         Object message = listOfMessages.get(0);
-        CodedRaceAndEthnicity codedRaceAndEthnicity =  new CodedRaceAndEthnicity();
         InputRaceAndEthnicity inputRaceAndEthnicity =  new InputRaceAndEthnicity();
         if(message instanceof InputRaceAndEthnicity) {
-            assertTrue(((edu.gatech.chai.VRDR.model.InputRaceAndEthnicity)message).getAmericanIndianOrAlaskaNativeBooleanValue());
+            assertTrue(((InputRaceAndEthnicity)message).getAmericanIndianOrAlaskaNativeBooleanValue());
         }
-        else assertEquals("urn:uuid:02611119-b9e6-4fe9-b1e2-12b10e79fa5f", ((edu.gatech.chai.VRDR.model.CodedRaceAndEthnicity)message).getId());
+        else assertEquals("urn:uuid:02611119-b9e6-4fe9-b1e2-12b10e79fa5f", ((CodedRaceAndEthnicity)message).getId());
     }
 	
     public void testCreateBulkUploadPayload() {
