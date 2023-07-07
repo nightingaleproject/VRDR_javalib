@@ -8,7 +8,10 @@ import java.util.List;
 import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.parser.DataFormatException;
 import edu.gatech.chai.VRDR.context.VRDRFhirContextDataStructuresOnly;
-import edu.gatech.chai.VRDR.model.*;
+import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
+import edu.gatech.chai.VRDR.model.DeathDate;
+import edu.gatech.chai.VRDR.model.Decedent;
+import edu.gatech.chai.VRDR.model.MannerOfDeath;
 import edu.gatech.chai.VRDR.model.util.BuildDCD;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -47,28 +50,22 @@ public class AppTest
     	assertTrue(encoded != null && encoded.length() > 0);
     }
 	
-	public void testSimplifiedJsonParserDeathCertificateDocument()
+    public void testSimplifiedJsonParserDeathCertificateDocument()
     {
     	DeathCertificateDocument deathCertificateDocument = BuildDCD.buildExampleDeathCertificateDocument();
-		String encoded = deathCertificateDocument.toJson(true);
+	String encoded = deathCertificateDocument.toJson(true);
     	assertTrue(encoded != null && encoded.length() > 0);
     }
 
-	public void testSimplifiedXmlParserDeathCertificateDocument()
-	{
-		DeathCertificateDocument deathCertificateDocument = BuildDCD.buildExampleDeathCertificateDocument();
-		String encoded = deathCertificateDocument.toXml(true);
-		assertTrue(encoded != null && encoded.length() > 0);
-	}
-
-	public void testBirthCode() {
-		DeathCertificateDocument deathCertificateDocument = BuildDCD.buildExampleDeathCertificateDocument();
-		List codes = ((BirthRecordIdentifier)(deathCertificateDocument.getBirthRecordIdentifier())).getBirthJurisdiction().getCoding();
-	    System.out.println(" ***  codes = "+codes);
-	}
+     public void testSimplifiedXmlParserDeathCertificateDocument()
+     {
+	DeathCertificateDocument deathCertificateDocument = BuildDCD.buildExampleDeathCertificateDocument();
+	String encoded = deathCertificateDocument.toXml(true);
+	assertTrue(encoded != null && encoded.length() > 0);
+     }
     
-    public void testConsumingDeathCertificateDocument()
-    {
+     public void testConsumingDeathCertificateDocument()
+     {
     	ClassLoader classLoader = getClass().getClassLoader();
     	File file = new File(classLoader.getResource("Testcase_Certificate.json").getFile());
     	DeathCertificateDocument deathCertificateDocument = null;
@@ -83,7 +80,7 @@ public class AppTest
 		}
     	String encoded = context.getCtx().newJsonParser().encodeResourceToString(deathCertificateDocument);
 		assertTrue(encoded != null && encoded.length() > 0);
-    }
+     }
     
     public void testGetResourceFromDocument() {
     	DeathCertificateDocument deathCertificateDocument = BuildDCD.buildExampleDeathCertificateDocument();
