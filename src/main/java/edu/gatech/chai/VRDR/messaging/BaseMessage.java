@@ -514,4 +514,44 @@ public class BaseMessage extends Bundle {
         }
     }
 
+    public static List<? extends Bundle> parseBundleOfBundles(Class clazz, VRDRFhirContext ctx, String filePath, String bundleString) {
+        IParser parser = ctx.getCtx().newJsonParser();
+        InputStream stream = getInputStream(filePath);
+        if (stream != null && bundleString != null) {
+            throw new IllegalArgumentException("Cannot parse from both a stream and a string, one must be null");
+        }
+        try (InputStreamReader reader = stream == null ? null : new InputStreamReader(stream)) {
+            parser.setParserErrorHandler(new LenientErrorHandler());
+            Bundle bundle = reader != null
+                    ? parser.setParserErrorHandler(new LenientErrorHandler()).parseResource(Bundle.class, reader)
+                    : parser.setParserErrorHandler(new LenientErrorHandler()).parseResource(Bundle.class, bundleString);
+            if (Bundle.class.isAssignableFrom(clazz) ) {
+                Object message = BaseMessage.parseJsonFile(clazz, ctx, filePath);
+                Method[] methods = clazz.getDeclaredMethods();
+                List listOfMessages = new ArrayList();
+                for(Method method: methods) {
+                    String methodName = method.getName();
+                    // filter for getter of the main bundle and invoke this method
+                    if(methodName.contains("get") && methodName.contains("ContentBundle")) {
+                        Object bundleBase = method.invoke(message);
+                        Method[] methods1 = bundleBase.getClass().getDeclaredMethods();
+                        String methodName1;
+                        for(Method method1: methods1) {
+                            methodName1 = method1.getName();
+                            // filter for getters of sub-bundles/sub-messages and invoke these methods
+                            if (methodName1.startsWith("get") && method1.invoke(bundleBase).getClass().getName().contains("edu.gatech.chai.VRDR.model")) {
+                                listOfMessages.add(method1.invoke(bundleBase));
+                            }
+                        }
+                    }
+                }
+
+                return listOfMessages;
+            } else {
+                throw new IllegalArgumentException("Cannot parse to class " + clazz.getName());
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Unable to parse bundle, exception: " + e);
+        }
+    }
 }
