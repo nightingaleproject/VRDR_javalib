@@ -910,7 +910,21 @@ public class MessagingTest extends TestCase {
         assertNotNull(parsed); // make sure we can parse the race values without crashing
     }
 	
-	public void testCreateBulkUploadPayload() {
+    public void testParseBundleOfBundles() {
+        List listOfMessages = BaseMessage.parseBundleOfBundles(DemographicsCodingMessage.class, ctx, "src/test/resources/json/DemographicsCodingMessage.json", null);
+        assertEquals(listOfMessages.size(), 2);
+        assertTrue(listOfMessages.stream().filter(message -> message.getClass().getName().equals("edu.gatech.chai.VRDR.model.CodedRaceAndEthnicity")).findFirst().isPresent());
+        assertTrue(listOfMessages.stream().filter(message -> message.getClass().getName().equals("edu.gatech.chai.VRDR.model.InputRaceAndEthnicity")).findFirst().isPresent());
+        Object message = listOfMessages.get(0);
+        CodedRaceAndEthnicity codedRaceAndEthnicity =  new CodedRaceAndEthnicity();
+        InputRaceAndEthnicity inputRaceAndEthnicity =  new InputRaceAndEthnicity();
+        if(message instanceof InputRaceAndEthnicity) {
+            assertTrue(((edu.gatech.chai.VRDR.model.InputRaceAndEthnicity)message).getAmericanIndianOrAlaskaNativeBooleanValue());
+        }
+        else assertEquals("urn:uuid:02611119-b9e6-4fe9-b1e2-12b10e79fa5f", ((edu.gatech.chai.VRDR.model.CodedRaceAndEthnicity)message).getId());
+    }
+	
+    public void testCreateBulkUploadPayload() {
         // set message counter to a value > 0. Note that the higher the value, the longer the run time
         int msgCounter = 100;
 
