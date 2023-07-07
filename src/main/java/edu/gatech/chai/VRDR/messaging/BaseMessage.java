@@ -16,6 +16,7 @@ import org.hl7.fhir.r4.model.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.lang.reflect.Method;
 
 public class BaseMessage extends Bundle {
 
