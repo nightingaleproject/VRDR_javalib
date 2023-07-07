@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ca.uhn.fhir.context.FhirContext;
 import edu.gatech.chai.VRDR.context.VRDRFhirContext;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Composition.CompositionStatus;
@@ -233,5 +234,14 @@ public class DeathCertificateDocument extends Bundle {
 		return ctx.getCtx().newJsonParser().setPrettyPrint(prettyPrint).encodeResourceToString(this);
 	}
 
+	public String toJson(boolean prettyPrint) {
+		FhirContext ctx = FhirContext.forR4();
+		return ctx.newJsonParser().setPrettyPrint(prettyPrint).encodeResourceToString(this);
+	}
+
+	public String toXml(boolean prettyPrint) {
+		FhirContext ctx = FhirContext.forR4();
+		return ctx.newXmlParser().setPrettyPrint(prettyPrint).encodeResourceToString(this);
+	}
 
 }
