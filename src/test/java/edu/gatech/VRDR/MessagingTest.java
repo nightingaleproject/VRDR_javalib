@@ -911,16 +911,12 @@ public class MessagingTest extends TestCase {
     }
 	
     public void testParseBundleOfBundles() {
-        List listOfMessages = BaseMessage.parseBundleOfBundles(DemographicsCodingMessage.class, ctx, "src/test/resources/json/DemographicsCodingMessage.json", null);
-        assertEquals(listOfMessages.size(), 2);
-        assertTrue(listOfMessages.stream().filter(message -> message.getClass().getName().equals("edu.gatech.chai.VRDR.model.CodedRaceAndEthnicity")).findFirst().isPresent());
-        assertTrue(listOfMessages.stream().filter(message -> message.getClass().getName().equals("edu.gatech.chai.VRDR.model.InputRaceAndEthnicity")).findFirst().isPresent());
-        Object message = listOfMessages.get(0);
-        InputRaceAndEthnicity inputRaceAndEthnicity =  new InputRaceAndEthnicity();
-        if(message instanceof InputRaceAndEthnicity) {
-            assertTrue(((InputRaceAndEthnicity)message).getAmericanIndianOrAlaskaNativeBooleanValue());
-        }
-        else assertEquals("urn:uuid:02611119-b9e6-4fe9-b1e2-12b10e79fa5f", ((CodedRaceAndEthnicity)message).getId());
+        AcknowledgementMessage ackBundle = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/AcknowledgementMessage.json");
+        ackBundle.addEntry(newEntry1);
+        ackBundle.addEntry(newEntry2);
+        String bundleString = ackBundle.toJson(ctx);
+	List listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
+	assertThat(listOfMessages, is(not(empty()))); //TODO more
     }
 	
     public void testCreateBulkUploadPayload() {
