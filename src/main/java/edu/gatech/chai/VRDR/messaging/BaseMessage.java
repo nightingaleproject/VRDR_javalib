@@ -515,7 +515,7 @@ public class BaseMessage extends Bundle {
         }
     }
 
-    public static List<BaseMessage> parseBundleOfBundles4(VRDRFhirContext ctx, String bundleStrings) {
+    public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
         IParser parser = ctx.getCtx().newJsonParser();
         Bundle bundle = parser.setParserErrorHandler(new LenientErrorHandler()).parseResource(BaseMessage.class, bundleStrings);
 //      Bundle bundle = BaseMessage.parseJson(BaseMessage.class, ctx, bundleStrings);
