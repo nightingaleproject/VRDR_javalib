@@ -528,7 +528,6 @@ public class BaseMessage extends Bundle {
                 String messageType = message.getMessageType();
                 switch (messageType) {
                     case DeathRecordSubmissionMessage.MESSAGE_TYPE:
-                        System.out.println("*** DeathRecordSubmissionMessage");
                         message = new DeathRecordSubmissionMessage(bundle);
                         break;
                     case DeathRecordUpdateMessage.MESSAGE_TYPE:
@@ -548,7 +547,6 @@ public class BaseMessage extends Bundle {
                         break;
                     case DemographicsCodingMessage.MESSAGE_TYPE:
                         message = new DemographicsCodingMessage(bundle);
-                        System.out.println("matched=" + DemographicsCodingMessage.MESSAGE_TYPE);
                         break;
                     case CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE:
                         message = new CauseOfDeathCodingUpdateMessage(bundle);
