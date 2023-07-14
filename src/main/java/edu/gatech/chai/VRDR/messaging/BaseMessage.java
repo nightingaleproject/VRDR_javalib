@@ -527,37 +527,37 @@ public class BaseMessage extends Bundle {
                 String messageType = message.getMessageType();
                 switch (messageType) {
                     case DeathRecordSubmissionMessage.MESSAGE_TYPE:
-                        message = new DeathRecordSubmissionMessage(bundle);
+                        listMessages.add(new DeathRecordSubmissionMessage(bundle));
                         break;
                     case DeathRecordUpdateMessage.MESSAGE_TYPE:
-                        message = new DeathRecordUpdateMessage(bundle);
+                        listMessages.add(new DeathRecordUpdateMessage(bundle));
                         break;
                     case AcknowledgementMessage.MESSAGE_TYPE:
-                        message = new AcknowledgementMessage(bundle);
+                        listMessages.add(new AcknowledgementMessage(bundle));
                         break;
                     case DeathRecordVoidMessage.MESSAGE_TYPE:
-                        message = new DeathRecordVoidMessage(bundle);
+                        listMessages.add(new DeathRecordVoidMessage(bundle));
                         break;
                     case DeathRecordAliasMessage.MESSAGE_TYPE:
-                        message = new DeathRecordAliasMessage(bundle);
+                        listMessages.add(DeathRecordAliasMessage(bundle));
                         break;
                     case CauseOfDeathCodingMessage.MESSAGE_TYPE:
-                        message = new CauseOfDeathCodingMessage(bundle);
+                        listMessages.add(new CauseOfDeathCodingMessage(bundle));
                         break;
                     case DemographicsCodingMessage.MESSAGE_TYPE:
-                        message = new DemographicsCodingMessage(bundle);
+                        listMessages.add(new DemographicsCodingMessage(bundle));
                         break;
                     case CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE:
-                        message = new CauseOfDeathCodingUpdateMessage(bundle);
+                        listMessages.add(new CauseOfDeathCodingUpdateMessage(bundle));
                         break;
                     case DemographicsCodingUpdateMessage.MESSAGE_TYPE:
-                        message = new DemographicsCodingUpdateMessage(bundle);
+                        listMessages.add(new DemographicsCodingUpdateMessage(bundle));
                         break;
                     case ExtractionErrorMessage.MESSAGE_TYPE:
-                        message = new ExtractionErrorMessage(bundle);
+                        listMessages.add(new ExtractionErrorMessage(bundle));
                         break;
                     case StatusMessage.MESSAGE_TYPE:
-                        message = new StatusMessage(bundle);
+                        listMessages.add(new StatusMessage(bundle));
                         break;
                     default:
                         String errorText;
@@ -570,7 +570,6 @@ public class BaseMessage extends Bundle {
                         }
                         throw new MessageParseException(errorText, message);
                 }
-                listMessages.add(message);
             }
         }
         return listMessages;
