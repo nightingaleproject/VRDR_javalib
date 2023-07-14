@@ -911,12 +911,16 @@ public class MessagingTest extends TestCase {
     }
 	
     public void testParseBundleOfBundles() {
+	Bundle.BundleEntryComponent newEntry1 = new Bundle.BundleEntryComponent();
+	newEntry1.setResource(BaseMessage.parseJsonFile(DemographicsCodingMessage.class, ctx, "src/test/resources/json/DemographicsCodingMessage.json"));
+        Bundle.BundleEntryComponent newEntry2 = new Bundle.BundleEntryComponent();
+        newEntry2.setResource(BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json"));
         AcknowledgementMessage ackBundle = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/AcknowledgementMessage.json");
         ackBundle.addEntry(newEntry1);
         ackBundle.addEntry(newEntry2);
         String bundleString = ackBundle.toJson(ctx);
 	List listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
-	assertThat(listOfMessages, is(not(empty()))); //TODO more
+	assertThat(listOfMessages, is(not(empty()))); //TODO
     }
 	
     public void testCreateBulkUploadPayload() {
