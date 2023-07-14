@@ -515,44 +515,67 @@ public class BaseMessage extends Bundle {
         }
     }
 
-    public static List<? extends Bundle> parseBundleOfBundles(Class clazz, VRDRFhirContext ctx, String filePath, String bundleString) {
+    public static List<BaseMessage> parseBundleOfBundles4(VRDRFhirContext ctx, String bundleStrings) {
         IParser parser = ctx.getCtx().newJsonParser();
-        InputStream stream = getInputStream(filePath);
-        if (stream != null && bundleString != null) {
-            throw new IllegalArgumentException("Cannot parse from both a stream and a string, one must be null");
-        }
-        try (InputStreamReader reader = stream == null ? null : new InputStreamReader(stream)) {
-            parser.setParserErrorHandler(new LenientErrorHandler());
-            Bundle bundle = reader != null
-                    ? parser.setParserErrorHandler(new LenientErrorHandler()).parseResource(Bundle.class, reader)
-                    : parser.setParserErrorHandler(new LenientErrorHandler()).parseResource(Bundle.class, bundleString);
-            if (Bundle.class.isAssignableFrom(clazz) ) {
-                Object message = BaseMessage.parseJsonFile(clazz, ctx, filePath);
-                Method[] methods = clazz.getDeclaredMethods();
-                List listOfMessages = new ArrayList();
-                for(Method method: methods) {
-                    String methodName = method.getName();
-                    // filter for getter of the main bundle and invoke this method
-                    if(methodName.contains("get") && methodName.contains("ContentBundle")) {
-                        Object bundleBase = method.invoke(message);
-                        Method[] methods1 = bundleBase.getClass().getDeclaredMethods();
-                        String methodName1;
-                        for(Method method1: methods1) {
-                            methodName1 = method1.getName();
-                            // filter for getters of sub-bundles/sub-messages and invoke these methods
-                            if (methodName1.startsWith("get") && method1.invoke(bundleBase).getClass().getName().contains("edu.gatech.chai.VRDR.model")) {
-                                listOfMessages.add(method1.invoke(bundleBase));
-                            }
+        Bundle bundle = parser.setParserErrorHandler(new LenientErrorHandler()).parseResource(BaseMessage.class, bundleStrings);
+//      Bundle bundle = BaseMessage.parseJson(BaseMessage.class, ctx, bundleStrings);
+        List<BaseMessage> listMessages = new ArrayList();
+        ListIterator iterator = bundle.getEntry().listIterator();
+        while (iterator.hasNext()) {
+            BundleEntryComponent bundleEntryComponent = (BundleEntryComponent)iterator.next();
+            if(bundleEntryComponent.getResource().getResourceType().toString().equals("Bundle")) {
+                BaseMessage message = new BaseMessage((Bundle) bundleEntryComponent.getResource(), true);
+                String messageType = message.getMessageType();
+                switch (messageType) {
+                    case DeathRecordSubmissionMessage.MESSAGE_TYPE:
+                        System.out.println("*** DeathRecordSubmissionMessage");
+                        message = new DeathRecordSubmissionMessage(bundle);
+                        break;
+                    case DeathRecordUpdateMessage.MESSAGE_TYPE:
+                        message = new DeathRecordUpdateMessage(bundle);
+                        break;
+                    case AcknowledgementMessage.MESSAGE_TYPE:
+                        message = new AcknowledgementMessage(bundle);
+                        break;
+                    case DeathRecordVoidMessage.MESSAGE_TYPE:
+                        message = new DeathRecordVoidMessage(bundle);
+                        break;
+                    case DeathRecordAliasMessage.MESSAGE_TYPE:
+                        message = new DeathRecordAliasMessage(bundle);
+                        break;
+                    case CauseOfDeathCodingMessage.MESSAGE_TYPE:
+                        message = new CauseOfDeathCodingMessage(bundle);
+                        break;
+                    case DemographicsCodingMessage.MESSAGE_TYPE:
+                        message = new DemographicsCodingMessage(bundle);
+                        System.out.println("matched=" + DemographicsCodingMessage.MESSAGE_TYPE);
+                        break;
+                    case CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE:
+                        message = new CauseOfDeathCodingUpdateMessage(bundle);
+                        break;
+                    case DemographicsCodingUpdateMessage.MESSAGE_TYPE:
+                        message = new DemographicsCodingUpdateMessage(bundle);
+                        break;
+                    case ExtractionErrorMessage.MESSAGE_TYPE:
+                        message = new ExtractionErrorMessage(bundle);
+                        break;
+                    case StatusMessage.MESSAGE_TYPE:
+                        message = new StatusMessage(bundle);
+                        break;
+                    default:
+                        String errorText;
+                        if (message.messageHeader == null) {
+                            errorText = "Failed to find a Bundle Entry containing a Resource of type MessageHeader";
+                        } else if (messageType == null) {
+                            errorText = "Message type was missing from MessageHeader";
+                        } else {
+                            errorText = "Unsupported message type: " + messageType;
                         }
-                    }
+                        throw new MessageParseException(errorText, message);
                 }
-
-                return listOfMessages;
-            } else {
-                throw new IllegalArgumentException("Cannot parse to class " + clazz.getName());
+                listMessages.add(message);
             }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to parse bundle, exception: " + e);
         }
+        return listMessages;
     }
 }
