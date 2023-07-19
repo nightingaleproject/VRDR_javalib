@@ -5,7 +5,9 @@ import edu.gatech.chai.VRDR.messaging.*;
 import edu.gatech.chai.VRDR.messaging.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
 import edu.gatech.chai.VRDR.model.*;
-import edu.gatech.chai.VRDR.model.util.*;
+import edu.gatech.chai.VRDR.model.util.CodedRaceAndEthnicityUtil;
+import edu.gatech.chai.VRDR.model.util.CommonUtil;
+import edu.gatech.chai.VRDR.model.util.MannerOfDeathUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import edu.gatech.chai.VRDR.model.util.UploadUtil;
 
 import java.util.Random;
 import org.hl7.fhir.r4.model.IntegerType;
