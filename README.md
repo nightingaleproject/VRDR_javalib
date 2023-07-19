@@ -257,6 +257,10 @@ DeathCertificateDocument deathRecordFromJson = BaseMessage.parseJsonFile(DeathCe
 
 // creating death record with no identifiers from json data file
 DeathCertificateDocument deathRecordNoIdentifiers = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "path-to-json-data-file/DeathRecordNoIdentifiers.json");
+
+// adding fullUrl to death record's component and resource
+Generic: deathCertificateDocument.addEntry(new BundleEntryComponent().setResource(resource).setFullUrl(uuidPrefix+resource.getId()));
+Example: deathCertificateDocument.addEntry(new BundleEntryComponent().setResource(deathCertificate).setFullUrl(uuidPrefix + deathCertificate.getId()));
 ```
 
 #### Create submission message for death record
