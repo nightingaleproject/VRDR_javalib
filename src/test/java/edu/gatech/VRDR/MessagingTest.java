@@ -8,6 +8,7 @@ import edu.gatech.chai.VRDR.model.*;
 import edu.gatech.chai.VRDR.model.util.CodedRaceAndEthnicityUtil;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
 import edu.gatech.chai.VRDR.model.util.MannerOfDeathUtil;
+import edu.gatech.chai.VRDR.model.util.DeathDateUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import edu.gatech.chai.VRDR.model.util.UploadUtil;
+
 import java.util.Random;
 import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.UnsignedIntType;
@@ -942,5 +944,24 @@ public class MessagingTest extends TestCase {
 		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
 		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
 	}
+
+    public void testCodeableConceptPlaceOfDeath() {
+        CodeableConcept codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("16983000", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital-based emergency department or outpatient department (event)", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("450391000124102", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in home", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("440081000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospice", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("440071000124103", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Dead on arrival at hospital", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("63238001", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in nursing home or long term care facility (event)", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("450381000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Unknown", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("UNK", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Other", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("OTH", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+    }
 
 }
