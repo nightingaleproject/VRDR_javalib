@@ -620,10 +620,6 @@ public class MessagingTest extends TestCase {
         assertEquals(voidMessage.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
         assertEquals(voidMessage.getCertNo(), ack.getCertNo());
         assertEquals(voidMessage.getNCHSIdentifier(), ack.getNCHSIdentifier());
-        System.out.println(voidMessage.getBlockCount());
-        System.out.println(voidMessage.getBlockCount().getValue());
-        System.out.println(ack.getBlockCount());
-        System.out.println(ack.getBlockCount().getValue());
         assertEquals(voidMessage.getBlockCount().getValue(), ack.getBlockCount().getValue());
 
         voidMessage = null;
@@ -653,13 +649,13 @@ public class MessagingTest extends TestCase {
 	DeathRecordVoidMessage voidMessage = new DeathRecordVoidMessage();
 	Integer value = null;
 	voidMessage.setBlockCount(value);
-    assertNull(voidMessage.getBlockCount());
+    	assertNull(voidMessage.getBlockCount());
 	value = -1;
 	voidMessage.setBlockCount(value);
 	assertNull(voidMessage.getBlockCount());
 	value = 0;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount().getValue(), new UnsignedIntType(value).getValue());
+	assertNull(voidMessage.getBlockCount());
 	value = 1;
 	voidMessage.setBlockCount(value);
 	assertEquals(voidMessage.getBlockCount().getValue(), new UnsignedIntType(value).getValue());
@@ -669,8 +665,7 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateAckForStatusMessage() {
-        StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx,
-                "src/test/resources/json/StatusMessage.json");
+        StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx, "src/test/resources/json/StatusMessage.json");
         AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
         assertEquals(statusMessage.getMessageHeaderId(), ack.getAckedMessageId());
@@ -861,8 +856,7 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateExtractionErrorFromJson() {
-        ExtractionErrorMessage err = BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx,
-                "src/test/resources/json/ExtractionErrorMessage.json");
+        ExtractionErrorMessage err = BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx, "src/test/resources/json/ExtractionErrorMessage.json");
         assertEquals("http://nchs.cdc.gov/vrdr_extraction_error", err.getMessageType());
         assertEquals((long) 1, (long) err.getCertNo());
         assertEquals("42", err.getStateAuxiliaryId());
@@ -918,7 +912,7 @@ public class MessagingTest extends TestCase {
         assertNotNull(parsed); // make sure we can parse the race values without crashing
     }
 	
-	public void testCreateBulkUploadPayload() {
+    public void testCreateBulkUploadPayload() {
         // set message counter to a value > 0. Note that the higher the value, the longer the run time
         int msgCounter = 100;
 
@@ -941,15 +935,14 @@ public class MessagingTest extends TestCase {
             message.setStateAuxiliaryId(Integer.toString((int) Math.random() * msgCounter + 1));
             messages.add(message);
         }
-
-		// test method
-		String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
-		assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
-		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
-		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
-	}
+	// test method
+	String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
+	assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
+	assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
+	assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
+	assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
+	assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
+    }
 
     public void testCodeableConceptPlaceOfDeath() {
         CodeableConcept codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital", DeathDateUtil.placeOfDeathTypeSet);

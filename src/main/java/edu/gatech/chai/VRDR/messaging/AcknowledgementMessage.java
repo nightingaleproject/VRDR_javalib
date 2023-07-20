@@ -3,6 +3,7 @@ package edu.gatech.chai.VRDR.messaging;
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.UnsignedIntType;
 import org.hl7.fhir.r4.model.MessageHeader;
 import org.hl7.fhir.r4.model.ResourceType;
 
@@ -85,11 +86,8 @@ public class AcknowledgementMessage extends BaseMessage {
     }
 
     public void setBlockCount(Integer value) {
-        if (value != null && value > 1) {
+        if (value != null && value > 0) {
             messageParameters.setParameter("block_count", new UnsignedIntType(value));
-        }
-        else {
-            messageParameters.setParameter("block_count", (UnsignedIntType)null);
         }
     }
 }
