@@ -1,7 +1,10 @@
 package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.MessageHeader;
+import org.hl7.fhir.r4.model.ResourceType;
 
 @ResourceDef(name = "AcknowledgementMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-AcknowledgementMessage")
 public class AcknowledgementMessage extends BaseMessage {
