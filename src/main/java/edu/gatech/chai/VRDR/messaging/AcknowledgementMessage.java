@@ -3,6 +3,7 @@ package edu.gatech.chai.VRDR.messaging;
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.UnsignedIntType;
 import org.hl7.fhir.r4.model.MessageHeader;
 import org.hl7.fhir.r4.model.ResourceType;
 
@@ -29,8 +30,9 @@ public class AcknowledgementMessage extends BaseMessage {
         setJurisdictionId(messageToAck == null ? null : messageToAck.getJurisdictionId());
         if (messageToAck instanceof DeathRecordVoidMessage) {
             DeathRecordVoidMessage voidMessageToAck = (DeathRecordVoidMessage) messageToAck;
-            Integer blockCount = voidMessageToAck != null ? voidMessageToAck.getBlockCount() : null;
-            setBlockCount(blockCount);
+            UnsignedIntType blockCount = voidMessageToAck != null ? voidMessageToAck.getBlockCount() : null;
+            if(blockCount != null)
+                setBlockCount(blockCount.getValue());
         }
     }
 
@@ -66,7 +68,7 @@ public class AcknowledgementMessage extends BaseMessage {
         messageHeader.getResponse().setIdentifier(value);
     }
 
-    public Integer getBlockCount() {
+    public UnsignedIntType getBlockCount() {
         if (messageParameters == null) {
             return null;
         }
@@ -76,19 +78,16 @@ public class AcknowledgementMessage extends BaseMessage {
         if (!(messageParameters.getParameter("block_count") instanceof IntegerType)) {
             return null;
         }
-        IntegerType blockCountType = (IntegerType) messageParameters.getParameter("block_count");
+        UnsignedIntType blockCountType = (UnsignedIntType) messageParameters.getParameter("block_count");
         if (blockCountType == null) {
             return null;
         }
-        return blockCountType.getValue();
+        return blockCountType;
     }
 
     public void setBlockCount(Integer value) {
-        if (value != null && value > 1) {
-            messageParameters.setParameter("block_count", new IntegerType(value));
-        }
-        else {
-            messageParameters.setParameter("block_count", (IntegerType)null);
+        if (value != null && value > 0) {
+            messageParameters.setParameter("block_count", new UnsignedIntType(value));
         }
     }
 }
