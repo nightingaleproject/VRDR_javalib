@@ -568,8 +568,10 @@ public class MessagingTest extends TestCase {
         assertEquals("bar", message.getStateAuxiliaryId());
         assertNull(message.getNCHSIdentifier());
         assertNull(message.getBlockCount());
+        message.setBlockCount(-100);
+        assertNull(message.getBlockCount());
         message.setBlockCount(100);
-        assertEquals(100, message.getBlockCount().intValue());
+        assertEquals(new UnsignedIntType(100).getValue(), message.getBlockCount().getValue());
     }
 
     public void testCreateStatusMessage() {
@@ -618,7 +620,11 @@ public class MessagingTest extends TestCase {
         assertEquals(voidMessage.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
         assertEquals(voidMessage.getCertNo(), ack.getCertNo());
         assertEquals(voidMessage.getNCHSIdentifier(), ack.getNCHSIdentifier());
-        assertEquals(voidMessage.getBlockCount(), ack.getBlockCount());
+        System.out.println(voidMessage.getBlockCount());
+        System.out.println(voidMessage.getBlockCount().getValue());
+        System.out.println(ack.getBlockCount());
+        System.out.println(ack.getBlockCount().getValue());
+        assertEquals(voidMessage.getBlockCount().getValue(), ack.getBlockCount().getValue());
 
         voidMessage = null;
         ack = new AcknowledgementMessage(voidMessage);
@@ -647,19 +653,19 @@ public class MessagingTest extends TestCase {
 	DeathRecordVoidMessage voidMessage = new DeathRecordVoidMessage();
 	Integer value = null;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), null);
+    assertNull(voidMessage.getBlockCount());
 	value = -1;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), null);
+	assertNull(voidMessage.getBlockCount());
 	value = 0;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), value);
+	assertEquals(voidMessage.getBlockCount().getValue(), new UnsignedIntType(value).getValue());
 	value = 1;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), value);
+	assertEquals(voidMessage.getBlockCount().getValue(), new UnsignedIntType(value).getValue());
 	value = 2;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), value);
+	assertEquals(voidMessage.getBlockCount().getValue(), new UnsignedIntType(value).getValue());
     }
 
     public void testCreateAckForStatusMessage() {
@@ -699,7 +705,7 @@ public class MessagingTest extends TestCase {
         DeathRecordVoidMessage message = BaseMessage.parseJsonFile(DeathRecordVoidMessage.class, ctx, "src/test/resources/json/DeathRecordVoidMessage.json");
         assertEquals("http://nchs.cdc.gov/vrdr_submission_void", message.getMessageType());
         assertEquals(123456, message.getCertNo().intValue());
-        assertEquals(10, message.getBlockCount().intValue());
+        assertEquals(new UnsignedIntType(10).getValue(), message.getBlockCount().getValue());
         assertEquals("abcdef10", message.getStateAuxiliaryId());
         assertEquals("2018NY123456", message.getNCHSIdentifier());
         assertEquals("http://nchs.cdc.gov/vrdr_submission", message.getMessageDestination());
@@ -716,7 +722,7 @@ public class MessagingTest extends TestCase {
 	
 	public void testGetDeathRecordVoidMessageBlockCount16FromJson() {
         DeathRecordVoidMessage message = BaseMessage.parseJsonFile(DeathRecordVoidMessage.class, ctx, "src/test/resources/json/DeathRecordVoidMessageBlockCount16.json");
-        assertEquals(16, message.getBlockCount().intValue());
+        assertEquals(new UnsignedIntType(16).getValue(), message.getBlockCount().getValue());
     }
 
     public void testCreateVoidForDocument() {

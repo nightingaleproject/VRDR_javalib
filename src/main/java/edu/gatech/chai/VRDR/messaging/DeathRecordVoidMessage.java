@@ -50,7 +50,7 @@ public class DeathRecordVoidMessage extends BaseMessage {
         return MESSAGE_TYPE;
     }
 
-    public Integer getBlockCount() {
+    public UnsignedIntType getBlockCount() {
         if (messageParameters == null) {
             return null;
         }
@@ -60,11 +60,11 @@ public class DeathRecordVoidMessage extends BaseMessage {
         if (!(messageParameters.getParameter("block_count") instanceof IntegerType)) {
             return null;
         }
-        IntegerType blockCountType = (IntegerType) messageParameters.getParameter("block_count");
+        UnsignedIntType blockCountType = (UnsignedIntType) messageParameters.getParameter("block_count");
         if (blockCountType == null) {
             return null;
         }
-        return blockCountType.getValue();
+        return blockCountType;
     }
 
     public void setBlockCount(Integer value) {
