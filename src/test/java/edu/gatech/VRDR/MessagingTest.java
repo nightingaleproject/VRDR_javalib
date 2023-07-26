@@ -920,7 +920,13 @@ public class MessagingTest extends TestCase {
         ackBundle.addEntry(newEntry2);
         String bundleString = ackBundle.toJson(ctx);
 	List listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
-	assertThat(listOfMessages, is(not(empty()))); //TODO
+	assertEquals(listOfMessages.size(), 2);
+	Object message = listOfMessages.get(0);
+	assertTrue(((DemographicsCodingMessage)message).getDemographicCodedContentBundle().getEntry().get(0).getResource().toString().contains("CodedRaceAndEthnicity"));
+	assertTrue(((DemographicsCodingMessage)message).getDemographicCodedContentBundle().getEntry().get(1).getResource().toString().contains("InputRaceAndEthnicity"));
+	message = listOfMessages.get(1);
+	assertEquals(((DeathRecordSubmissionMessage)message).getDeathRecord().getDeathLocation().get(0).address.city.toString(), "Albany");
+	assertTrue(((DeathRecordSubmissionMessage)message).getDeathRecord().getDeathCertificate().get(0).id.toString().contains("DeathCertificate"));
     }
 	
     public void testCreateBulkUploadPayload() {
