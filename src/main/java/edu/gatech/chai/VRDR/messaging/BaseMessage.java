@@ -519,55 +519,57 @@ public class BaseMessage extends Bundle {
         List<BaseMessage> listMessages = new ArrayList();
         ListIterator iterator = bundle.getEntry().listIterator();
         String messageType;
-        while (iterator.hasNext()) {
+        while(iterator.hasNext()) {
             BundleEntryComponent bundleEntryComponent = (BundleEntryComponent)iterator.next();
             if(bundleEntryComponent.getResource().getResourceType().toString().equals("Bundle")) {
                 Bundle bundle = (Bundle)bundleEntryComponent.getResource();
-                messageType = message.getMessageType();
-                switch (messageType) {
-                    case DeathRecordSubmissionMessage.MESSAGE_TYPE:
-                        listMessages.add(new DeathRecordSubmissionMessage(bundle));
-                        break;
-                    case DeathRecordUpdateMessage.MESSAGE_TYPE:
-                        listMessages.add(new DeathRecordUpdateMessage(bundle));
-                        break;
-                    case AcknowledgementMessage.MESSAGE_TYPE:
-                        listMessages.add(new AcknowledgementMessage(bundle));
-                        break;
-                    case DeathRecordVoidMessage.MESSAGE_TYPE:
-                        listMessages.add(new DeathRecordVoidMessage(bundle));
-                        break;
-                    case DeathRecordAliasMessage.MESSAGE_TYPE:
-                        listMessages.add(DeathRecordAliasMessage(bundle));
-                        break;
-                    case CauseOfDeathCodingMessage.MESSAGE_TYPE:
-                        listMessages.add(new CauseOfDeathCodingMessage(bundle));
-                        break;
-                    case DemographicsCodingMessage.MESSAGE_TYPE:
-                        listMessages.add(new DemographicsCodingMessage(bundle));
-                        break;
-                    case CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE:
-                        listMessages.add(new CauseOfDeathCodingUpdateMessage(bundle));
-                        break;
-                    case DemographicsCodingUpdateMessage.MESSAGE_TYPE:
-                        listMessages.add(new DemographicsCodingUpdateMessage(bundle));
-                        break;
-                    case ExtractionErrorMessage.MESSAGE_TYPE:
-                        listMessages.add(new ExtractionErrorMessage(bundle));
-                        break;
-                    case StatusMessage.MESSAGE_TYPE:
-                        listMessages.add(new StatusMessage(bundle));
-                        break;
-                    default:
-                        String errorText;
-                        if (message.messageHeader == null) {
-                            errorText = "Failed to find a Bundle Entry containing a Resource of type MessageHeader";
-                        } else if (messageType == null) {
-                            errorText = "Message type was missing from MessageHeader";
-                        } else {
-                            errorText = "Unsupported message type: " + messageType;
-                        }
-                        throw new MessageParseException(errorText, message);
+                if(bundle != null) {
+                    messageType = new BaseMessage(bundle, true).getMessageType();
+                    switch(messageType) {
+                        case DeathRecordSubmissionMessage.MESSAGE_TYPE:
+                            listMessages.add(new DeathRecordSubmissionMessage(bundle));
+                            break;
+                        case DeathRecordUpdateMessage.MESSAGE_TYPE:
+                            listMessages.add(new DeathRecordUpdateMessage(bundle));
+                            break;
+                        case AcknowledgementMessage.MESSAGE_TYPE:
+                            listMessages.add(new AcknowledgementMessage(bundle));
+                            break;
+                        case DeathRecordVoidMessage.MESSAGE_TYPE:
+                            listMessages.add(new DeathRecordVoidMessage(bundle));
+                            break;
+                        case DeathRecordAliasMessage.MESSAGE_TYPE:
+                            listMessages.add(DeathRecordAliasMessage(bundle));
+                            break;
+                        case CauseOfDeathCodingMessage.MESSAGE_TYPE:
+                            listMessages.add(new CauseOfDeathCodingMessage(bundle));
+                            break;
+                        case DemographicsCodingMessage.MESSAGE_TYPE:
+                            listMessages.add(new DemographicsCodingMessage(bundle));
+                            break;
+                        case CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE:
+                            listMessages.add(new CauseOfDeathCodingUpdateMessage(bundle));
+                            break;
+                        case DemographicsCodingUpdateMessage.MESSAGE_TYPE:
+                            listMessages.add(new DemographicsCodingUpdateMessage(bundle));
+                            break;
+                        case ExtractionErrorMessage.MESSAGE_TYPE:
+                            listMessages.add(new ExtractionErrorMessage(bundle));
+                            break;
+                        case StatusMessage.MESSAGE_TYPE:
+                            listMessages.add(new StatusMessage(bundle));
+                            break;
+                        default:
+                            String errorText;
+                            if(message.messageHeader == null) {
+                                errorText = "Failed to find a Bundle Entry containing a Resource of type MessageHeader";
+                            } else if(messageType == null) {
+                                errorText = "Message type was missing from MessageHeader";
+                            } else {
+                                errorText = "Unsupported message type: " + messageType;
+                            }
+                            throw new MessageParseException(errorText, message);
+                    }
                 }
             }
         }
