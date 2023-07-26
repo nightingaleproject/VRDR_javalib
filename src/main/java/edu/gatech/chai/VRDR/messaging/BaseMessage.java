@@ -515,15 +515,14 @@ public class BaseMessage extends Bundle {
     }
 
     public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
-        IParser parser = ctx.getCtx().newJsonParser();;
-        Bundle bundle = BaseMessage.parseJson(Bundle.class, ctx, bundleStrings);
+        Bundle outerBundle = BaseMessage.parseJson(Bundle.class, ctx, bundleStrings);
         List<BaseMessage> listMessages = new ArrayList();
         ListIterator iterator = bundle.getEntry().listIterator();
         String messageType;
         while (iterator.hasNext()) {
             BundleEntryComponent bundleEntryComponent = (BundleEntryComponent)iterator.next();
             if(bundleEntryComponent.getResource().getResourceType().toString().equals("Bundle")) {
-                BaseMessage message = new BaseMessage((Bundle) bundleEntryComponent.getResource(), true);
+                Bundle bundle = (Bundle)bundleEntryComponent.getResource();
                 messageType = message.getMessageType();
                 switch (messageType) {
                     case DeathRecordSubmissionMessage.MESSAGE_TYPE:
