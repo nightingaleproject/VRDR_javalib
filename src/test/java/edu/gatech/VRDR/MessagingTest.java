@@ -8,6 +8,7 @@ import edu.gatech.chai.VRDR.model.*;
 import edu.gatech.chai.VRDR.model.util.CodedRaceAndEthnicityUtil;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
 import edu.gatech.chai.VRDR.model.util.MannerOfDeathUtil;
+import edu.gatech.chai.VRDR.model.util.DeathDateUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import edu.gatech.chai.VRDR.model.util.UploadUtil;
+
 import java.util.Random;
 import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.UnsignedIntType;
@@ -566,8 +568,10 @@ public class MessagingTest extends TestCase {
         assertEquals("bar", message.getStateAuxiliaryId());
         assertNull(message.getNCHSIdentifier());
         assertNull(message.getBlockCount());
+        message.setBlockCount(-100);
+        assertNull(message.getBlockCount());
         message.setBlockCount(100);
-        assertEquals(100, message.getBlockCount().intValue());
+        assertEquals(new UnsignedIntType(100).getValue(), message.getBlockCount().getValue());
     }
 
     public void testCreateStatusMessage() {
@@ -616,7 +620,7 @@ public class MessagingTest extends TestCase {
         assertEquals(voidMessage.getStateAuxiliaryId(), ack.getStateAuxiliaryId());
         assertEquals(voidMessage.getCertNo(), ack.getCertNo());
         assertEquals(voidMessage.getNCHSIdentifier(), ack.getNCHSIdentifier());
-        assertEquals(voidMessage.getBlockCount(), ack.getBlockCount());
+        assertEquals(voidMessage.getBlockCount().getValue(), ack.getBlockCount().getValue());
 
         voidMessage = null;
         ack = new AcknowledgementMessage(voidMessage);
@@ -645,24 +649,23 @@ public class MessagingTest extends TestCase {
 	DeathRecordVoidMessage voidMessage = new DeathRecordVoidMessage();
 	Integer value = null;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), null);
+    	assertNull(voidMessage.getBlockCount());
 	value = -1;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), null);
+	assertNull(voidMessage.getBlockCount());
 	value = 0;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), value);
+	assertNull(voidMessage.getBlockCount());
 	value = 1;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), value);
+	assertEquals(voidMessage.getBlockCount().getValue(), new UnsignedIntType(value).getValue());
 	value = 2;
 	voidMessage.setBlockCount(value);
-	assertEquals(voidMessage.getBlockCount(), value);
+	assertEquals(voidMessage.getBlockCount().getValue(), new UnsignedIntType(value).getValue());
     }
 
     public void testCreateAckForStatusMessage() {
-        StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx,
-                "src/test/resources/json/StatusMessage.json");
+        StatusMessage statusMessage = BaseMessage.parseJsonFile(StatusMessage.class, ctx, "src/test/resources/json/StatusMessage.json");
         AcknowledgementMessage ack = new AcknowledgementMessage(statusMessage);
         assertEquals("http://nchs.cdc.gov/vrdr_acknowledgement", ack.getMessageType());
         assertEquals(statusMessage.getMessageHeaderId(), ack.getAckedMessageId());
@@ -697,7 +700,7 @@ public class MessagingTest extends TestCase {
         DeathRecordVoidMessage message = BaseMessage.parseJsonFile(DeathRecordVoidMessage.class, ctx, "src/test/resources/json/DeathRecordVoidMessage.json");
         assertEquals("http://nchs.cdc.gov/vrdr_submission_void", message.getMessageType());
         assertEquals(123456, message.getCertNo().intValue());
-        assertEquals(10, message.getBlockCount().intValue());
+        assertEquals(new UnsignedIntType(10).getValue(), message.getBlockCount().getValue());
         assertEquals("abcdef10", message.getStateAuxiliaryId());
         assertEquals("2018NY123456", message.getNCHSIdentifier());
         assertEquals("http://nchs.cdc.gov/vrdr_submission", message.getMessageDestination());
@@ -714,7 +717,7 @@ public class MessagingTest extends TestCase {
 	
 	public void testGetDeathRecordVoidMessageBlockCount16FromJson() {
         DeathRecordVoidMessage message = BaseMessage.parseJsonFile(DeathRecordVoidMessage.class, ctx, "src/test/resources/json/DeathRecordVoidMessageBlockCount16.json");
-        assertEquals(16, message.getBlockCount().intValue());
+        assertEquals(new UnsignedIntType(16).getValue(), message.getBlockCount().getValue());
     }
 
     public void testCreateVoidForDocument() {
@@ -853,8 +856,7 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateExtractionErrorFromJson() {
-        ExtractionErrorMessage err = BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx,
-                "src/test/resources/json/ExtractionErrorMessage.json");
+        ExtractionErrorMessage err = BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx, "src/test/resources/json/ExtractionErrorMessage.json");
         assertEquals("http://nchs.cdc.gov/vrdr_extraction_error", err.getMessageType());
         assertEquals((long) 1, (long) err.getCertNo());
         assertEquals("42", err.getStateAuxiliaryId());
@@ -911,24 +913,80 @@ public class MessagingTest extends TestCase {
     }
 	
     public void testParseBundleOfBundles() {
-	Bundle.BundleEntryComponent newEntry1 = new Bundle.BundleEntryComponent();
-	newEntry1.setResource(BaseMessage.parseJsonFile(DemographicsCodingMessage.class, ctx, "src/test/resources/json/DemographicsCodingMessage.json"));
-        Bundle.BundleEntryComponent newEntry2 = new Bundle.BundleEntryComponent();
-        newEntry2.setResource(BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json"));
-        AcknowledgementMessage ackBundle = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/AcknowledgementMessage.json");
-        ackBundle.addEntry(newEntry1);
-        ackBundle.addEntry(newEntry2);
-        String bundleString = ackBundle.toJson(ctx);
-	List listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
-	assertEquals(listOfMessages.size(), 2);
-	Object message = listOfMessages.get(0);
-	assertTrue(((DemographicsCodingMessage)message).getDemographicCodedContentBundle().getEntry().get(0).getResource().toString().contains("CodedRaceAndEthnicity"));
-	assertTrue(((DemographicsCodingMessage)message).getDemographicCodedContentBundle().getEntry().get(1).getResource().toString().contains("InputRaceAndEthnicity"));
-	message = listOfMessages.get(1);
-	assertEquals(((DeathRecordSubmissionMessage)message).getDeathRecord().getDeathLocation().get(0).address.city.toString(), "Albany");
-	assertTrue(((DeathRecordSubmissionMessage)message).getDeathRecord().getDeathCertificate().get(0).id.toString().contains("DeathCertificate"));
+        // create the outer bundle
+        BaseMessage responseBundle = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/AcknowledgementMessage.json");
+
+        // add different types of messages or inner bundles to the outer bundle
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(DeathRecordUpdateMessage.class, ctx, "src/test/resources/json/DeathRecordUpdateMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/AcknowledgementMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(DeathRecordVoidMessage.class, ctx, "src/test/resources/json/DeathRecordVoidMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(DeathRecordAliasMessage.class, ctx, "src/test/resources/json/DeathRecordAliasMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(CauseOfDeathCodingMessage.class, ctx, "src/test/resources/json/CauseOfDeathCodingMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(CauseOfDeathCodingUpdateMessage.class, ctx, "src/test/resources/json/CauseOfDeathCodingUpdateMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(DemographicsCodingMessage.class, ctx, "src/test/resources/json/DemographicsCodingMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(DemographicsCodingUpdateMessage.class, ctx, "src/test/resources/json/DemographicsCodingUpdateMessage.json")));
+        responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(StatusMessage.class, ctx, "src/test/resources/json/StatusMessage.json")));
+
+        // convert the loaded outer bundle, or bundle of bundles, to String
+        String bundleString = responseBundle.toJson(ctx);
+
+        // parse the stringified bundle of bundles by invoking static function
+	      List<BaseMessage> listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
+
+        // test size of list of messages returned
+	      assertEquals(listOfMessages.size(), 10);
+
+        // test parsing different types of legit messages returned
+        assertTrue(listOfMessages.get(0).toString().contains("DeathRecordSubmissionMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(0)).getMessageType(), DeathRecordSubmissionMessage.MESSAGE_TYPE);
+        assertEquals(((DeathRecordSubmissionMessage)listOfMessages.get(0)).getDeathRecord().getDeathLocation().get(0).getAddress().getCity(), "Albany");
+        assertTrue(((DeathRecordSubmissionMessage)listOfMessages.get(0)).getDeathRecord().getDeathCertificate().get(0).getId().contains("DeathCertificate"));
+
+        assertTrue(listOfMessages.get(1).toString().contains("DeathRecordUpdateMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(1)).getMessageType(), DeathRecordUpdateMessage.MESSAGE_TYPE);
+        assertTrue(listOfMessages.get(2).toString().contains("AcknowledgementMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(2)).getMessageType(), AcknowledgementMessage.MESSAGE_TYPE);
+        assertTrue(listOfMessages.get(3).toString().contains("DeathRecordVoidMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(3)).getMessageType(), DeathRecordVoidMessage.MESSAGE_TYPE);
+        assertTrue(listOfMessages.get(4).toString().contains("DeathRecordAliasMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(4)).getMessageType(), DeathRecordAliasMessage.MESSAGE_TYPE);
+        assertTrue(listOfMessages.get(5).toString().contains("CauseOfDeathCodingMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(5)).getMessageType(), CauseOfDeathCodingMessage.MESSAGE_TYPE);
+        assertTrue(listOfMessages.get(6).toString().contains("CauseOfDeathCodingUpdateMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(6)).getMessageType(), CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE);
+
+        assertTrue(listOfMessages.get(7).toString().contains("DemographicsCodingMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(7)).getMessageType(), DemographicsCodingMessage.MESSAGE_TYPE);
+        assertTrue(((DemographicsCodingMessage)listOfMessages.get(7)).getDemographicCodedContentBundle().getEntry().get(0).getResource().toString().contains("CodedRaceAndEthnicity"));
+        assertTrue(((DemographicsCodingMessage)listOfMessages.get(7)).getDemographicCodedContentBundle().getEntry().get(1).getResource().toString().contains("InputRaceAndEthnicity"));
+
+        assertTrue(listOfMessages.get(8).toString().contains("DemographicsCodingUpdateMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(8)).getMessageType(), DemographicsCodingUpdateMessage.MESSAGE_TYPE);
+        assertTrue(listOfMessages.get(9).toString().contains("StatusMessage"));
+        assertEquals(((BaseMessage)listOfMessages.get(9)).getMessageType(), StatusMessage.MESSAGE_TYPE);
+
+        // test parsing deficient messages that cause thrown exceptions
+        try {
+            responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx, "src/test/resources/json/ExtractionErrorMessage.json")));
+            bundleString = responseBundle.toJson(ctx);
+            listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
+            fail("Expected MessageParseException");
+        } catch (MessageParseException ex) {
+            assertEquals("Error processing entry in the message: edu.gatech.chai.VRDR.messaging.util.MessageParseException: Failed to find a Bundle Entry containing a Resource of type org.hl7.fhir.r4.model.OperationOutcome", ex.getMessage());
+        }
+
+        try {
+            DeathCertificate DeathCertificate =  new DeathCertificate();
+            responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(DeathCertificate));
+            bundleString = responseBundle.toJson(ctx);
+            listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
+            fail("Expected MessageParseException");
+        } catch (MessageParseException ex) {
+            assertEquals("Error processing entry in the message: edu.gatech.chai.VRDR.messaging.util.MessageParseException: Failed to find a Bundle Entry containing a Resource of type org.hl7.fhir.r4.model.OperationOutcome", ex.getMessage());
+        }
     }
-	
+  
     public void testCreateBulkUploadPayload() {
         // set message counter to a value > 0. Note that the higher the value, the longer the run time
         int msgCounter = 100;
@@ -952,14 +1010,32 @@ public class MessagingTest extends TestCase {
             message.setStateAuxiliaryId(Integer.toString((int) Math.random() * msgCounter + 1));
             messages.add(message);
         }
+	// test method
+	String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
+	assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
+	assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
+	assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
+	assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
+	assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
+    }
 
-		// test method
-		String strBundleInJson = UploadUtil.CreateBulkUploadPayload(this.ctx, messages, "http://nchs.cdc.gov/vrdr_submission", true);
-		assertTrue((strBundleInJson != null && strBundleInJson.length() > 0));
-		assertTrue(strBundleInJson.contains("\"method\": \"POST\""));
-		assertEquals(StringUtils.countMatches(strBundleInJson, "\"method\": \"POST\""), msgCounter);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-DeathRecordSubmissionMessage"), msgCounter);
-		assertEquals(StringUtils.countMatches(strBundleInJson, "http://nchs.cdc.gov/vrdr_submission"), 3 * msgCounter);
-	}
+    public void testCodeableConceptPlaceOfDeath() {
+        CodeableConcept codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("16983000", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital-based emergency department or outpatient department (event)", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("450391000124102", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in home", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("440081000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospice", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("440071000124103", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Dead on arrival at hospital", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("63238001", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in nursing home or long term care facility (event)", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("450381000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Unknown", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("UNK", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Other", DeathDateUtil.placeOfDeathTypeSet);
+        assertEquals("OTH", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+    }
 
 }
