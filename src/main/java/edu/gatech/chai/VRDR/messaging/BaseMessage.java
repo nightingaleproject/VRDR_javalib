@@ -484,6 +484,10 @@ public class BaseMessage extends Bundle {
         return parse(tClass, new JsonParser4BundleOfBundles(ctx.getCtx(), new LenientErrorHandler()), null, jsonString);
     }
 
+    public static <T extends Bundle> T parseJsonBundleOfBundles(Class<T> tClass, VRDRFhirContext ctx, String jsonString) {
+        return parse(tClass, new JsonParser4BundleOfBundles(ctx.getCtx(), new LenientErrorHandler()), null, jsonString);
+    }
+
     public static <T extends Bundle> T parseXMLFile(Class<T> tClass, VRDRFhirContext ctx, String filePath) {
         return parse(tClass, ctx.getCtx().newXmlParser(), getInputStream(filePath), null);
     }
@@ -519,7 +523,7 @@ public class BaseMessage extends Bundle {
         }
     }
 
-  public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
+public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
         Bundle outerBundle = BaseMessage.parseJsonBundleOfBundles(Bundle.class, ctx, bundleStrings);
         List<BaseMessage> listMessages = new ArrayList();
         ListIterator iterator = outerBundle.getEntry().listIterator();
