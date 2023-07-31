@@ -2,6 +2,7 @@ package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.LenientErrorHandler;
+import ca.uhn.fhir.parser.JsonParser4BundleOfBundles;
 import edu.gatech.chai.VRDR.context.VRDRFhirContext;
 import edu.gatech.chai.VRDR.messaging.util.DocumentBundler;
 import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
@@ -479,6 +480,10 @@ public class BaseMessage extends Bundle {
         return parse(tClass, ctx.getCtx().newJsonParser(), null, jsonString);
     }
 
+    public static <T extends Bundle> T parseJsonBundleOfBundles(Class<T> tClass, VRDRFhirContext ctx, String jsonString) {
+        return parse(tClass, new JsonParser4BundleOfBundles(ctx.getCtx(), new LenientErrorHandler()), null, jsonString);
+    }
+
     public static <T extends Bundle> T parseXMLFile(Class<T> tClass, VRDRFhirContext ctx, String filePath) {
         return parse(tClass, ctx.getCtx().newXmlParser(), getInputStream(filePath), null);
     }
@@ -514,17 +519,20 @@ public class BaseMessage extends Bundle {
         }
     }
 
-    public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
-        Bundle outerBundle = BaseMessage.parseJson(Bundle.class, ctx, bundleStrings);
+  public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
+        Bundle outerBundle = BaseMessage.parseJsonBundleOfBundles(Bundle.class, ctx, bundleStrings);
         List<BaseMessage> listMessages = new ArrayList();
-        ListIterator iterator = bundle.getEntry().listIterator();
+        ListIterator iterator = outerBundle.getEntry().listIterator();
+        BaseMessage message;
         String messageType;
         while(iterator.hasNext()) {
             BundleEntryComponent bundleEntryComponent = (BundleEntryComponent)iterator.next();
-            if(bundleEntryComponent.getResource().getResourceType().toString().equals("Bundle")) {
-                Bundle bundle = (Bundle)bundleEntryComponent.getResource();
+            Resource resource = bundleEntryComponent.getResource();
+            if(resource.getResourceType().toString().equals("Bundle")) {
+                Bundle bundle = (Bundle)resource;
                 if(bundle != null) {
-                    messageType = new BaseMessage(bundle, true).getMessageType();
+                    message = new BaseMessage(bundle, true);
+                    messageType = message.getMessageType();
                     switch(messageType) {
                         case DeathRecordSubmissionMessage.MESSAGE_TYPE:
                             listMessages.add(new DeathRecordSubmissionMessage(bundle));
@@ -539,7 +547,7 @@ public class BaseMessage extends Bundle {
                             listMessages.add(new DeathRecordVoidMessage(bundle));
                             break;
                         case DeathRecordAliasMessage.MESSAGE_TYPE:
-                            listMessages.add(DeathRecordAliasMessage(bundle));
+                            listMessages.add(new DeathRecordAliasMessage(bundle));
                             break;
                         case CauseOfDeathCodingMessage.MESSAGE_TYPE:
                             listMessages.add(new CauseOfDeathCodingMessage(bundle));
@@ -561,7 +569,7 @@ public class BaseMessage extends Bundle {
                             break;
                         default:
                             String errorText;
-                            if(message.messageHeader == null) {
+                            if(message.messageHeader == null || message.messageHeader.isEmpty()) {
                                 errorText = "Failed to find a Bundle Entry containing a Resource of type MessageHeader";
                             } else if(messageType == null) {
                                 errorText = "Message type was missing from MessageHeader";
