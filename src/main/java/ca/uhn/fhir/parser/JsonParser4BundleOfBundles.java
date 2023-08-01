@@ -25,9 +25,6 @@ import static org.apache.commons.lang3.StringUtils.*;
  * {@link FhirContext#newJsonParser4BundleOfBundles()} to get an instance.
  */
 public class JsonParser4BundleOfBundles extends JsonParser {
-
-    private static final org.slf4j.Logger ourLog = org.slf4j.LoggerFactory.getLogger(JsonParser4BundleOfBundles.class);
-
     private FhirContext myContext;
     private boolean myPrettyPrint;
 
@@ -51,7 +48,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     private JsonLikeWriter createJsonWriter(Writer theWriter) {
-        ourLog.info("*** JsonParser4BundleOfBundles createJsonWriter");
         JsonLikeStructure jsonStructure = new GsonStructure();
         JsonLikeWriter retVal = jsonStructure.getJsonLikeWriter(theWriter);
         return retVal;
@@ -63,7 +59,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
         if (resourceTypeObj == null || !resourceTypeObj.isString() || isBlank(resourceTypeObj.getAsString())) {
             throw new DataFormatException("Invalid JSON content detected, missing required element: 'resourceType'");
         }
-
         String resourceType = resourceTypeObj.getAsString();
         ParserState4BundleOfBundles<? extends IBaseResource> state = ParserState4BundleOfBundles.getPreResourceInstance(this, theResourceType, myContext, true, getErrorHandler());
         ParserState4BundleOfBundles.getPreResourceInstance(this, theResourceType, myContext, true, getErrorHandler());
@@ -71,10 +66,9 @@ public class JsonParser4BundleOfBundles extends JsonParser {
         parseChildren(object, state);
         state.endingElement();
         state.endingElement();
-
         @SuppressWarnings("unchecked")
         T retVal = (T) state.getObject();
-
+        
         return retVal;
     }
 
@@ -82,7 +76,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     public void encodeResourceToJsonLikeWriter(IBaseResource theResource, JsonLikeWriter theJsonLikeWriter) throws IOException, DataFormatException {
         Validate.notNull(theResource, "theResource can not be null");
         Validate.notNull(theJsonLikeWriter, "theJsonLikeWriter can not be null");
-
         if (theResource.getStructureFhirVersionEnum() != myContext.getVersion().getVersion()) {
             throw new IllegalArgumentException(
                     "This parser is for FHIR version " + myContext.getVersion().getVersion() + " - Can not encode a structure for version " + theResource.getStructureFhirVersionEnum());
@@ -108,7 +101,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
         if (theAlternateVal == null || theAlternateVal.isNull()) {
             return;
         }
-
         if (theAlternateVal.isArray()) {
             JsonLikeArray array = theAlternateVal.getAsArray();
             if (array.size() > 1) {
@@ -152,10 +144,8 @@ public class JsonParser4BundleOfBundles extends JsonParser {
 
     private void parseChildren(JsonLikeObject theObject, ParserState4BundleOfBundles<?> theState) {
         Set<String> keySet = theObject.keySet();
-
         int allUnderscoreNames = 0;
         int handledUnderscoreNames = 0;
-
         for (String nextName : keySet) {
             if ("resourceType".equals(nextName)) {
                 continue;
@@ -248,7 +238,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     private void parseExtension(ParserState4BundleOfBundles<?> theState, JsonLikeArray theValues, boolean theIsModifier) {
         int allUnderscoreNames = 0;
         int handledUnderscoreNames = 0;
-
         for (int i = 0; i < theValues.size(); i++) {
             JsonLikeObject nextExtObj = JsonLikeValue.asObject(theValues.get(i));
             JsonLikeValue jsonElement = nextExtObj.get("url");
@@ -348,7 +337,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
 
         RuntimeResourceDefinition def = myContext.getResourceDefinition(retVal);
         if ("Bundle".equals(def.getName())) {
-
             BaseRuntimeChildDefinition entryChild = def.getChildByName("entry");
             BaseRuntimeElementCompositeDefinition<?> entryDef = (BaseRuntimeElementCompositeDefinition<?>) entryChild.getChildByName("entry");
             List<IBase> entries = entryChild.getAccessor().getValues(retVal);
