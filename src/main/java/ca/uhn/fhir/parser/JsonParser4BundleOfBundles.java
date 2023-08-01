@@ -39,17 +39,14 @@ public class JsonParser4BundleOfBundles extends JsonParser {
      */
     public JsonParser4BundleOfBundles(FhirContext theContext, IParserErrorHandler theParserErrorHandler) {
         super(theContext, theParserErrorHandler);
-        ourLog.info("*** JsonParser4BundleOfBundles");
         myContext = theContext;
     }
 
     private void beginArray(JsonLikeWriter theEventWriter, String arrayName) throws IOException {
-        ourLog.info("*** JsonParser4BundleOfBundles beginArray");
         theEventWriter.beginArray(arrayName);
     }
 
     private void beginObject(JsonLikeWriter theEventWriter, String arrayName) throws IOException {
-        ourLog.info("*** JsonParser4BundleOfBundles beginObject");
         theEventWriter.beginObject(arrayName);
     }
 
@@ -61,7 +58,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     public <T extends IBaseResource> T doParseResource(Class<T> theResourceType, JsonLikeStructure theJsonStructure) {
-        ourLog.info("*** JsonParser4BundleOfBundles doParseResource");
         JsonLikeObject object = theJsonStructure.getRootObject();
         JsonLikeValue resourceTypeObj = object.get("resourceType");
         if (resourceTypeObj == null || !resourceTypeObj.isString() || isBlank(resourceTypeObj.getAsString())) {
@@ -84,7 +80,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
 
     @Override
     public void encodeResourceToJsonLikeWriter(IBaseResource theResource, JsonLikeWriter theJsonLikeWriter) throws IOException, DataFormatException {
-        ourLog.info("*** JsonParser4BundleOfBundles encodeResourceToJsonLikeWriter");
         Validate.notNull(theResource, "theResource can not be null");
         Validate.notNull(theJsonLikeWriter, "theJsonLikeWriter can not be null");
 
@@ -92,7 +87,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
             throw new IllegalArgumentException(
                     "This parser is for FHIR version " + myContext.getVersion().getVersion() + " - Can not encode a structure for version " + theResource.getStructureFhirVersionEnum());
         }
-
         EncodeContext encodeContext = new EncodeContext();
         String resourceName = myContext.getResourceDefinition(theResource).getName();
         encodeContext.pushPath(resourceName, true);
@@ -100,7 +94,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     private JsonLikeArray grabJsonArray(JsonLikeObject theObject, String nextName, String thePosition) {
-        ourLog.info("*** JsonParser4BundleOfBundles grabJsonArray");
         JsonLikeValue object = theObject.get(nextName);
         if (object == null || object.isNull()) {
             return null;
@@ -112,7 +105,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     private void parseAlternates(JsonLikeValue theAlternateVal, ParserState4BundleOfBundles<?> theState, String theElementName, String theAlternateName) {
-        ourLog.info("*** JsonParser4BundleOfBundles parseAlternates");
         if (theAlternateVal == null || theAlternateVal.isNull()) {
             return;
         }
@@ -159,7 +151,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     private void parseChildren(JsonLikeObject theObject, ParserState4BundleOfBundles<?> theState) {
-        ourLog.info("*** JsonParser4BundleOfBundles parseChildren");
         Set<String> keySet = theObject.keySet();
 
         int allUnderscoreNames = 0;
@@ -195,7 +186,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     private void parseChildren(ParserState4BundleOfBundles<?> theState, String theName, JsonLikeValue theJsonVal, JsonLikeValue theAlternateVal, String theAlternateName, boolean theInArray) {
-        ourLog.info("*** JsonParser4BundleOfBundles parseChildren1");
         if (theName.equals("id")) {
             if (!theJsonVal.isString()) {
                 getErrorHandler().incorrectJsonType(null, "id", ValueType.SCALAR, ScalarType.STRING, theJsonVal.getJsonType(), theJsonVal.getDataType());
@@ -256,7 +246,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     private void parseExtension(ParserState4BundleOfBundles<?> theState, JsonLikeArray theValues, boolean theIsModifier) {
-        ourLog.info("*** JsonParser4BundleOfBundles parseExtension1");
         int allUnderscoreNames = 0;
         int handledUnderscoreNames = 0;
 
@@ -330,7 +319,6 @@ public class JsonParser4BundleOfBundles extends JsonParser {
     }
 
     private void parseFhirComments(JsonLikeValue theObject, ParserState4BundleOfBundles<?> theState) {
-        ourLog.info("*** JsonParser4BundleOfBundles parseFhirComments");
         if (theObject.isArray()) {
             JsonLikeArray comments = theObject.getAsArray();
             for (int i = 0; i < comments.size(); i++) {
