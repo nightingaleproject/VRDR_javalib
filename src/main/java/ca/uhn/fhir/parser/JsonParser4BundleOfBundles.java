@@ -2,8 +2,8 @@ package ca.uhn.fhir.parser;
 
 /*
  * #%L
- * This is a modified version of JsonParser.java from HAPI ca.uhn.fhir.parser
- * to function as 1 of the 2 helper classes for parsing FHIR Bundle of Bundles
+ * This is a modified version of JsonParser.java from ca.uhn.fhir.parser of ca.uhn.hapi.fhir
+ * (version 4.1.0) to function as 1 of the 2 helper classes for parsing FHIR Bundle of Bundles
  * #L%
  */
 
