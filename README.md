@@ -371,6 +371,24 @@ DeathRecordSubmissionMessage submission = BaseMessage.parseJsonFile(DeathRecordS
 StatusMessage status = new StatusMessage(submission, "manualCauseOfDeathCoding");
 ```
 
+#### Batch processing production or submission
+```java
+// create the outer bundle
+BaseMessage responseBundle = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/AcknowledgementMessage.json");
+
+// add different types of messages or inner bundles to the outer bundle
+responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(DeathRecordSubmissionMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json")));
+
+// convert the loaded outer bundle, or bundle of bundles, to String
+String bundleString = responseBundle.toJson(ctx);
+```
+
+#### Batch processing consumption or reception
+```java
+// parse the stringified bundle of bundles by invoking static function parseBundleOfBundles
+List<BaseMessage> listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
+```
+
 # Publishing a Version
 
 To create a new release of the VRDR Java Library:
