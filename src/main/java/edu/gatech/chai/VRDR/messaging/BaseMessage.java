@@ -2,6 +2,7 @@ package edu.gatech.chai.VRDR.messaging;
 
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.LenientErrorHandler;
+import ca.uhn.fhir.parser.JsonParser4BundleOfBundles;
 import edu.gatech.chai.VRDR.context.VRDRFhirContext;
 import edu.gatech.chai.VRDR.messaging.util.DocumentBundler;
 import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
@@ -479,6 +480,10 @@ public class BaseMessage extends Bundle {
         return parse(tClass, ctx.getCtx().newJsonParser(), null, jsonString);
     }
 
+    public static <T extends Bundle> T parseJsonBundleOfBundles(Class<T> tClass, VRDRFhirContext ctx, String jsonString) {
+        return parse(tClass, new JsonParser4BundleOfBundles(ctx.getCtx(), new LenientErrorHandler()), null, jsonString);
+    }
+
     public static <T extends Bundle> T parseXMLFile(Class<T> tClass, VRDRFhirContext ctx, String filePath) {
         return parse(tClass, ctx.getCtx().newXmlParser(), getInputStream(filePath), null);
     }
@@ -514,4 +519,68 @@ public class BaseMessage extends Bundle {
         }
     }
 
+public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
+        Bundle outerBundle = BaseMessage.parseJsonBundleOfBundles(Bundle.class, ctx, bundleStrings);
+        List<BaseMessage> listMessages = new ArrayList();
+        ListIterator iterator = outerBundle.getEntry().listIterator();
+        BaseMessage message;
+        String messageType;
+        while(iterator.hasNext()) {
+            BundleEntryComponent bundleEntryComponent = (BundleEntryComponent)iterator.next();
+            Resource resource = bundleEntryComponent.getResource();
+            if(resource.getResourceType().toString().equals("Bundle")) {
+                Bundle bundle = (Bundle)resource;
+                if(bundle != null) {
+                    message = new BaseMessage(bundle, true);
+                    messageType = message.getMessageType();
+                    switch(messageType) {
+                        case DeathRecordSubmissionMessage.MESSAGE_TYPE:
+                            listMessages.add(new DeathRecordSubmissionMessage(bundle));
+                            break;
+                        case DeathRecordUpdateMessage.MESSAGE_TYPE:
+                            listMessages.add(new DeathRecordUpdateMessage(bundle));
+                            break;
+                        case AcknowledgementMessage.MESSAGE_TYPE:
+                            listMessages.add(new AcknowledgementMessage(bundle));
+                            break;
+                        case DeathRecordVoidMessage.MESSAGE_TYPE:
+                            listMessages.add(new DeathRecordVoidMessage(bundle));
+                            break;
+                        case DeathRecordAliasMessage.MESSAGE_TYPE:
+                            listMessages.add(new DeathRecordAliasMessage(bundle));
+                            break;
+                        case CauseOfDeathCodingMessage.MESSAGE_TYPE:
+                            listMessages.add(new CauseOfDeathCodingMessage(bundle));
+                            break;
+                        case DemographicsCodingMessage.MESSAGE_TYPE:
+                            listMessages.add(new DemographicsCodingMessage(bundle));
+                            break;
+                        case CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE:
+                            listMessages.add(new CauseOfDeathCodingUpdateMessage(bundle));
+                            break;
+                        case DemographicsCodingUpdateMessage.MESSAGE_TYPE:
+                            listMessages.add(new DemographicsCodingUpdateMessage(bundle));
+                            break;
+                        case ExtractionErrorMessage.MESSAGE_TYPE:
+                            listMessages.add(new ExtractionErrorMessage(bundle));
+                            break;
+                        case StatusMessage.MESSAGE_TYPE:
+                            listMessages.add(new StatusMessage(bundle));
+                            break;
+                        default:
+                            String errorText;
+                            if(message.messageHeader == null || message.messageHeader.isEmpty()) {
+                                errorText = "Failed to find a Bundle Entry containing a Resource of type MessageHeader";
+                            } else if(messageType == null) {
+                                errorText = "Message type was missing from MessageHeader";
+                            } else {
+                                errorText = "Unsupported message type: " + messageType;
+                            }
+                            throw new MessageParseException(errorText, message);
+                    }
+                }
+            }
+        }
+        return listMessages;
+    }
 }
