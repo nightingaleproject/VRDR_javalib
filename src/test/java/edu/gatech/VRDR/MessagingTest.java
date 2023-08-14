@@ -160,7 +160,7 @@ public class MessagingTest extends TestCase {
             // test full death date and death time as baseline
             DeathCertificateDocument deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1.json");
             assertEquals("DateTimeType[2019-02-19T16:48:06-05:00]",deathCertificateDocument.getDeathDate().get(0).getValue().dateTimeValue().toString());
-            assertEquals("Feb 19, 2019, 3:48:06 PM",deathCertificateDocument.getDeathDate().get(0).getValue().dateTimeValue().toHumanDisplay());
+            assertEquals("Feb 19, 2019, 9:48:06 PM",deathCertificateDocument.getDeathDate().get(0).getValue().dateTimeValue().toHumanDisplay());
 
             // test death date with missing death time
             deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1MissingDeathTime.json");
@@ -182,7 +182,7 @@ public class MessagingTest extends TestCase {
             DeathCertificateDocument deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1.json");
             InjuryIncident injuryIncident = deathCertificateDocument.getInjuryIncident().get(0);
             assertEquals("DateTimeType[2018-02-19T16:48:06-05:00]",deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().dateTimeValue().toString());
-            assertEquals("Feb 19, 2018, 3:48:06 PM",deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().dateTimeValue().toHumanDisplay());
+            assertEquals("Feb 19, 2018, 9:48:06 PM",deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().dateTimeValue().toHumanDisplay());
 
             // test injury date with missing injury time
             deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1MissingInjuryTime.json");
