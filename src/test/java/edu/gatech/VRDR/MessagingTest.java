@@ -171,7 +171,6 @@ public class MessagingTest extends TestCase {
             deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/UnknownDateOfDeath.json");
             assertEquals("DateTimeType[null]", deathCertificateDocument.getDeathDate().get(0).getValue().toString());
             assertEquals("unknown", deathCertificateDocument.getExtraDateTimeType4Death().getMissingOrUnknownDeathTime());
-
         } catch (MessageParseException ex) {
             assertEquals("Message event uri type " + DeathRecordSubmissionMessage.MESSAGE_TYPE + " does not match the expected message type " + AcknowledgementMessage.MESSAGE_TYPE, ex.getMessage());
         }
@@ -194,7 +193,6 @@ public class MessagingTest extends TestCase {
             deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/UnknownDateOfInjury.json");
             assertEquals("DateTimeType[null]", deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().toString());
             assertEquals("unknown", deathCertificateDocument.getExtraDateTimeType4Injury().getMissingOrUnknownDeathTime());
-
         } catch (MessageParseException ex) {
             assertEquals("Message event uri type " + DeathRecordSubmissionMessage.MESSAGE_TYPE + " does not match the expected message type " + AcknowledgementMessage.MESSAGE_TYPE, ex.getMessage());
         }
@@ -482,11 +480,6 @@ public class MessagingTest extends TestCase {
         assertEquals(2021, codingStatusValues.getReceiptYear().intValue());
         assertEquals(6, codingStatusValues.getReceiptMonth().intValue());
         assertEquals(1, codingStatusValues.getReceiptDay().intValue());
-
-        System.out.println(" *** "+codingStatusValues.getReceiptDatePart(CodingStatusValues.DateYearExtensionUrl).intValue());
-        System.out.println(" *** "+codingStatusValues.getReceiptDatePart(CodingStatusValues.DateMonthExtensionUrl).intValue());
-        System.out.println(" *** "+codingStatusValues.getReceiptDatePart(CodingStatusValues.DateDayExtensionUrl).intValue());
-
         assertTrue(MannerOfDeathUtil.VALUE_NATURAL.equalsDeep(bundle.getMannerOfDeath().getValueCodeableConcept()));
     }
 
