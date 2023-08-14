@@ -16,7 +16,6 @@ import edu.gatech.chai.VRDR.model.util.DeathCertificateDocumentUtil;
 public class DeathCertificateDocument extends Bundle {
 
 	public static final String LOINC_CODE_DATE_PRONOUNCED_DEAD = "80616-6";
-
 	private static final long serialVersionUID = -429197004514766374L;
 	public ExtraDateTimeType extraDateTimeType4Death;
 	public ExtraDateTimeType extraDateTimeType4Injury;
@@ -270,6 +269,4 @@ public class DeathCertificateDocument extends Bundle {
 	public String toJson(VRDRFhirContext ctx, boolean prettyPrint) {
 		return ctx.getCtx().newJsonParser().setPrettyPrint(prettyPrint).encodeResourceToString(this);
 	}
-
-
 }
