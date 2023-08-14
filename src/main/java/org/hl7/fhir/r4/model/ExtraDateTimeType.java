@@ -2,7 +2,6 @@ package org.hl7.fhir.r4.model;
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 
-
 public class ExtraDateTimeType extends BaseDateTimeType {
     private String missingOrUnknownDeathTime;
     private String missingOrUnknownInjuryTime;
@@ -21,7 +20,6 @@ public class ExtraDateTimeType extends BaseDateTimeType {
     public void setMissingOrUnknownInjuryTime(String missingOrUnknownInjuryTime) {
         this.missingOrUnknownInjuryTime = missingOrUnknownInjuryTime;
     }
-
 
     @Override
     protected TemporalPrecisionEnum getDefaultPrecisionForDatatype() {
