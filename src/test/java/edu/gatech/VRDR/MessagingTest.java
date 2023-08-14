@@ -23,6 +23,7 @@ import edu.gatech.chai.VRDR.model.util.UploadUtil;
 import java.util.Random;
 import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.UnsignedIntType;
+import org.hl7.fhir.r4.model.ExtraDateTimeType;
 
 
 public class MessagingTest extends TestCase {
@@ -482,11 +483,6 @@ public class MessagingTest extends TestCase {
         assertEquals(2021, codingStatusValues.getReceiptYear().intValue());
         assertEquals(6, codingStatusValues.getReceiptMonth().intValue());
         assertEquals(1, codingStatusValues.getReceiptDay().intValue());
-
-        System.out.println(" *** "+codingStatusValues.getReceiptDatePart(CodingStatusValues.DateYearExtensionUrl).intValue());
-        System.out.println(" *** "+codingStatusValues.getReceiptDatePart(CodingStatusValues.DateMonthExtensionUrl).intValue());
-        System.out.println(" *** "+codingStatusValues.getReceiptDatePart(CodingStatusValues.DateDayExtensionUrl).intValue());
-
         assertTrue(MannerOfDeathUtil.VALUE_NATURAL.equalsDeep(bundle.getMannerOfDeath().getValueCodeableConcept()));
     }
 

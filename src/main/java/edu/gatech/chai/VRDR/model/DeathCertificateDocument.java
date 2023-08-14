@@ -22,7 +22,7 @@ public class DeathCertificateDocument extends Bundle {
 	public ExtraDateTimeType extraDateTimeType4Injury;
 
 	public ExtraDateTimeType getExtraDateTimeType4Death() {
-		return extraDateTimeType4Death;
+		return this.extraDateTimeType4Death;
 	}
 
 	public void setExtraDateTimeType4Death(ExtraDateTimeType extraDateTimeType4Death) {
@@ -30,7 +30,7 @@ public class DeathCertificateDocument extends Bundle {
 	}
 
 	public ExtraDateTimeType getExtraDateTimeType4Injury() {
-		return extraDateTimeType4Injury;
+		return this.extraDateTimeType4Injury;
 	}
 
 	public void setExtraDateTimeType4Injury(ExtraDateTimeType extraDateTimeType4Injury) {
@@ -123,14 +123,15 @@ public class DeathCertificateDocument extends Bundle {
 
 	public List<DeathDate> getDeathDate(){
 		List<Resource> resources = getRecords(DeathDate.class);
-		BaseDateTimeType baseDateTimeType =  ((DeathDate)resources.get(0)).getValue().dateTimeValue();//extraDateTimeType = (ExtraDateTimeType) baseDateTimeType;
-		if(baseDateTimeType.toString().equals("DateTimeType[null]")) {
-			extraDateTimeType4Death = new ExtraDateTimeType();
-			extraDateTimeType4Death.setMissingOrUnknownDeathTime("unknown");
-		}
-		else if(!baseDateTimeType.hasTime()) {
-			extraDateTimeType4Death = new ExtraDateTimeType();
-			extraDateTimeType4Death.setMissingOrUnknownDeathTime("null");
+		if(resources.size()>0) {
+			DeathDate deathDate = (DeathDate)resources.get(0);
+			if(deathDate == null || deathDate.getValue() == null || deathDate.dateTimeValue() == null || !deathDate.dateTimeValue().hasTime()) {
+				extraDateTimeType4Death = new ExtraDateTimeType();
+				extraDateTimeType4Death.setMissingOrUnknownDeathTime("null");
+			}
+			if(deathDate.getEffectiveDateTimeType().toString().equals("DateTimeType[null]")) {
+				extraDateTimeType4Death.setMissingOrUnknownDeathTime("unknown");
+			}
 		}
 		return castListOfRecords(resources);
 	}
@@ -208,15 +209,15 @@ public class DeathCertificateDocument extends Bundle {
 
 	public List<InjuryIncident> getInjuryIncident(){
 		List<Resource> resources = getRecords(InjuryIncident.class);
-		BaseDateTimeType baseDateTimeType =  ((InjuryIncident)resources.get(0)).getEffectiveDateTimeType().dateTimeValue();
-
-		if(baseDateTimeType.toString().equals("DateTimeType[null]")) {
-			extraDateTimeType4Injury = new ExtraDateTimeType();
-			extraDateTimeType4Injury.setMissingOrUnknownDeathTime("unknown");
-		}
-		else if(!baseDateTimeType.hasTime()) {
-			extraDateTimeType4Injury = new ExtraDateTimeType();
-			extraDateTimeType4Injury.setMissingOrUnknownDeathTime("null");
+		if(resources.size()>0) {
+			InjuryIncident injuryIncident = (InjuryIncident)resources.get(0);
+			if(injuryIncident == null || injuryIncident.getEffectiveDateTimeType() == null || injuryIncident.dateTimeValue() == null || !injuryIncident.dateTimeValue().hasTime()) {
+				extraDateTimeType4Injury = new ExtraDateTimeType();
+				extraDateTimeType4Injury.setMissingOrUnknownDeathTime("null");
+			}
+			if(injuryIncident.getEffectiveDateTimeType().toString().equals("DateTimeType[null]")) {
+				extraDateTimeType4Injury.setMissingOrUnknownDeathTime("unknown");
+			}
 		}
 		return castListOfRecords(resources);
 	}
