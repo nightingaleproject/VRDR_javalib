@@ -981,26 +981,11 @@ public class MessagingTest extends TestCase {
 
         // test parsing different types of legit messages returned
         assertTrue(listOfMessages.get(0).toString().contains("DeathRecordSubmissionMessage"));
-        assertEquals(listOfMessages.get(0).getMessageType(), DeathRecordSubmissionMessage.MESSAGE_TYPE);
         assertEquals(((BaseMessage)listOfMessages.get(0)).getMessageType(), DeathRecordSubmissionMessage.MESSAGE_TYPE);
         assertEquals(((DeathRecordSubmissionMessage)listOfMessages.get(0)).getDeathRecord().getDeathLocation().get(0).getAddress().getCity(), "Albany");
         assertTrue(((DeathRecordSubmissionMessage)listOfMessages.get(0)).getDeathRecord().getDeathCertificate().get(0).getId().contains("DeathCertificate"));
 
         assertTrue(listOfMessages.get(1).toString().contains("DeathRecordUpdateMessage"));
-        assertEquals(listOfMessages.get(1).getMessageType(), DeathRecordUpdateMessage.MESSAGE_TYPE);
-        assertTrue(listOfMessages.get(2).toString().contains("AcknowledgementMessage"));
-        assertEquals(listOfMessages.get(2).getMessageType(), AcknowledgementMessage.MESSAGE_TYPE);
-        assertTrue(listOfMessages.get(3).toString().contains("DeathRecordVoidMessage"));
-        assertEquals(listOfMessages.get(3).getMessageType(), DeathRecordVoidMessage.MESSAGE_TYPE);
-        assertTrue(listOfMessages.get(4).toString().contains("DeathRecordAliasMessage"));
-        assertEquals(listOfMessages.get(4).getMessageType(), DeathRecordAliasMessage.MESSAGE_TYPE);
-        assertTrue(listOfMessages.get(5).toString().contains("CauseOfDeathCodingMessage"));
-        assertEquals(listOfMessages.get(5).getMessageType(), CauseOfDeathCodingMessage.MESSAGE_TYPE);
-        assertTrue(listOfMessages.get(6).toString().contains("CauseOfDeathCodingUpdateMessage"));
-        assertEquals(listOfMessages.get(6).getMessageType(), CauseOfDeathCodingUpdateMessage.MESSAGE_TYPE);
-
-        assertTrue(listOfMessages.get(7).toString().contains("DemographicsCodingMessage"));
-        assertEquals(listOfMessages.get(7).getMessageType(), DemographicsCodingMessage.MESSAGE_TYPE);
         assertEquals(((BaseMessage)listOfMessages.get(1)).getMessageType(), DeathRecordUpdateMessage.MESSAGE_TYPE);
         assertTrue(listOfMessages.get(2).toString().contains("AcknowledgementMessage"));
         assertEquals(((BaseMessage)listOfMessages.get(2)).getMessageType(), AcknowledgementMessage.MESSAGE_TYPE);
@@ -1019,9 +1004,6 @@ public class MessagingTest extends TestCase {
         assertTrue(((DemographicsCodingMessage)listOfMessages.get(7)).getDemographicCodedContentBundle().getEntry().get(1).getResource().toString().contains("InputRaceAndEthnicity"));
 
         assertTrue(listOfMessages.get(8).toString().contains("DemographicsCodingUpdateMessage"));
-        assertEquals(listOfMessages.get(8).getMessageType(), DemographicsCodingUpdateMessage.MESSAGE_TYPE);
-        assertTrue(listOfMessages.get(9).toString().contains("StatusMessage"));
-        assertEquals(listOfMessages.get(9).getMessageType(), StatusMessage.MESSAGE_TYPE);
         assertEquals(((BaseMessage)listOfMessages.get(8)).getMessageType(), DemographicsCodingUpdateMessage.MESSAGE_TYPE);
         assertTrue(listOfMessages.get(9).toString().contains("StatusMessage"));
         assertEquals(((BaseMessage)listOfMessages.get(9)).getMessageType(), StatusMessage.MESSAGE_TYPE);
