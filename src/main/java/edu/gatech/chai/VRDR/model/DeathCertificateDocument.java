@@ -18,6 +18,24 @@ public class DeathCertificateDocument extends Bundle {
 	public static final String LOINC_CODE_DATE_PRONOUNCED_DEAD = "80616-6";
 
 	private static final long serialVersionUID = -429197004514766374L;
+	public ExtraDateTimeType extraDateTimeType4Death;
+	public ExtraDateTimeType extraDateTimeType4Injury;
+
+	public ExtraDateTimeType getExtraDateTimeType4Death() {
+		return extraDateTimeType4Death;
+	}
+
+	public void setExtraDateTimeType4Death(ExtraDateTimeType extraDateTimeType4Death) {
+		this.extraDateTimeType4Death = extraDateTimeType4Death;
+	}
+
+	public ExtraDateTimeType getExtraDateTimeType4Injury() {
+		return extraDateTimeType4Injury;
+	}
+
+	public void setExtraDateTimeType4Injury(ExtraDateTimeType extraDateTimeType4Injury) {
+		this.extraDateTimeType4Injury = extraDateTimeType4Injury;
+	}
 
 	public DeathCertificateDocument() {
 		super();
@@ -105,8 +123,18 @@ public class DeathCertificateDocument extends Bundle {
 
 	public List<DeathDate> getDeathDate(){
 		List<Resource> resources = getRecords(DeathDate.class);
+		BaseDateTimeType baseDateTimeType =  ((DeathDate)resources.get(0)).getValue().dateTimeValue();//extraDateTimeType = (ExtraDateTimeType) baseDateTimeType;
+		if(baseDateTimeType.toString().equals("DateTimeType[null]")) {
+			extraDateTimeType4Death = new ExtraDateTimeType();
+			extraDateTimeType4Death.setMissingOrUnknownDeathTime("unknown");
+		}
+		else if(!baseDateTimeType.hasTime()) {
+			extraDateTimeType4Death = new ExtraDateTimeType();
+			extraDateTimeType4Death.setMissingOrUnknownDeathTime("null");
+		}
 		return castListOfRecords(resources);
 	}
+
 	
 	public List<DeathLocation> getDeathLocation(){
 		List<Resource> resources = getRecords(DeathLocation.class);
@@ -180,6 +208,16 @@ public class DeathCertificateDocument extends Bundle {
 	
 	public List<InjuryIncident> getInjuryIncident(){
 		List<Resource> resources = getRecords(InjuryIncident.class);
+		BaseDateTimeType baseDateTimeType =  ((InjuryIncident)resources.get(0)).getEffectiveDateTimeType().dateTimeValue();
+
+		if(baseDateTimeType.toString().equals("DateTimeType[null]")) {
+			extraDateTimeType4Injury = new ExtraDateTimeType();
+			extraDateTimeType4Injury.setMissingOrUnknownDeathTime("unknown");
+		}
+		else if(!baseDateTimeType.hasTime()) {
+			extraDateTimeType4Injury = new ExtraDateTimeType();
+			extraDateTimeType4Injury.setMissingOrUnknownDeathTime("null");
+		}
 		return castListOfRecords(resources);
 	}
 	
