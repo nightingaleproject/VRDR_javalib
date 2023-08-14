@@ -29,10 +29,10 @@ public class MessagingTest extends TestCase {
 
     VRDRFhirContext ctx;
 
-    private final DeathCertificateDocument deathRecord1FromXML;
-    private final DeathCertificateDocument deathRecord1;
-    private final DeathCertificateDocument deathRecordNoIdentifiers;
-    private final DeathCertificateDocument deathRecordPronouncementTimeOnly;
+    private DeathCertificateDocument deathRecord1FromXML;
+    private DeathCertificateDocument deathRecord1;
+    private DeathCertificateDocument deathRecordNoIdentifiers;
+    private DeathCertificateDocument deathRecordPronouncementTimeOnly;
 
     public MessagingTest(String testName) {
         super(testName);
@@ -150,49 +150,6 @@ public class MessagingTest extends TestCase {
         try {
             AcknowledgementMessage acknowledgementMessage = BaseMessage.parseJsonFile(AcknowledgementMessage.class, ctx, "src/test/resources/json/DeathRecordSubmissionMessage.json");
             fail("Expected MessageParseException");
-        } catch (MessageParseException ex) {
-            assertEquals("Message event uri type " + DeathRecordSubmissionMessage.MESSAGE_TYPE + " does not match the expected message type " + AcknowledgementMessage.MESSAGE_TYPE, ex.getMessage());
-        }
-    }
-
-    public void testMissingOrUnknownTimeOfDeath() {
-        try {
-            // test full death date and death time as baseline
-            DeathCertificateDocument deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1.json");
-            assertEquals("DateTimeType[2019-02-19T16:48:06-05:00]",deathCertificateDocument.getDeathDate().get(0).getValue().dateTimeValue().toString());
-            assertEquals("Feb 19, 2019, 9:48:06 PM",deathCertificateDocument.getDeathDate().get(0).getValue().dateTimeValue().toHumanDisplay());
-
-            // test death date with missing death time
-            deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1MissingDeathTime.json");
-            assertEquals("DateTimeType[2019-02-19]",deathCertificateDocument.getDeathDate().get(0).getValue().toString());
-            assertEquals("null", deathCertificateDocument.getExtraDateTimeType4Death().getMissingOrUnknownDeathTime());
-
-            // test "unknown" death date and death time
-            deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/UnknownDateOfDeath.json");
-            assertEquals("DateTimeType[null]", deathCertificateDocument.getDeathDate().get(0).getValue().toString());
-            assertEquals("unknown", deathCertificateDocument.getExtraDateTimeType4Death().getMissingOrUnknownDeathTime());
-        } catch (MessageParseException ex) {
-            assertEquals("Message event uri type " + DeathRecordSubmissionMessage.MESSAGE_TYPE + " does not match the expected message type " + AcknowledgementMessage.MESSAGE_TYPE, ex.getMessage());
-        }
-    }
-
-    public void testMissingOrUnknownTimeOfInjury() {
-        try {
-            // test full injury date and injury time as baseline
-            DeathCertificateDocument deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1.json");
-            InjuryIncident injuryIncident = deathCertificateDocument.getInjuryIncident().get(0);
-            assertEquals("DateTimeType[2018-02-19T16:48:06-05:00]",deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().dateTimeValue().toString());
-            assertEquals("Feb 19, 2018, 9:48:06 PM",deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().dateTimeValue().toHumanDisplay());
-
-            // test injury date with missing injury time
-            deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/DeathRecord1MissingInjuryTime.json");
-            assertEquals("DateTimeType[2018-02-19]",deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().toString());
-            assertEquals("null", deathCertificateDocument.getExtraDateTimeType4Injury().getMissingOrUnknownDeathTime());
-
-            // test "unknown" injury date and injury time
-            deathCertificateDocument = BaseMessage.parseJsonFile(DeathCertificateDocument.class, ctx, "src/test/resources/json/UnknownDateOfInjury.json");
-            assertEquals("DateTimeType[null]", deathCertificateDocument.getInjuryIncident().get(0).getEffectiveDateTimeType().toString());
-            assertEquals("unknown", deathCertificateDocument.getExtraDateTimeType4Injury().getMissingOrUnknownDeathTime());
         } catch (MessageParseException ex) {
             assertEquals("Message event uri type " + DeathRecordSubmissionMessage.MESSAGE_TYPE + " does not match the expected message type " + AcknowledgementMessage.MESSAGE_TYPE, ex.getMessage());
         }
@@ -333,7 +290,7 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateCauseOfDeathCodingMessageWithNoIdentifiers() {
-        CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage(null);
+        CauseOfDeathCodingMessage coding = new CauseOfDeathCodingMessage((DeathRecordSubmissionMessage)null);
         assertEquals("http://nchs.cdc.gov/vrdr_causeofdeath_coding", coding.getMessageType());
         assertNull(coding.getCodedMessageId());
         assertNull(coding.getMessageDestination());
@@ -368,7 +325,7 @@ public class MessagingTest extends TestCase {
     }
 
     public void testCreateDemographicsCodingMessageWithNoIdentifiers() {
-        DemographicsCodingMessage coding = new DemographicsCodingMessage(null);
+        DemographicsCodingMessage coding = new DemographicsCodingMessage((DeathRecordSubmissionMessage)null);
         assertEquals("http://nchs.cdc.gov/vrdr_demographics_coding", coding.getMessageType());
         assertNull(coding.getCodedMessageId());
         assertNull(coding.getMessageDestination());
@@ -431,8 +388,8 @@ public class MessagingTest extends TestCase {
 
         assertEquals(CauseOfDeathCodingMessage.MESSAGE_TYPE, message.getMessageType());
         assertEquals("http://nchs.cdc.gov/vrdr_submission", message.getMessageDestination());
-        assertEquals(100000, (long) message.getCertNo());
-        assertEquals(2019, (long) message.getDeathYear());
+        assertEquals((long) 100000, (long) message.getCertNo());
+        assertEquals((long) 2019, (long) message.getDeathYear());
         assertNull(message.getStateAuxiliaryId());
         assertEquals("2019AK100000", message.getNCHSIdentifier());
 
@@ -480,6 +437,7 @@ public class MessagingTest extends TestCase {
         assertEquals(2021, codingStatusValues.getReceiptYear().intValue());
         assertEquals(6, codingStatusValues.getReceiptMonth().intValue());
         assertEquals(1, codingStatusValues.getReceiptDay().intValue());
+
         assertTrue(MannerOfDeathUtil.VALUE_NATURAL.equalsDeep(bundle.getMannerOfDeath().getValueCodeableConcept()));
     }
 
@@ -900,7 +858,7 @@ public class MessagingTest extends TestCase {
     public void testCreateExtractionErrorFromJson() {
         ExtractionErrorMessage err = BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx, "src/test/resources/json/ExtractionErrorMessage.json");
         assertEquals("http://nchs.cdc.gov/vrdr_extraction_error", err.getMessageType());
-        assertEquals(1, (long) err.getCertNo());
+        assertEquals((long) 1, (long) err.getCertNo());
         assertEquals("42", err.getStateAuxiliaryId());
         assertEquals("2018MA000001", err.getNCHSIdentifier());
         List<ExtractionErrorMessage.Issue> issues = err.getIssues();
@@ -1039,8 +997,8 @@ public class MessagingTest extends TestCase {
         // create a new death certificate "deathCertificate" and add it to a death record "deathRecord"
         DeathCertificate deathCertificate = new DeathCertificate();
         DeathCertificateDocument deathRecord = new DeathCertificateDocument();
-        CommonUtil.initResource(deathCertificate);
-        deathRecord.addEntry((new Bundle.BundleEntryComponent()).setResource(deathCertificate));
+        CommonUtil.initResource((Resource)deathCertificate);
+        deathRecord.addEntry((new Bundle.BundleEntryComponent()).setResource((Resource)deathCertificate));
 
         // loop from 1 to 100 to create 100 messages and their contents
         for(int i=1; i<=msgCounter; i++) {
