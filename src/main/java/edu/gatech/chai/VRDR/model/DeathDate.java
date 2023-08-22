@@ -2,11 +2,7 @@ package edu.gatech.chai.VRDR.model;
 
 import java.util.Date;
 
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.DateTimeType;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.IntegerType;
-import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.*;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
@@ -66,6 +62,20 @@ public class DeathDate extends Observation {
 		this.value.addExtension(baseExtension);
 		return this;
 	}
+
+	public DeathDate addPartialDateTimeExtension(IntegerType year, String yearDataAbsentReason, IntegerType month, String monthDataAbsentReason,
+												 IntegerType day, String dayDataAbsentReason, StringType time, String timeDataAbsentReason) {
+		if(this.value == null) {
+			this.value = new DateTimeType(); //Assuming a datetime value if uninitiated
+		}
+		Extension baseExtension = addPartialDateBaseExtension();
+		addPartialDateYear(baseExtension,year,yearDataAbsentReason);
+		addPartialDateMonth(baseExtension,month,monthDataAbsentReason);
+		addPartialDateDay(baseExtension,day,dayDataAbsentReason);
+		addPartialDateTime(baseExtension,time,timeDataAbsentReason);
+		this.value.addExtension(baseExtension);
+		return this;
+	}
 	
 	private Extension addPartialDateBaseExtension() {
 		Extension baseExtension = new Extension(CommonUtil.partialDatePartAbsentReasonURL);
@@ -93,11 +103,21 @@ public class DeathDate extends Observation {
 	}
 	
 	private DeathDate addPartialDateDay(Extension baseExtension, IntegerType day,String dataAbsentReason) {
-		if(dataAbsentReason != null || !dataAbsentReason.isEmpty()) {
+		if(dataAbsentReason != null && !dataAbsentReason.isEmpty()) {
 			baseExtension.addExtension(new Extension(CommonUtil.partialDateDateDayAbsentReasonURL,CommonUtil.findCodeFromCollectionUsingSimpleString(dataAbsentReason, CommonUtil.dataAbsentReasonCodeSet)));
 		}
 		else if(day != null && !day.isEmpty()){
 			baseExtension.addExtension(new Extension(CommonUtil.partialDateDateDayURL,day));
+		}
+		return this;
+	}
+
+	private DeathDate addPartialDateTime(Extension baseExtension, StringType time,String dataAbsentReason) {
+		if(dataAbsentReason != null && !dataAbsentReason.isEmpty()) {
+			baseExtension.addExtension(new Extension(CommonUtil.partialDateDateTimeAbsentReasonURL,CommonUtil.findCodeFromCollectionUsingSimpleString(dataAbsentReason, CommonUtil.dataAbsentReasonCodeSet)));
+		}
+		else if(time != null && !time.isEmpty()){
+			baseExtension.addExtension(new Extension(CommonUtil.partialDateDateTimeURL,time));
 		}
 		return this;
 	}

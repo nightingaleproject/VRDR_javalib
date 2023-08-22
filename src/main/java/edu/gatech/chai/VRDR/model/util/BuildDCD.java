@@ -257,4 +257,16 @@ public class BuildDCD {
 		deathDate.addPartialDateExtension(new IntegerType(2019), "", new IntegerType(6), "", null, "unknown");
 		return deathDate;
 	}
+
+	public static DeathDate buildDeathWithPartialDateTime() {
+		DeathDate deathDate = new DeathDate();
+		deathDate.addPartialDateTimeExtension(new IntegerType(2019), "", new IntegerType(7), "", null, "unknown", new StringType("T16:47:04-05:00"), "");
+		return deathDate;
+	}
+
+	public static DeathDate buildDeathWithPartialDateTimeAbsentReason() {
+		DeathDate deathDate = new DeathDate();
+		deathDate.addPartialDateTimeExtension(new IntegerType(2019), "", new IntegerType(7), "", new IntegerType(16), "", null, "unknown");
+		return deathDate;
+	}
 }

@@ -84,8 +84,28 @@ public class AppTest
     }
     
     public void testPartialDeathDateRecord() {
-    	DeathDate deathDate = BuildDCD.buildDeathWithPartialDateAbsentReason();
-    	String jsonForm = context.getCtx().newJsonParser().encodeResourceToString(deathDate);
+		DeathDate deathDate = BuildDCD.buildDeathWithPartialDateAbsentReason();
+		String jsonForm = context.getCtx().newJsonParser().encodeResourceToString(deathDate);
 		assertTrue(jsonForm != null && jsonForm.length() > 0);
-    }
+	}
+
+	public void testPartialDeathDateTimeRecord() {
+		DeathDate deathDate = BuildDCD.buildDeathWithPartialDateTimeAbsentReason();
+		String jsonForm = context.getCtx().newJsonParser().encodeResourceToString(deathDate);
+
+		// test known date day, unknown time
+		assertEquals("date-day", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(2).getUrl());//primitiveValue());
+		assertEquals("16", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(2).getValue().primitiveValue());//primitiveValue());
+		assertEquals("time-absent-reason", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(3).getUrl());//primitiveValue());
+		assertEquals("unknown", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(3).getValue().primitiveValue());//primitiveValue());
+
+		// test unknown date day, known time
+		deathDate = BuildDCD.buildDeathWithPartialDateTime();
+		assertEquals("day-absent-reason", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(2).getUrl());//primitiveValue());
+		assertEquals("unknown", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(2).getValue().primitiveValue());//primitiveValue());
+		assertEquals("date-time", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(3).getUrl());//primitiveValue());
+		assertEquals("T16:47:04-05:00", deathDate.getValueDateTimeType().getExtension().get(0).getExtension().get(3).getValue().primitiveValue());//primitiveValue());
+	}
+
+
 }
