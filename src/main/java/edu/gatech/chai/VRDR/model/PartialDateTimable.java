@@ -12,7 +12,6 @@ public interface PartialDateTimable {
         addPartialDateYear(baseExtension,year,yearDataAbsentReason);
         addPartialDateMonth(baseExtension,month,monthDataAbsentReason);
         addPartialDateDay(baseExtension,day,dayDataAbsentReason);
-        deathDate.getValue().addExtension(baseExtension);
         initEventDate(event, baseExtension);
     }
 
