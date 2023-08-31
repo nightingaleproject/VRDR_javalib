@@ -36,6 +36,9 @@ public class CommonUtil {
 	public static final String partialDateDateMonthAbsentReasonURL = "month-absent-reason";
 	public static final String partialDateDateDayURL = "date-day";
 	public static final String partialDateDateDayAbsentReasonURL = "day-absent-reason";
+	public static final String partialDateDateTimeURL = "date-time"; //"http://hl7.org/fhir/us/vrdr/StructureDefinition/PartialDateTime";
+	public static final String partialDateDateTimeAbsentReasonURL = "time-absent-reason";
+
 	public static final String vrdrObservationCsUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-observations-cs";
 	public static final String vrdrComponentCsUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-component-cs";
 	public static CodeableConcept noCode = new CodeableConcept().addCoding(new Coding(basicBooleanHL7System,"N","No"));
@@ -60,7 +63,7 @@ public class CommonUtil {
 			nationalProviderIdentifierCode,stateRegistryIdCode,SocialSecurityNumberCode));
 	public static final HashSet<CodeableConcept> certifierTypeSet = new HashSet<>(Arrays.asList(
 			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"455381000124109","Medical Examiner/Coroner")),
-			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434641000124105","Physician certifed and pronounced death certificate")),
+			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434641000124105","Physician certified and pronounced death certificate")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434651000124107","Physician certified death certificate")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.nullFlavorHL7System,"OTH","Other"))
 			));
