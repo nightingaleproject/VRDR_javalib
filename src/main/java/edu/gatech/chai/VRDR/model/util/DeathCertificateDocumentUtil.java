@@ -3,14 +3,18 @@ package edu.gatech.chai.VRDR.model.util;
 import edu.gatech.chai.VRDR.model.URL;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.TimeType;
 
+import java.lang.reflect.Field;
 import java.time.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.hl7.fhir.r4.model.Enumerations.DataType;
+import org.hl7.fhir.r4.model.Resource;
+
+import static org.hl7.fhir.r4.model.Enumerations.*;
 
 public class DeathCertificateDocumentUtil {
 	public static final String auxillaryStateIndentifierUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/AuxiliaryStateIdentifier1";
@@ -20,31 +24,37 @@ public class DeathCertificateDocumentUtil {
 	/// <param name="dict">represents a code.</param>
 	/// <returns>A boolean identifying whether the provided Map is empty or default.</returns>
 
-	public static boolean isMapEmptyOrDefault(Map<String, String> map)
+
+//	public static boolean isMapEmptyOrDefault(Map<String, String> map)
+//	{
+//		return map.size() == 0 || map.values().stream().allMatch(v -> v == null || v.equals(""));
+//	}
+
+	public static boolean isMapEmptyOrDefault(Map<String, StringType> map)
 	{
-		return map.size() == 0 || map.values().stream().allMatch(v -> v == null || v == "");
+		return map.size() == 0 || map.values().stream().allMatch(v -> v == null || v.equals(""));
 	}
 
 
 	/// <summary>Convert a FHIR Coding to a "code" Map</summary>
 	/// <param name="coding">a FHIR Coding.</param>
 	/// <returns>the corresponding Map representation of the code.</returns>
-	public static Map<String, String> CodingToDict(Coding coding)
+	public static Map<String, StringType> CodingToMap(Coding coding)
 	{
-		Map<String, String> map = EmptyCodeDict();
+		Map<String, StringType> map = EmptyCodeMap();
 		if (coding != null)
 		{
 			if (isNullOrEmpty(coding.getCode()))
 			{
-				map.put("code", coding.getCode());
+				map.put("code", new StringType(coding.getCode()));
 			}
 			if (isNullOrEmpty(coding.getSystem()))
 			{
-				map.put("system", coding.getSystem());
+				map.put("system", new StringType(coding.getSystem()));
 			}
 			if (isNullOrEmpty(coding.getDisplay()))
 			{
-				map.put("display", coding.getDisplay());
+				map.put("display", new StringType(coding.getDisplay()));
 			}
 		}
 		return map;
@@ -53,12 +63,12 @@ public class DeathCertificateDocumentUtil {
 	/// <summary>Convert a FHIR CodableConcept to a "code" Map</summary>
 	/// <param name="codeableConcept">a FHIR CodeableConcept.</param>
 	/// <returns>the corresponding Map representation of the code.</returns>
-	public static Map<String, String> CodeableConceptToDict(CodeableConcept codeableConcept)
+	public static Map<String, StringType> CodeableConceptToMap(CodeableConcept codeableConcept)
 	{
 		if (codeableConcept != null && codeableConcept.getCoding() != null)
 		{
 			Coding coding = codeableConcept.getCoding().get(0);
-			Map codeMap = CodingToDict(coding);
+			Map codeMap = CodingToMap(coding);
 			if (codeableConcept != null && isNullOrEmpty(codeableConcept.getText()))
 			{
 				codeMap.put("text", codeableConcept.getText());
@@ -74,128 +84,128 @@ public class DeathCertificateDocumentUtil {
 	/// <summary>Convert an "address" Map to a FHIR Address.</summary>
 	/// <param name="dict">represents an address.</param>
 	/// <returns>the corresponding FHIR Address representation of the address.</returns>
-	private Address MapToAddress(Map<String, String> map)
+	private Address MapToAddress(Map<String, StringType> map)
 	{
 		Address address = new Address();
 
 		if (map != null)
 		{
 			List<StringType> lines = new ArrayList();
-			if (map.containsKey("addressLine1") && isNullOrEmpty(map.get("addressLine1")))
+			if (map.containsKey("addressLine1") && isNullOrEmpty(String.valueOf(map.get("addressLine1"))))
 			{
-				lines.add(new StringType(map.get("addressLine1")));
+				lines.add(map.get("addressLine1"));
 			}
-			if (map.containsKey("addressLine2") && isNullOrEmpty(map.get("addressLine2")))
+			if (map.containsKey("addressLine2") && isNullOrEmpty(String.valueOf(map.get("addressLine2"))))
 			{
-				lines.add(new StringType(map.get("addressLine2")));
+				lines.add(map.get("addressLine2"));
 			}
 			if (lines.size() > 0)
 			{
 				address.setLine(lines);
 			}
-			if (map.containsKey("addressCityC") && isNullOrEmpty(map.get("addressCityC")))
+			if (map.containsKey("addressCityC") && isNullOrEmpty(String.valueOf(map.get("addressCityC"))))
 			{
 				Extension cityCode = new Extension();
 				cityCode.setUrl(URL.ExtensionURL.CityCode);
-				cityCode.setValue(new IntegerType(Integer.parseInt(map.get("addressCityC"))));
+				cityCode.setValue(new IntegerType(Integer.parseInt(String.valueOf(map.get("addressCityC")))));
 				address.setCityElement(new StringType());
 				address.getCityElement().getExtension().add(cityCode);
 			}
-			if (map.containsKey("addressCity") && isNullOrEmpty(map.get("addressCity")))
+			if (map.containsKey("addressCity") && isNullOrEmpty(String.valueOf(map.get("addressCity"))))
 			{
 				if (address.getCityElement() != null)
 				{
-					address.getCityElement().setValue(map.get("addressCity"));
+					address.getCityElement().setValue(String.valueOf(map.get("addressCity")));
 				}
 				else
 				{
-					address.setCity(map.get("addressCity"));
+					address.setCity(String.valueOf(map.get("addressCity")));
 				}
 
 			}
-			if (map.containsKey("addressCountyC") && isNullOrEmpty(map.get("addressCountyC")))
+			if (map.containsKey("addressCountyC") && isNullOrEmpty(String.valueOf(map.get("addressCountyC"))))
 			{
 				Extension countyCode = new Extension();
 				countyCode.setUrl(URL.ExtensionURL.DistrictCode);
-				countyCode.setValue(new IntegerType(Integer.parseInt(map.get("addressCountyC"))));
+				countyCode.setValue(new IntegerType(Integer.parseInt(String.valueOf(map.get("addressCountyC")))));
 				address.setDistrictElement(new StringType());
 				address.getDistrictElement().getExtension().add(countyCode);
 			}
-			if (map.containsKey("addressCounty") && isNullOrEmpty(map.get("addressCounty")))
+			if (map.containsKey("addressCounty") && isNullOrEmpty(String.valueOf(map.get("addressCounty"))))
 			{
 				if (address.getDistrictElement() != null)
 				{
-					address.getDistrictElement().setValue(map.get("addressCounty"));
+					address.getDistrictElement().setValue(String.valueOf(map.get("addressCounty")));
 				}
 				else
 				{
-					address.setDistrict(map.get("addressCounty"));
+					address.setDistrict(String.valueOf(map.get("addressCounty")));
 				}
 			}
-			if (map.containsKey("addressState") && isNullOrEmpty(map.get("addressState")))
+			if (map.containsKey("addressState") && isNullOrEmpty(String.valueOf(map.get("addressState"))))
 			{
-				address.setState(map.get("addressState"));
+				address.setState(String.valueOf(map.get("addressState")));
 			}
 			// Special address field to support the jurisdiction extension custom to VRDR to support YC (New York City)
 			// as used in the DeathLocationLoc
-			if (map.containsKey("addressJurisdiction") && isNullOrEmpty(map.get("addressJurisdiction")))
+			if (map.containsKey("addressJurisdiction") && isNullOrEmpty(String.valueOf(map.get("addressJurisdiction"))))
 			{
 				if (address.getStateElement() == null)
 				{
 					address.setStateElement(new StringType());
 				}
 				address.getStateElement().getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.LocationJurisdictionId));
-				Extension extension = new Extension(URL.ExtensionURL.LocationJurisdictionId, new StringType(map.get("addressJurisdiction")));
+				Extension extension = new Extension(URL.ExtensionURL.LocationJurisdictionId, map.get("addressJurisdiction"));
 				address.getStateElement().getExtension().add(extension);
 			}
-			if (map.containsKey("addressZip") && isNullOrEmpty(map.get("addressZip")))
+			if (map.containsKey("addressZip") && isNullOrEmpty(String.valueOf(map.get("addressZip"))))
 			{
-				address.setPostalCode( map.get("addressZip"));
+				address.setPostalCode(String.valueOf(map.get("addressZip")));
 			}
-			if (map.containsKey("addressCountry") && isNullOrEmpty(map.get("addressCountry")))
+			if (map.containsKey("addressCountry") && isNullOrEmpty(String.valueOf(map.get("addressCountry"))))
 			{
-				address.setCountry( map.get("addressCountry"));
+				address.setCountry(String.valueOf(map.get("addressCountry")));
 			}
-			if (map.containsKey("addressStnum") && isNullOrEmpty(map.get("addressStnum")))
+			if (map.containsKey("addressStnum") && isNullOrEmpty(String.valueOf(map.get("addressStnum"))))
 			{
 				Extension stnum = new Extension();
 				stnum.setUrl(URL.ExtensionURL.StreetNumber);
-				stnum.setValue(new StringType(map.get("addressStnum"));
+				stnum.setValue(map.get("addressStnum"));
 				address.getExtension().add(stnum);
 			}
-			if (map.containsKey("addressPredir") && isNullOrEmpty(map.get("addressPredir")))
+			if (map.containsKey("addressPredir") && isNullOrEmpty(String.valueOf(map.get("addressPredir"))))
 			{
 				Extension predir = new Extension();
 				predir.setUrl(URL.ExtensionURL.PreDirectional);
-				predir.setValue(new StringType(map.get("addressPredir")));
+				predir.setValue(map.get("addressPredir"));
 				address.getExtension().add(predir);
 			}
-			if (map.containsKey("addressStname") && isNullOrEmpty(map.get("addressStname")))
+			if (map.containsKey("addressStname") && isNullOrEmpty(String.valueOf(map.get("addressStname"))))
 			{
 				Extension stname = new Extension();
 				stname.setUrl(URL.ExtensionURL.StreetName);
-				stname.setValue(new StringType(map.get("addressStname")));
+				stname.setValue(map.get("addressStname"));
 				address.getExtension().add(stname);
 			}
-			if (map.containsKey("addressStdesig") && isNullOrEmpty(map.get("addressStdesig")))
+			if (map.containsKey("addressStdesig") && isNullOrEmpty(String.valueOf(map.get("addressStdesig"))))
 			{
 				Extension stdesig = new Extension();
 				stdesig.setUrl(URL.ExtensionURL.StreetDesignator);
-				stdesig.setValue(new StringType(map.get("addressStdesig")));
+				stdesig.setValue(map.get("addressStdesig"));
 				address.getExtension().add(stdesig);
 			}
-			if (map.containsKey("addressPostdir") && isNullOrEmpty(map.get("addressPostdir")))
+			if (map.containsKey("addressPostdir") && isNullOrEmpty(String.valueOf(map.get("addressPostdir"))))
 			{
 				Extension postdir = new Extension();
 				postdir.setUrl(URL.ExtensionURL.PostDirectional);
-				postdir.setValue(new StringType(map.get("addressPostdir")));
+				postdir.setValue(map.get("addressPostdir"));
 				address.getExtension().add(postdir);
 			}
-			if (map.containsKey("addressUnitnum") && isNullOrEmpty(map.get("addressUnitnum")))
+			if (map.containsKey("addressUnitnum") && isNullOrEmpty(String.valueOf(map.get("addressUnitnum"))))
 			{
 				Extension unitnum = new Extension();
 				unitnum.setUrl(URL.ExtensionURL.UnitOrAptNumber);
-				unitnum.setValue(new StringType(map.get("addressUnitnum")));
+				unitnum.setValue(map.get("addressUnitnum"));
 				address.getExtension().add(unitnum);
 			}
 
@@ -273,9 +283,9 @@ public class DeathCertificateDocumentUtil {
 	/// <summary>Convert a FHIR Address to an "address" Map.</summary>
 	/// <param name="addr">a FHIR Address.</param>
 	/// <returns>the corresponding Map representation of the FHIR Address.</returns>
-	public static Map<String, StringType> addressToDict(Address addr)
+	public static Map<String, StringType> addressToMap(Address addr)
 	{
-		Map<String, StringType> map = EmptyAddrDict();
+		Map<String, StringType> map = EmptyAddrMap();
 		if (addr != null)
 		{
 			if (addr.getLine() != null && addr.getLine().size() > 0)
@@ -299,10 +309,10 @@ public class DeathCertificateDocumentUtil {
 
 			if (addr.getDistrictElement() != null)
 			{
-				Extension districtCode = addr.getDistrictElement().getExtension().stream().findAny(ext -> ext.getUrl().equals(URL.ExtensionURL.DistrictCode)).findFirst().get();
+				Extension districtCode = addr.getDistrictElement().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.DistrictCode)).findFirst().get();
 				if (districtCode != null)
 				{
-					map.put("addressCountyC", new StringType(districtCode.getValue().fhirType());
+					map.put("addressCountyC", new StringType(districtCode.getValue().fhirType()));
 				}
 			}
 
@@ -350,7 +360,7 @@ public class DeathCertificateDocumentUtil {
 			if (addr.getStateElement() != null)
 			{
 				map.put("addressJurisdiction", new StringType(addr.getState())); // by default.  If extension present, override
-				Extension stateExt = addr.getStateElement().getExtension().stream().findAny(ext -> ext.getUrl().equals(URL.ExtensionURL.LocationJurisdictionId)).findFirst().get();
+				Extension stateExt = addr.getStateElement().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.LocationJurisdictionId)).findFirst().get();
 				if (stateExt != null)
 				{
 					map.put("addressJurisdiction", new StringType(stateExt.getValue().fhirType()));
@@ -379,7 +389,7 @@ public class DeathCertificateDocumentUtil {
 	/// <summary>Convert an "address" dictionary to a FHIR Address.</summary>
 	/// <param name="dict">represents an address.</param>
 	/// <returns>the corresponding FHIR Address representation of the address.</returns>
-	public static Address dictToAddress(Map<String, StringType> map)
+	public static Address mapToAddress(Map<String, StringType> map)
 	{
 		Address address = new Address();
 
@@ -401,7 +411,7 @@ public class DeathCertificateDocumentUtil {
 			if (map.containsKey("addressCityC") && !isNullOrEmpty(map.get("addressCityC").toString()))
 			{
 				Extension cityCode = new Extension();
-				cityCode.setUrl(URL.ExtensionURL.CityCode;
+				cityCode.setUrl(URL.ExtensionURL.CityCode);
 				cityCode.setValue(map.get("addressCityC"));
 				address.setCityElement(new StringType());
 				address.getCityElement().getExtension().add(cityCode);
@@ -453,50 +463,50 @@ public class DeathCertificateDocumentUtil {
 				Extension extension = new Extension(URL.ExtensionURL.LocationJurisdictionId, map.get("addressJurisdiction"));
 				address.getStateElement().getExtension().add(extension);
 			}
-			if (map.containsKey("addressZip") && !isNullOrEmpty(map.get("addressZip").toString()))
+			if (map.containsKey("addressZip") && !isNullOrEmpty(String.valueOf(map.get("addressZip"))))
 			{
 				address.setPostalCode(map.get("addressZip").toString());
 			}
-			if (map.containsKey("addressCountry") && !isNullOrEmpty(map.get("addressCountry").toString()))
+			if (map.containsKey("addressCountry") && !isNullOrEmpty(String.valueOf(map.get("addressCountry"))))
 			{
 				address.setCountry(map.get("addressCountry").toString());
 			}
-			if (map.containsKey("addressStnum") && !isNullOrEmpty(map.get("addressStnum").toString()))
+			if (map.containsKey("addressStnum") && !isNullOrEmpty(String.valueOf(map.get("addressStnum"))))
 			{
 				Extension stnum = new Extension();
 				stnum.setUrl(URL.ExtensionURL.StreetNumber);
 				stnum.setValue(map.get("addressStnum"));
 				address.getExtension().add(stnum);
 			}
-			if (map.containsKey("addressPredir") && !isNullOrEmpty(map.get("addressPredir").toString()))
+			if (map.containsKey("addressPredir") && !isNullOrEmpty(String.valueOf(map.get("addressPredir"))))
 			{
 				Extension predir = new Extension();
 				predir.setUrl(URL.ExtensionURL.PreDirectional);
 				predir.setValue(map.get("addressPredir"));
 				address.getExtension().add(predir);
 			}
-			if (map.containsKey("addressStname") && !isNullOrEmpty(map.get("addressStname").toString()))
+			if (map.containsKey("addressStname") && !isNullOrEmpty(String.valueOf(map.get("addressStname"))))
 			{
 				Extension stname = new Extension();
-				stname.setUrl(URL.ExtensionURL.StreetName;
+				stname.setUrl(URL.ExtensionURL.StreetName);
 				stname.setValue(map.get("addressStname"));
 				address.getExtension().add(stname);
 			}
-			if (map.containsKey("addressStdesig") && !isNullOrEmpty(map.get("addressStdesig").toString()))
+			if (map.containsKey("addressStdesig") && !isNullOrEmpty(String.valueOf(map.get("addressStdesig"))))
 			{
 				Extension stdesig = new Extension();
 				stdesig.setUrl(URL.ExtensionURL.StreetDesignator);
 				stdesig.setValue(map.get("addressStdesig"));
 				address.getExtension().add(stdesig);
 			}
-			if (map.containsKey("addressPostdir") && !isNullOrEmpty(map.get("addressPostdir").toString()))
+			if (map.containsKey("addressPostdir") && !isNullOrEmpty(String.valueOf(map.get("addressPostdir"))))
 			{
 				Extension postdir = new Extension();
 				postdir.setUrl(URL.ExtensionURL.PostDirectional);
 				postdir.setValue(map.get("addressPostdir"));
 				address.getExtension().add(postdir);
 			}
-			if (map.containsKey("addressUnitnum") && !isNullOrEmpty(map.get("addressUnitnum").toString()))
+			if (map.containsKey("addressUnitnum") && !isNullOrEmpty(String.valueOf(map.get("addressUnitnum"))))
 			{
 				Extension unitnum = new Extension();
 				unitnum.setUrl(URL.ExtensionURL.UnitOrAptNumber);
@@ -510,7 +520,7 @@ public class DeathCertificateDocumentUtil {
 
 	/// <summary>Returns an empty "address" Map.</summary>
 	/// <returns>an empty "address" Map.</returns>
-	public static Map<String, StringType> EmptyAddrDict()
+	public static Map<String, StringType> EmptyAddrMap()
 	{
 		Map<String, StringType> map = new HashMap();
 		map.put("addressLine1", new StringType(""));
@@ -534,127 +544,34 @@ public class DeathCertificateDocumentUtil {
 
 	/// <summary>Returns an empty "code" Map.</summary>
 	/// <returns>an empty "code" Map.</returns>
-	public static Map<String, String> EmptyCodeDict()
+	public static Map<String, StringType> EmptyCodeMap()
 	{
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("code", "");
-		map.put("system", "");
-		map.put("display", "");
+		Map<String, StringType> map = new HashMap();
+		map.put("code", new StringType(""));
+		map.put("system", new StringType(""));
+		map.put("display", new StringType(""));
 		return map;
 	}
 
 	/// <summary>Returns an empty "codeable" Map.</summary>
 	/// <returns>an empty "codeable" Map.</returns>
-	public static Map<String, String> EmptyCodeableDict()
+	public static Map<String, StringType> EmptyCodeableMap()
 	{
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("code", "");
-		map.put("system", "");
-		map.put("display", "");
-		map.put("text", "");
+		//Map<String, StringType> map = new HashMap<String, String>();
+		Map<String, StringType> map = new HashMap();
+		map.put("code", new StringType(""));
+		map.put("system", new StringType(""));
+		map.put("display", new StringType(""));
+		map.put("text", new StringType(""));
 		return map;
 	}
 
-	/// <summary>Given a FHIR path, return the elements that match the given path;
-	/// returns an empty array if no matches are found.</summary>
-	/// <param name="path">represents a FHIR path.</param>
-	/// <returns>all elements that match the given path, or an empty array if no matches are found.</returns>
-	public Object[] GetAll(String path)
-	{
-		var matches = Navigator.Select(path);
-		List list = new ArrayList();
-		for(Object match:matches)
-		{
-			list.add(match.getValue());
-		}
-		return list.toArray();
-	}
 
-
-	/// <summary>Given a FHIR path, return the first element that matches the given path.</summary>
-	/// <param name="path">represents a FHIR path.</param>
-	/// <returns>the first element that matches the given path, or null if no match is found.</returns>
-	public Object GetFirst(String path)
-	{
-		var matches = Navigator.Select(path);
-		if (matches.size() > 0)
-		{
-			return matches.get(0).getValue();
-		}
-		else
-		{
-			return null; // Nothing found
-		}
-	}
-
-	/// <summary>Given a FHIR path, return the last element that matches the given path.</summary>
-	/// <param name="path">represents a FHIR path.</param>
-	/// <returns>the last element that matches the given path, or null if no match is found.</returns>
-	public Object GetLast(String path)
-	{
-		var matches = Navigator.Select(path);
-		if (matches.size() > 0)
-		{
-			return matches.Last().getValue();
-		}
-		else
-		{
-			return null; // Nothing found
-		}
-	}
-
-	/// <summary>Given a FHIR path, return the elements that match the given path as a String;
-	/// returns an empty array if no matches are found.</summary>
-	/// <param name="path">represents a FHIR path.</param>
-	/// <returns>all elements that match the given path as a String, or an empty array if no matches are found.</returns>
-	private String[] GetAllString(String path)
-	{
-		List<String> list = new ArrayList();
-		for(Object match:GetAll(path))
-		{
-			list.add((String)(match));
-		}
-		return (String[])list.toArray();
-	}
-
-	/// <summary>Given a FHIR path, return the first element that matches the given path as a String;
-	/// returns null if no match is found.</summary>
-	/// <param name="path">represents a FHIR path.</param>
-	/// <returns>the first element that matches the given path as a String, or null if no match is found.</returns>
-	public static String GetFirstString(String path)
-	{
-		Object first = GetFirst(path);
-		if (first != null)
-		{
-			return (String)(first);
-		}
-		else
-		{
-			return null; // Nothing found
-		}
-	}
-
-	/// <summary>Given a FHIR path, return the last element that matches the given path as a String;
-	/// returns an empty String if no match is found.</summary>
-	/// <param name="path">represents a FHIR path.</param>
-	/// <returns>the last element that matches the given path as a String, or null if no match is found.</returns>
-	public static String GetLastString(String path)
-	{
-		String last = GetLast(path).toString();
-		if (last != null)
-		{
-			return last;
-		}
-		else
-		{
-			return null; // Nothing found
-		}
-	}
 
 	/// <summary>Get a value from a Map, but return null if the key doesn't exist or the value is an empty String.</summary>
-	private static String GetValue(Map<String, String> map, String key)
+	public  static String GetValue(Map<String, String> map, String key)
 	{
-		if (map != null && map.containsKey(key) && isNullOrWhiteSpace(map.get(key))
+		if (map != null && map.containsKey(key) && isNullOrWhiteSpace(map.get(key)))
 		{
 			return map.get(key);
 		}
@@ -907,7 +824,7 @@ public class DeathCertificateDocumentUtil {
 
 		for(Resource resource:resources)
 		{
-			for(Object child:resource.children().stream().filter(child -> child.getClass().isAssignableFrom(DataType.class)).collect(Collectors.toList())); // Class.forName("Enumerations.DataType").isAssignableFrom(child)));//child instanceof Enumerations.DataType)))
+			for(Property child:resource.children().stream().filter(child -> child.getClass().isAssignableFrom(DataType.class)).collect(Collectors.toList())); // Class.forName("Enumerations.DataType").isAssignableFrom(child)));//child instanceof Enumerations.DataType)))
 			{
 				// Extract PartialDates and PartialDateTimes.
 
@@ -938,14 +855,14 @@ public class DeathCertificateDocumentUtil {
 					partialDateSubExtensions.remove(URL.ExtensionURL.DateYear);
 					partialDateSubExtensions.remove(URL.ExtensionURL.DateTime);
 					if (partialDateSubExtensions.size() > 0) {
-						errors.append("[" + partialDateExtension.getUrl() + "] component contains extra invalid fields [" + String.Join(", ", partialDateSubExtensions) + "] for resource [" + resource.getId() + "].").append("\n");
+						errors.append("[" + partialDateExtension.getUrl() + "] component contains extra invalid fields [" + StringUtils.join(partialDateSubExtensions, ", ") + "] for resource [" + resource.getId() + "].").append("\n");
 					}
 				}
 			}
 		}
 		if (errors.length() > 0)
 		{
-			throw new ArgumentException(errors.toString());
+			throw new IllegalArgumentException(errors.toString());
 		}
 	}
 
@@ -1155,7 +1072,11 @@ public class DeathCertificateDocumentUtil {
 				case URL.ExtensionURL.DateDay:
 					return ((OffsetDateTime)offsetDateTime).MIN.getDayOfMonth();
 				default:
-					throw new Exception("GetDateFragment called with unsupported PartialDateTime segment");
+					try {
+						throw new Exception("GetDateFragment called with unsupported PartialDateTime segment");
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 			}
 		}
 		return null;
@@ -1182,20 +1103,29 @@ public class DeathCertificateDocumentUtil {
 		return GetPartialDate(extension, partURL);
 	}
 
-	private DateTimeType ConvertFhirTimeToDateTimeType(TimeType value) {
+	public static DateTimeType ConvertFhirTimeToDateTimeType(TimeType value) {
 		return (DateTimeType) new DateTimeType().setYear(OffsetDateTime.MIN.getYear()).setMonth(OffsetDateTime.MIN.getMonthValue()).setDay(OffsetDateTime.MIN.getDayOfMonth()).setHour(FhirTimeHour(value)).setMinute(FhirTimeMin(value)).setSecond(FhirTimeSec(value));
 		//return new DateTimeType(OffsetDateTime.MIN.getYear(), OffsetDateTime.MIN.getMonth(), OffsetDateTime.MIN.getDayOfMonth(),FhirTimeHour(value), FhirTimeMin(value), FhirTimeSec(value), 0);
 	}
 
-	private int FhirTimeHour(TimeType value) {
+	public static Map getHourMinSecFromParsedTime(OffsetDateTime parsedTime)
+	{
+		int seconds = parsedTime.getHour() * 3600 + parsedTime.getMinute() * 60 + parsedTime.getSecond();
+		int hour = seconds / 3600;
+		int minute = (seconds - hour * 3600)/60;
+		int second = seconds % 60;
+		return new HashMap() {{put("hh", hour); put("mm", minute); put("ss", second);}};
+	}
+
+	public static int FhirTimeHour(TimeType value) {
 		return Integer.parseInt(value.toString().substring(0, 2));
 	}
 
-	private int FhirTimeMin(TimeType value) {
+	public static int FhirTimeMin(TimeType value) {
 		return Integer.parseInt(value.toString().substring(3, 2));
 	}
 
-	private int FhirTimeSec(TimeType value) {
+	public static int FhirTimeSec(TimeType value) {
 		return Integer.parseInt(value.toString().substring(6, 2));
 	}
 
@@ -1242,55 +1172,27 @@ public class DeathCertificateDocumentUtil {
 		return GetPartialTime(value.getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDateTime)).findFirst().get());
 	}
 
-	/// <summary>Helper function to set a codeable value based on a code and the set of allowed codes.</summary>
-	// <param name="field">the field name to set.</param>
-	// <param name="code">the code to set the field to.</param>
-	// <param name="options">the list of valid options and related display Strings and code systems</param>
-	public static void SetCodeValue(String field, String code, String[][] codes)
-	{
-		// If String is empty don't bother to set the value
-		if (code == null || code.equals(""))
-		{
-			return;
-		}
-		// Iterate over the allowed options and see if the code supplies is one of them
-		for (int i = 0; i < options.GetLength(0); i++)
-		{
-			if (options[i, 0].equals(code))
-			{
-				// Found it, so call the supplied setter with the appropriate dictionary built based on the code
-				// using the supplied options and return
-				Map<String, String> map = new HashMap<String, String>();
-				map.put("code", code);
-				map.put("display", options[i, 1]);
-				map.put("system", options[i, 2]);
-				typeof(DeathRecord).GetProperty(field).SetValue(this, map);
-				return;
-			}
-		}
-		// If we got here we didn't find the code, so it's not a valid option
-		throw new System.ArgumentException($"Code '{code}' is not an allowed value for field {field}");
-	}
+
 
 	/// <summary>Convert a "code" dictionary to a FHIR Coding.</summary>
 	/// <param name="dict">represents a code.</param>
 	/// <returns>the corresponding Coding representation of the code.</returns>
-	public static Coding DictToCoding(Map<String, String> map)
+	public static Coding MapToCoding(Map<String, StringType> map)
 	{
 		Coding coding = new Coding();
 		if (map != null)
 		{
-			if (map.containsKey("code") && !isNullOrEmpty(map.get("code")))
+			if (map.containsKey("code") && !isNullOrEmpty(String.valueOf(map.get("code"))))
 			{
-				coding.setCode(map.get("code"));
+				coding.setCode(String.valueOf(map.get("code")));
 			}
-			if (map.containsKey("system") && !isNullOrEmpty(map.get("system")))
+			if (map.containsKey("system") && !isNullOrEmpty(String.valueOf(map.get("system"))))
 			{
-				coding.setSystem(map.get("system"));
+				coding.setSystem(String.valueOf(map.get("system")));
 			}
-			if (map.containsKey("display") && !isNullOrEmpty(map.get("display")))
+			if (map.containsKey("display") && !isNullOrEmpty(String.valueOf(map.get("display"))))
 			{
-				coding.setDisplay(map.get("display"));
+				coding.setDisplay(String.valueOf(map.get("display")));
 			}
 			return coding;
 		}
@@ -1300,19 +1202,17 @@ public class DeathCertificateDocumentUtil {
 	/// <summary>Convert a "code" dictionary to a FHIR CodableConcept.</summary>
 	/// <param name="dict">represents a code.</param>
 	/// <returns>the corresponding CodeableConcept representation of the code.</returns>
-	public static CodeableConcept DictToCodeableConcept(Map<String, String> map)
+	public static CodeableConcept MapToCodeableConcept(Map<String, StringType> map)
 	{
 		CodeableConcept codeableConcept = new CodeableConcept();
-		Coding coding = DictToCoding(map);
+		Coding coding = MapToCoding(map);
 		codeableConcept.getCoding().add(coding);
-		if (map != null && map.containsKey("text") && !isNullOrEmpty(map.get("text")))
+		if (map != null && map.containsKey("text") && !isNullOrEmpty(String.valueOf(map.get("text"))))
 		{
-			codeableConcept.setText(map.get("text"));
+			codeableConcept.setText(String.valueOf(map.get("text")));
 		}
 		return codeableConcept;
 	}
-
-
 
 
 }

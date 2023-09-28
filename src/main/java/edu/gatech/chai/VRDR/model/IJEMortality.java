@@ -18,6 +18,7 @@ import java.lang.Exception;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import java.util.regex.Matcher;
@@ -35,9 +36,6 @@ import static edu.gatech.chai.VRDR.model.util.DeathCertificateDocumentUtil.*;
 //            @ConstructorProperties({"Field", "Location", "Length", "Contents", "Name", "Priority"})
 //                public Person {}
 ///        }
-
-
-
 
 
 /// <summary>A "wrapper" class to convert between a FHIR based <c>DeathRecord</c> and
@@ -60,56 +58,63 @@ public class IJEMortality
     /// <summary>Field _alias.</summary>
     private String _alias;
 
-    public static class IJEField {
+    public static class IJEField
+    {
         IJEField(int Field, int Location, int Length, String Contents, String Name, int Priority){};
         int Field;
         int Location;
 
-        public int getField() {
+        public int getField()
+        {
             return Field;
         }
 
-        public void setField(int field) {
-            Field = field;
-        }
+        public void setField(int field) { Field = field;}
 
-        public int getLocation() {
+        public int getLocation()
+        {
             return Location;
         }
 
-        public void setLocation(int location) {
+        public void setLocation(int location)
+        {
             Location = location;
         }
 
-        public int getLength() {
+        public int getLength()
+        {
             return Length;
         }
 
-        public void setLength(int length) {
+        public void setLength(int length)
+        {
             Length = length;
         }
 
-        public String getContents() {
-            return Contents;
-        }
+        public String getContents() { return Contents; }
 
-        public void setContents(String Contents) {
+        public void setContents(String Contents)
+        {
             Contents = Contents;
         }
 
-        public String getName() {
+        public String getName()
+        {
             return Name;
         }
 
-        public void setName(String name) {
+        public void setName(String name)
+        {
             Name = name;
         }
 
-        public int getPriority() {
+        public int getPriority()
+        {
             return Priority;
         }
 
-        public void setPriority(int priority) {
+        public void setPriority(int priority)
+        {
             Priority = priority;
         }
 
@@ -138,18 +143,17 @@ public class IJEMortality
         {
             if (!isNullOrWhiteSpace(value))
             {
-                record.getEntry().
-                    record.setCoderStatus(Integer.parseInt(value));
+                record.setCoderStatus(value);
             }
         }
         /// <summary>shipment number - Property for setting the ShipmentNumber of a Cause of Death Coding Submission</summary>
         public String getSHIP()
         {
-            return record.shipmentNumber;
+            return record.getShipmentNumber();
         }
         public void setSHIP(String value)
         {
-            record.setShipmentNumber(Integer.parseInt(value));
+            record.setShipmentNumber(value);
         }
     }
 
@@ -177,7 +181,15 @@ public class IJEMortality
     private DeathCertificateDocument record;
 
     /// <summary>IJE data lookup helper. Thread-safe singleton!</summary>
-    private MortalityData dataLookup = MortalityData.getInstance();
+    private MortalityData dataLookup;
+
+    {
+        try {
+            dataLookup = MortalityData.class.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /// <summary>Validation errors encountered while converting a record</summary>
     private List<String> validationErrors = new ArrayList<String>();
@@ -195,9 +207,11 @@ public class IJEMortality
             if (validationErrors.size() > 0)
             {
                 String errorString = new StringBuffer().append(validationErrors.size()).append(" validation errors:\n").append(validationErrors).toString();
-                try {
+                try
+                {
                     throw new Exception(errorString);
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     throw new RuntimeException(e);
                 }
             }
@@ -230,16 +244,19 @@ public class IJEMortality
         if (validate && validationErrors.size() > 0)
         {
             String errorString = new StringBuffer().append(validationErrors.size()).append(" validation errors:\n").append( validationErrors).toString();
-            try {
+            try
+            {
                 throw new Exception(errorString);
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 throw new RuntimeException(e);
             }
         }
     }
 
     /// <summary>Constructor that creates an empty record for constructing records using the IJE properties.</summary>
-    public IJEMortality() {
+    public IJEMortality()
+    {
         this.record = new DeathCertificateDocument();
         this.trx = new TRXHelper(record);
         this.mre = new MREHelper(record);
@@ -257,9 +274,11 @@ public class IJEMortality
         {
             // Grab the field value
             String field = null;//, null).toString();
-            try {
+            try
+            {
                 field = property.get(this).toString();
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
             // Grab the field attributes
@@ -276,7 +295,8 @@ public class IJEMortality
         return ije.toString();
     }
 
-    public String toString() {
+    public String toString()
+    {
         //IJEMortality ijeEMortality = new IJEMortality();
         //Field[] fields = ijeEMortality.getClass().getDeclaredFields()
         // Start with empty IJE Mortality record
@@ -284,18 +304,25 @@ public class IJEMortality
         Stream.of(IJEMortality.class.getDeclaredMethods())
                 .filter(method -> method.getName().startsWith("get"))
                 .map(getterMethod -> {
-                    try {
+                    try
+                    {
                         return getterMethod.invoke(this);
-                    } catch (IllegalAccessException e) {
+                    }
+                    catch (IllegalAccessException e)
+                    {
+
                         throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
+                    }
+                    catch (InvocationTargetException e)
+                    {
                         throw new RuntimeException(e);
                     }
                 })
                 .forEach(fieldValue -> {
                     System.out.println(fieldValue);
                     Method fieldGetter = null;
-                    try {
+                    try
+                    {
                         fieldGetter = IJEField.class.getMethod("getmeta"+fieldValue.toString());
                         String metaFieldValue = fieldGetter.invoke(this).toString();
                         if (fieldValue.toString().length() > metaFieldValue.length())
@@ -305,7 +332,8 @@ public class IJEMortality
                         ije.Remove(info.getLocation() - 1, field.length());
                         ije.Insert(info.getLocation() - 1, field);
                         ije=ije.replace(this.IJEField.get, int last, String st)
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
+                    {
                         throw new RuntimeException(e);
                     }
                 });
@@ -341,20 +369,25 @@ public class IJEMortality
     {
         //return typeof(IJEMortality).getField(ijeFieldName).GetCustomAttribute<IJEField>();
         Method fieldGetter = null;
-        try {
+        try
+        {
             fieldGetter = IJEField.class.getMethod("getmeta"+ijeFieldName);
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             throw new RuntimeException(e);
         }
-        try {
+        try
+        {
             return (IJEField)fieldGetter.invoke(this);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e)
+        {
             throw new RuntimeException(e);
         }
     }
 
     /// <summary>Helps decompose a DateTime into individual parts (year, month, day, time).</summary>
-    private String DateTimeStringHelper(IJEField info, String value, String type, OffsetDateTime date, boolean dateOnly = false, boolean withTimezoneOffset = false)
+    private String DateTimeStringHelper(IJEField info, String value, String type, OffsetDateTime date, boolean dateOnly, boolean withTimezoneOffset)
     {
         if (type.equals("yyyy"))
         {
@@ -468,9 +501,12 @@ public class IJEMortality
         IJEField info = FieldInfo(ijeFieldName);
 
         String current = null;
-        try {
+        try
+        {
             current = this.record == null ? null : DeathCertificateDocument.class.getField(fhirFieldName).get(this.record).toString();
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
         OffsetDateTime date = OffsetDateTime.parse(current);
@@ -493,9 +529,12 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         String current = null;
-        try {
+        try
+        {
             current = DeathCertificateDocument.class.getField(fhirFieldName).get(this.record).toString();
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
         OffsetDateTime date = OffsetDateTime.parse(current);
@@ -505,9 +544,12 @@ public class IJEMortality
           // date = new OffsetDateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, TimeSpan.Zero);
             LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getMonthValue(), date.getHour(), date.getMinute(), date.getSecond());
             date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
-            try {
+            try
+            {
                 DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, DateTimeStringHelper(info, value, dateTimeType, date, dateOnly, withTimezoneOffset));
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -515,9 +557,12 @@ public class IJEMortality
         {
             LocalDateTime localDateTime = LocalDateTime.of(1, 1, 1, 0, 0, 0, 0);
             date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);// TimeSpan.Zero);
-            try {
+            try
+            {
                 DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, DateTimeStringHelper(info, value, dateTimeType, date, dateOnly, withTimezoneOffset));
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -529,9 +574,12 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         Integer value = null;
-        try {
+        try
+        {
             value = (Integer) DeathCertificateDocument.class.getField(fhirFieldName).get(this.record);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
         if (value == null) return StringUtils.repeat(" ", info.getLength()); // No value specified
@@ -551,25 +599,34 @@ public class IJEMortality
         IJEField info = FieldInfo(ijeFieldName);
         if (value.equals(StringUtils.repeat(" ", info.getLength())))
         {
-            try {
+            try
+            {
                 DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, null);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
         else if (value.equals(StringUtils.repeat("9", info.getLength())))
         {
-            try {
+            try
+            {
                 DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, -1);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
         else
         {
-            try {
+            try
+            {
                 DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, Integer.parseInt(value));
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -580,9 +637,12 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         String timeString = null;
-        try {
+        try
+        {
             timeString = (String) DeathCertificateDocument.class.getField(fhirFieldName).get(this.record);
-        } catch (NoSuchFieldException e) {
+        }
+        catch (NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
         if (timeString == null) return StringUtils.repeat(" ", info.getLength()); // No value specified
@@ -613,17 +673,23 @@ public class IJEMortality
         IJEField info = FieldInfo(ijeFieldName);
         if (value.equals(StringUtils.repeat(" ", info.getLength())))
         {
-            try {
+            try
+            {
                 DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, null);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
         else if (value.equals(StringUtils.repeat("9", info.getLength())))
         {
-            try {
+            try
+            {
                 DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, "-1");
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -634,9 +700,12 @@ public class IJEMortality
             {
                // TimeSpan timeSpan = new TimeSpan(0, parsedTime.Hour, parsedTime.Minute, 0);
                 Map map = getHourMinSecFromParsedTime(parsedTime);
-                try {
+                try
+                {
                     DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, new StringBuffer(String.valueOf(map.get("hh"))).append(String.valueOf(map.get("mm"))).append(String.valueOf(map.get("ss"))));// timeSpan.toString()); //@"hh\:mm\:ss"));
-                } catch (IllegalAccessException | NoSuchFieldException e) {
+                }
+                catch (IllegalAccessException | NoSuchFieldException e)
+                {
                     throw new RuntimeException(e);
                 }
             }
@@ -652,9 +721,12 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         String current = null;
-        try {
+        try
+        {
             current = DeathCertificateDocument.class.getField(fhirFieldName).get(this.record).toString();
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
             throw new RuntimeException(e);
         }
         if (current != null)
@@ -668,11 +740,15 @@ public class IJEMortality
     }
 
     /// <summary>Set a value on the DeathCertificateDocument whose IJE type is a right justified, zero filled String.</summary>
-    private void RightJustifiedZeroed_Set(String ijeFieldName, String fhirFieldName, String value) {
+    private void RightJustifiedZeroed_Set(String ijeFieldName, String fhirFieldName, String value)
+    {
         IJEField info = FieldInfo(ijeFieldName);
-        try {
+        try
+        {
             DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, value.replaceFirst("0", ""));//TrimStart('0'));
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -682,9 +758,12 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         String current = null;
-        try {
+        try
+        {
             current = DeathCertificateDocument.class.getField(fhirFieldName).get(this.record).toString();
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
         if (current != null)
@@ -708,11 +787,14 @@ public class IJEMortality
         {
             IJEField info = FieldInfo(ijeFieldName);
             //Method method = Arrays.stream(DeathCertificateDocument.class.getMethods()).filter(m->m.getName().equals("set"+StringUtils.capitalize(ijeFieldName))).findFirst().get();//getField(fhirFieldName).(this.record, value.trim());
-            try {
+            try
+            {
                 Field field = DeathCertificateDocument.class.getField(ijeFieldName);
                 field.setAccessible(true);
                 field.set(this.record, value.trim());
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -723,9 +805,12 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
-        try {
+        try
+        {
             map = (Map<String, String>) DeathCertificateDocument.class.getField(fhirFieldName).get(this.record);
-        } catch (NoSuchFieldException e) {
+        }
+        catch (NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
         if (map == null || !map.containsKey(key))
@@ -748,11 +833,16 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
-        try {
+        try
+        {
             map = (Map<String, String>) DeathCertificateDocument.class.getField(fhirFieldName).get(this.record);
-        } catch (NoSuchFieldException e) {
+        }
+        catch (NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e)
+        {
             throw new RuntimeException(e);
         }
         if (map != null && map.containsKey(key))
@@ -775,11 +865,16 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
-        try {
+        try
+        {
             map = (Map<String, String>) DeathCertificateDocument.class.getField(fhirFieldName).get(this.record);
-        } catch (NoSuchFieldException e) {
+        }
+        catch (NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e)
+        {
             throw new RuntimeException(e);
         }
         if (map == null)
@@ -791,9 +886,12 @@ public class IJEMortality
             map.put(key, value.trim());
         }
 
-        try {
+        try
+        {
             DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, map);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -851,9 +949,12 @@ public class IJEMortality
     {
         IJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
-        try {
+        try
+        {
             map = (Map<String, String>) DeathCertificateDocument.class.getField(fhirFieldName).get(this.record);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
             throw new RuntimeException(e);
         }
         String key = keyPrefix + char.toUpperCase(geoType[0]) + geoType.substring(1);
@@ -894,9 +995,12 @@ public class IJEMortality
         {
             map.put(key, value.trim());
         }
-        try {
+        try
+        {
             DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, map);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -905,8 +1009,9 @@ public class IJEMortality
     private String Get_Race(String name)
     {
         Tuple<String, String>[] raceStatus = record.Race.ToArray();
-
         Tuple<String, String> raceTuple = Array.Find(raceStatus, element -> element.getItem1().equals(name));
+        List raceStatus = record.getRace();
+
         if (raceTuple != null)
         {
             return (raceTuple.getItem2()).trim();
@@ -958,9 +1063,12 @@ public class IJEMortality
     private String Get_MappingFHIRToIJE(Map<String, String> mapping, String fhirField, String ijeField)
     {
         Field helperProperty = null;
-        try {
+        try
+        {
             helperProperty = DeathCertificateDocument.class.getField(fhirField + "Helper");
-        } catch (NoSuchFieldException e) {
+        }
+        catch (NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
         if (helperProperty == null)
@@ -1023,9 +1131,11 @@ public class IJEMortality
                 }
                 helperProperty.set(this.record, mapping.get(value));
             }
-            catch (NoSuchElementException e) {
+            catch (NoSuchElementException e)
+            {
                 validationErrors.add(new StringBuffer("Error: Unable to find FHIR ").append(fhirField).append(" mapping for IJE ").append(ijeField).append(" field value '").append(value).append("'").toString());
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            } catch (NoSuchFieldException | IllegalAccessException e)
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -1102,7 +1212,7 @@ public class IJEMortality
     /////////////////////////////////////////////////////////////////////////////////
 
     /// <summary>Date of Death--Year</summary>
-    IJEField DOD_YR = new IJEField(1, 1, 4, "Date of Death--Year", "DOD_YR", 1);
+    IJEField metaDOD_YR = new IJEField(1, 1, 4, "Date of Death--Year", "DOD_YR", 1);
     public String getDOD_YR()
     {
         return NumericAllowingUnknown_Get("DOD_YR", "DeathYear");
@@ -1113,7 +1223,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Death - code</summary>
-    IJEField DSTATE = new IJEField(2, 5, 2, "State, U.S. Territory or Canadian Province of Death - code", "DSTATE", 1);
+    IJEField metaDSTATE = new IJEField(2, 5, 2, "State, U.S. Territory or Canadian Province of Death - code", "DSTATE", 1);
     public String getDSTATE()
     {
         String value = LeftJustified_Get("DSTATE", "DeathLocationJurisdiction");
@@ -1138,7 +1248,8 @@ public class IJEMortality
     }
 
     /// <summary>Certificate Number</summary>
-    IJEField FILENO = new IJEField(3, 7, 6, "Certificate Number", "FILENO", 1);
+    IJEField metaFILENO = new IJEField(3, 7, 6, "Certificate Number", "FILENO", 1);
+    private String FILENO;
     public String getFILENO()
     {
         if (isNullOrWhiteSpace(record != null ? record.getIdentifier() : null))
@@ -1161,7 +1272,8 @@ public class IJEMortality
     }
 
     /// <summary>Void flag</summary>
-    IJEField VOID = new IJEField(4, 13, 1, "Void flag", "VOID", 1);
+    IJEField metaVOID = new IJEField(4, 13, 1, "Void flag", "VOID", 1);
+    //private String VOID;
     public String getVOID()
     {
         return _void;
@@ -1179,7 +1291,8 @@ public class IJEMortality
     }
 
     /// <summary>Auxiliary State file number</summary>
-    IJEField AUXNO = new IJEField(5, 14, 12, "Auxiliary State file number", "AUXNO", 1);
+    IJEField metaAUXNO = new IJEField(5, 14, 12, "Auxiliary State file number", "AUXNO", 1);
+    private String AUXNO;
     public String getAUXNO()
     {
         if (record.getStateLocalIdentifier1() == null)
@@ -1198,7 +1311,8 @@ public class IJEMortality
     }
 
     /// <summary>Source flag: paper/electronic</summary>
-    IJEField MFILED = new IJEField(6, 26, 1, "Source flag: paper/electronic", "MFILED", 1);
+    IJEField metaMFILED = new IJEField(6, 26, 1, "Source flag: paper/electronic", "MFILED", 1);
+    private String GNAME;
     public String getMFILED()
     {
         return Get_MappingFHIRToIJE(Mappings.FilingFormat.FHIRToIJE, "FilingFormat", "MFILED");
@@ -1209,7 +1323,8 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Given</summary>
-    IJEField GNAME = new IJEField(7, 27, 50, "Decedent's Legal Name--Given", "GNAME", 1);
+    IJEField metaGNAME = new IJEField(7, 27, 50, "Decedent's Legal Name--Given", "GNAME", 1);
+    //private String GNAME;
     public String getGNAME()
     {
         String[] names = record.getGivenNames();
@@ -1228,7 +1343,8 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Middle</summary>
-    IJEField MNAME = new IJEField(8, 77, 1, "Decedent's Legal Name--Middle", "MNAME", 2);
+    IJEField metaMNAME = new IJEField(8, 77, 1, "Decedent's Legal Name--Middle", "MNAME", 2);
+    private String MNAME;
     public String getMNAME()
     {
         String[] names = record.getGivenNames();
@@ -1259,7 +1375,8 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Last</summary>
-    IJEField LNAME = new IJEField(9, 78, 50, "Decedent's Legal Name--Last", "LNAME", 1);
+    IJEField metaLNAME = new IJEField(9, 78, 50, "Decedent's Legal Name--Last", "LNAME", 1);
+    private String LNAME;
     public String getLNAME()
     {
         if (!isNullOrWhiteSpace(record.getFamilyName()))
@@ -1284,7 +1401,8 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Suffix</summary>
-    IJEField SUFF = new IJEField(10, 128, 10, "Decedent's Legal Name--Suffix", "SUFF", 1);
+    IJEField metaSUFF = new IJEField(10, 128, 10, "Decedent's Legal Name--Suffix", "SUFF", 1);
+    private String SUFF;
     public String getSUFF()
     {
         return LeftJustified_Get("SUFF", "Suffix");
@@ -1295,7 +1413,8 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Alias</summary>
-    IJEField ALIAS = new IJEField(11, 138, 1, "Decedent's Legal Name--Alias", "ALIAS", 1);
+    IJEField metaALIAS = new IJEField(11, 138, 1, "Decedent's Legal Name--Alias", "ALIAS", 1);
+    //private String ALIAS;
     public String getALIAS()
     {
         return _alias;
@@ -1313,7 +1432,8 @@ public class IJEMortality
     }
 
     /// <summary>Father's Surname</summary>
-    IJEField FLNAME = new IJEField(12, 139, 50, "Father's Surname", "FLNAME", 1);
+    IJEField metaFLNAME = new IJEField(12, 139, 50, "Father's Surname", "FLNAME", 1);
+    private String FLNAME;
     public String getFLNAME()
     {
         return LeftJustified_Get("FLNAME", "FatherFamilyName");
@@ -1324,7 +1444,8 @@ public class IJEMortality
     }
 
     /// <summary>Sex</summary>
-    IJEField SEX = new IJEField(13, 189, 1, "Sex", "SEX", 1);
+    IJEField metaSEX = new IJEField(13, 189, 1, "Sex", "SEX", 1);
+    private String SEX;
     public String getSEX()
     {
         return Get_MappingFHIRToIJE(Mappings.AdministrativeGender.FHIRToIJE, "SexAtDeath", "SEX");
@@ -1335,7 +1456,8 @@ public class IJEMortality
     }
 
     /// <summary>Sex--Edit Flag</summary>
-    IJEField SEX_BYPASS = new IJEField(14, 190, 1, "Sex--Edit Flag", "SEX_BYPASS", 1);
+    IJEField metaSEX_BYPASS = new IJEField(14, 190, 1, "Sex--Edit Flag", "SEX_BYPASS", 1);
+    private String SEX_BYPASS;
     public String getSEX_BYPASS()
     {
         return ""; // Blank
@@ -1346,7 +1468,8 @@ public class IJEMortality
     }
 
     /// <summary>Social Security Number</summary>
-    IJEField SSN = new IJEField(15, 191, 9, "Social Security Number", "SSN", 1);
+    IJEField metaSSN = new IJEField(15, 191, 9, "Social Security Number", "SSN", 1);
+    private String SSN;
     public String getSSN()
     {
         String fhirFieldName = "SSN";
@@ -1390,13 +1513,14 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Age--Type</summary>
-    IJEField AGETYPE = new IJEField(16, 200, 1, "Decedent's Age--Type", "AGETYPE", 1);
+    IJEField metaAGETYPE = new IJEField(16, 200, 1, "Decedent's Age--Type", "AGETYPE", 1);
+    private String AGETYPE;
     public String getAGETYPE()
     {
         // Pull code from coded unit.   "code" field is not required by VRDR IG
         String code = Map_Get_Full("AGETYPE", "AgeAtDeath", "code") ?? "";
-        Mappings.UnitsOfAge.FHIRToIJE.TryGetValue(code, out String ijeValue);
-        return ijeValue ?? "9";
+        String ijeValue = Mappings.UnitsOfAge.FHIRToIJE.get(code);
+        return ijeValue != null ? ijeValue : "9";
     }
     public void setAGETYPE(String value)
     {
@@ -1405,7 +1529,8 @@ public class IJEMortality
             return;  // nothing to do
         }
         // If we have an IJE value map it to FHIR and set the unit, code and system appropriately, otherwise set to unknown
-        if (!Mappings.UnitsOfAge.IJEToFHIR.TryGetValue(value, out String fhirValue))
+        String fhirValue = null;
+        if (Mappings.UnitsOfAge.IJEToFHIR.get(value) != null)
         {
             // We have an invalid code, map it to unknown
             fhirValue = ValueSets.UnitsOfAge.Unknown;
@@ -1415,19 +1540,24 @@ public class IJEMortality
         int length = ValueSets.UnitsOfAge.Codes.length;
         for (int i = 0; i < length; i += 1)
         {
-            if (ValueSets.UnitsOfAge.Codes[i, 0].equals(fhirValue))
+            if (ValueSets.UnitsOfAge.Codes[i][0].equals(fhirValue))
             {
                 // Found it, so call the supplied setter with the appropriate Map built based on the code
                 // using the supplied options and return
                 Map<String, String> map = new HashMap<String, String>();
                 map.put("code", fhirValue);
-                map.put("unit", ValueSets.UnitsOfAge.Codes[i, 1]);
-                map.put("system", ValueSets.UnitsOfAge.Codes[i, 2]);
-                try {
+                map.put("unit", ValueSets.UnitsOfAge.Codes[i][1]);
+                map.put("system", ValueSets.UnitsOfAge.Codes[i][2]);
+                try
+                {
                     DeathCertificateDocument.class.getField("AgeAtDeath").set(this.record, map);
-                } catch (IllegalAccessException e) {
+                }
+                catch (IllegalAccessException e)
+                {
                     throw new RuntimeException(e);
-                } catch (NoSuchFieldException e) {
+                }
+                catch (NoSuchFieldException e)
+                {
                     throw new RuntimeException(e);
                 }
                 return;
@@ -1438,6 +1568,7 @@ public class IJEMortality
     /// <summary>Decedent's Age--Units</summary>
     IJEField metaAGE = new IJEField(17, 201, 3, "Decedent's Age--Units", "AGE", 2);
 
+    private String AGE;
     public String getAGE()
     {
         if ((record.getDecedentAge().get(0) != null) && !this.AGETYPE.equals("9"))
@@ -1457,6 +1588,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Age--Edit Flag</summary>
     IJEField metaAGE_BYPASS = new IJEField(18, 204, 1, "Decedent's Age--Edit Flag", "AGE_BYPASS", 1);
+    private String AGE_BYPASS;
     public String getAGE_BYPASS()
     {
         return Get_MappingFHIRToIJE(Mappings.EditBypass01.FHIRToIJE, "AgeAtDeathEditFlag", "AGE_BYPASS");
@@ -1468,6 +1600,7 @@ public class IJEMortality
 
     /// <summary>Date of Birth--Year</summary>
     IJEField metaDOB_YR = new IJEField(19, 205, 4, "Date of Birth--Year", "DOB_YR", 1);
+    private String DOB_YR;
     public String getDOB_YR()
     {
         return NumericAllowingUnknown_Get("DOB_YR", "BirthYear");
@@ -1479,6 +1612,7 @@ public class IJEMortality
 
     /// <summary>Date of Birth--Month</summary>
     IJEField metaDOB_MO = new IJEField(20, 209, 2, "Date of Birth--Month", "DOB_MO", 1);
+    private String DOB_MO;
     public String getDOB_MO()
     {
         return NumericAllowingUnknown_Get("DOB_MO", "BirthMonth");
@@ -1490,6 +1624,7 @@ public class IJEMortality
 
     /// <summary>Date of Birth--Day</summary>
     IJEField metaDOB_DY = new IJEField(21, 211, 2, "Date of Birth--Day", "DOB_DY", 1);
+    private String DOB_DY;
     public String getDOB_DY()
     {
         return NumericAllowingUnknown_Get("DOB_DY", "BirthDay");
@@ -1501,6 +1636,7 @@ public class IJEMortality
 
     /// <summary>Birthplace--Country</summary>
     IJEField metaBPLACE_CNT = new IJEField(22, 213, 2, "Birthplace--Country", "BPLACE_CNT", 1);
+    private String BPLACE_CNT;
     public String getBPLACE_CNT()
     {
         return Map_Geo_Get("BPLACE_CNT", "PlaceOfBirth", "address", "country", true);
@@ -1515,6 +1651,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Birth - code</summary>
     IJEField metaBPLACE_ST = new IJEField(23, 215, 2, "State, U.S. Territory or Canadian Province of Birth - code", "BPLACE_ST", 1);
+    private String BPLACE_ST;
     public String getBPLACE_ST()
     {
         return Map_Geo_Get("BPLACE_ST", "PlaceOfBirth", "address", "state", true);
@@ -1529,6 +1666,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence--City</summary>
     IJEField metaCITYC = new IJEField(24, 217, 5, "Decedent's Residence--City", "CITYC", 3);
+    private String CITYC;
     public String getCITYC()
     {
         return Map_Geo_Get("CITYC", "Residence", "address", "cityC", true);
@@ -1543,6 +1681,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence--County</summary>
     IJEField metaCOUNTYC = new IJEField(25, 222, 3, "Decedent's Residence--County", "COUNTYC", 2);
+    private String COUNTYC;
     public String getCOUNTYC()
     {
         return Map_Geo_Get("COUNTYC", "Residence", "address", "countyC", true);
@@ -1557,6 +1696,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Decedent's residence - code</summary>
     IJEField metaSTATEC = new IJEField(26, 225, 2, "State, U.S. Territory or Canadian Province of Decedent's residence - code", "STATEC", 1);
+    private String STATEC;
     public String getSTATEC()
     {
         return Map_Geo_Get("STATEC", "Residence", "address", "State", true);
@@ -1571,6 +1711,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence--Country</summary>
     IJEField metaCOUNTRYC = new IJEField(27, 227, 2, "Decedent's Residence--Country", "COUNTRYC", 1);
+    private String COUNTRYC;
     public String getCOUNTRYC()
     {
         return Map_Geo_Get("COUNTRYC", "Residence", "address", "country", true); // NVSS-234 -- use 2 letter encoding for country, so no translation.
@@ -1585,6 +1726,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence--Inside City Limits</summary>
     IJEField metaLIMITS = new IJEField(28, 229, 1, "Decedent's Residence--Inside City Limits", "LIMITS", 10);
+    private String LIMITS;
     public String getLIMITS()
     {
         return Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "ResidenceWithinCityLimits", "LIMITS");
@@ -1599,6 +1741,7 @@ public class IJEMortality
 
     /// <summary>Marital Status</summary>
     IJEField metaMARITAL = new IJEField(29, 230, 1, "Marital Status", "MARITAL", 1);
+    private String MARITAL;
     public String getMARITAL()
     {
         return Get_MappingFHIRToIJE(Mappings.MaritalStatus.FHIRToIJE, "MaritalStatus", "MARITAL");
@@ -1613,6 +1756,7 @@ public class IJEMortality
 
     /// <summary>Marital Status--Edit Flag</summary>
     IJEField metaMARITAL_BYPASS = new IJEField(30, 231, 1, "Marital Status--Edit Flag", "MARITAL_BYPASS", 1);
+    private String MARITAL_BYPASS;
     public String getMARITAL_BYPASS()
     {
         return Get_MappingFHIRToIJE(Mappings.EditBypass0124.FHIRToIJE, "MaritalStatusEditFlag", "MARITAL_BYPASS");
@@ -1627,6 +1771,7 @@ public class IJEMortality
 
     /// <summary>Place of Death</summary>
     IJEField metaDPLACE = new IJEField(31, 232, 1, "Place of Death", "DPLACE", 1);
+    private String DPLACE;
     public String getDPLACE()
     {
         return Get_MappingFHIRToIJE(Mappings.PlaceOfDeath.FHIRToIJE, "DeathLocationType", "DPLACE");
@@ -1641,6 +1786,7 @@ public class IJEMortality
 
     /// <summary>County of Death Occurrence</summary>
     IJEField metaCOD = new IJEField(32, 233, 3, "County of Death Occurrence", "COD", 2);
+    private String COD;
     public String getCOD()
     {
         return Map_Geo_Get("COD", "DeathLocationAddress", "address", "countyC", true);
@@ -1655,6 +1801,7 @@ public class IJEMortality
 
     /// <summary>Method of Disposition</summary>
     IJEField metaDISP = new IJEField(33, 236, 1, "Method of Disposition", "DISP", 1);
+    private String DISP;
     public String getDISP()
     {
         return Get_MappingFHIRToIJE(Mappings.MethodOfDisposition.FHIRToIJE, "DecedentDispositionMethod", "DISP");
@@ -1669,6 +1816,7 @@ public class IJEMortality
 
     /// <summary>Date of Death--Month</summary>
     IJEField metaDOD_MO = new IJEField(34, 237, 2, "Date of Death--Month", "DOD_MO", 1);
+    private String DOD_MO;
     public String getDOD_MO()
     {
         return NumericAllowingUnknown_Get("DOD_MO", "DeathMonth");
@@ -1683,6 +1831,7 @@ public class IJEMortality
 
     /// <summary>Date of Death--Day</summary>
     IJEField metaDOD_DY = new IJEField(35, 239, 2, "Date of Death--Day", "DOD_DY", 1);
+    private String DOD_DY;
     public String getDOD_DY()
     {
         return NumericAllowingUnknown_Get("DOD_DY", "DeathDay");
@@ -1697,6 +1846,7 @@ public class IJEMortality
 
     /// <summary>Time of Death</summary>
     IJEField metaTOD = new IJEField(36, 241, 4, "Time of Death", "TOD", 1);
+    private String TOD;
     public String getTOD()
     {
         return TimeAllowingUnknown_Get("TOD", "DeathTime");
@@ -1711,6 +1861,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Education</summary>
     IJEField metaDEDUC = new IJEField(37, 245, 1, "Decedent's Education", "DEDUC", 1);
+    private String DEDUC;
     public String getDEDUC()
     {
         return Get_MappingFHIRToIJE(Mappings.EducationLevel.FHIRToIJE, "EducationLevel", "DEDUC");
@@ -1725,6 +1876,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Education--Edit Flag</summary>
     IJEField metaDEDUC_BYPASS = new IJEField(38, 246, 1, "Decedent's Education--Edit Flag", "DEDUC_BYPASS", 1);
+    private String DEDUC_BYPASS;
     public String getDEDUC_BYPASS()
     {
         return Get_MappingFHIRToIJE(Mappings.EditBypass01234.FHIRToIJE, "EducationLevelEditFlag", "DEDUC_BYPASS");
@@ -1744,6 +1896,7 @@ public class IJEMortality
     // If at least one DETHNIC field is N and no fields are H, the json data should show Non-Hispanic or Latino ex. UUNU will return NNNN
     /// <summary>Decedent of Hispanic Origin?--Mexican</summary>
     IJEField metaDETHNIC1 = new IJEField(39, 247, 1, "Decedent of Hispanic Origin?--Mexican", "DETHNIC1", 1);
+    private String DETHNIC1;
     public String getDETHNIC1()
     {
         String code = Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "Ethnicity1", "DETHNIC1");
@@ -1771,6 +1924,7 @@ public class IJEMortality
 
     /// <summary>Decedent of Hispanic Origin?--Puerto Rican</summary>
     IJEField metaDETHNIC2 = new IJEField(40, 248, 1, "Decedent of Hispanic Origin?--Puerto Rican", "DETHNIC2", 1);
+    private String DETHNIC2;
     public String getDETHNIC2()
     {
         String code = Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "Ethnicity2", "DETHNIC2");
@@ -1798,6 +1952,7 @@ public class IJEMortality
 
     /// <summary>Decedent of Hispanic Origin?--Cuban</summary>
     IJEField metaDETHNIC3 = new IJEField(41, 249, 1, "Decedent of Hispanic Origin?--Cuban", "DETHNIC3", 1);
+    private String DETHNIC3;
     public String getDETHNIC3()
     {
         String code = Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "Ethnicity3", "DETHNIC3");
@@ -1825,6 +1980,7 @@ public class IJEMortality
 
     /// <summary>Decedent of Hispanic Origin?--Other</summary>
     IJEField metaDETHNIC4 = new IJEField(42, 250, 1, "Decedent of Hispanic Origin?--Other", "DETHNIC4", 1);
+    private String DETHNIC4;
     public String getDETHNIC4()
     {
         String code = Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "Ethnicity4", "DETHNIC4");
@@ -1852,6 +2008,7 @@ public class IJEMortality
 
     /// <summary>Decedent of Hispanic Origin?--Other, Literal</summary>
     IJEField metaDETHNIC5 = new IJEField(43, 251, 20, "Decedent of Hispanic Origin?--Other, Literal", "DETHNIC5", 1);
+    private String DETHNIC5;
     public String getDETHNIC5()
     {
         String ethnicityLiteral = record.getEthnicityLiteral();
@@ -1874,6 +2031,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--White</summary>
     IJEField metaRACE1 = new IJEField(44, 271, 1, "Decedent's Race--White", "RACE1", 1);
+    private String RACE1;
     public String getRACE1()
     {
         return Get_Race(NvssRace.White);
@@ -1887,6 +2045,7 @@ public class IJEMortality
     }
     /// <summary>Decedent's Race--Black or African American</summary>
     IJEField metaRACE2 = new IJEField(45, 272, 1, "Decedent's Race--Black or African American", "RACE2", 1);
+    private String RACE2;
     public String getRACE2()
     {
         return Get_Race(NvssRace.BlackOrAfricanAmerican);
@@ -1901,6 +2060,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--American Indian or Alaska Native</summary>
     IJEField metaRACE3 = new IJEField(46, 273, 1, "Decedent's Race--American Indian or Alaska Native", "RACE3", 1);
+    private String RACE3;
     public String getRACE3()
     {
         return Get_Race(NvssRace.AmericanIndianOrAlaskanNative);
@@ -1915,6 +2075,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Asian Indian</summary>
     IJEField metaRACE4 = new IJEField(47, 274, 1, "Decedent's Race--Asian Indian", "RACE4", 1);
+    private String RACE4;
     public String getRACE4()
     {
         return Get_Race(NvssRace.AsianIndian);
@@ -1929,6 +2090,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Chinese</summary>
     IJEField metaRACE5 = new IJEField(48, 275, 1, "Decedent's Race--Chinese", "RACE5", 1);
+    private String RACE5;
     public String getRACE5()
     {
         return Get_Race(NvssRace.Chinese);
@@ -1943,6 +2105,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Filipino</summary>
     IJEField metaRACE6 = new IJEField(49, 276, 1, "Decedent's Race--Filipino", "RACE6", 1);
+    private String RACE6;
     public String getRACE6()
     {
         return Get_Race(NvssRace.Filipino);
@@ -1957,6 +2120,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Japanese</summary>
     IJEField metaRACE7 = new IJEField(50, 277, 1, "Decedent's Race--Japanese", "RACE7", 1);
+    private String RACE7;
     public String getRACE7()
     {
         return Get_Race(NvssRace.Japanese);
@@ -1971,6 +2135,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Korean</summary>
     IJEField metaRACE8 = new IJEField(51, 278, 1, "Decedent's Race--Korean", "RACE8", 1);
+    private String RACE8;
     public String getRACE8()
     {
         return Get_Race(NvssRace.Korean);
@@ -1985,6 +2150,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Vietnamese</summary>
     IJEField metaRACE9 = new IJEField(52, 279, 1, "Decedent's Race--Vietnamese", "RACE9", 1);
+    private String RACE9;
     public String getRACE9()
     {
         return Get_Race(NvssRace.Vietnamese);
@@ -1999,6 +2165,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Other Asian</summary>
     IJEField metaRACE10 = new IJEField(53, 280, 1, "Decedent's Race--Other Asian", "RACE10", 1);
+    private String RACE10;
     public String getRACE10()
     {
         return Get_Race(NvssRace.OtherAsian);
@@ -2013,6 +2180,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Native Hawaiian</summary>
     IJEField metaRACE11 = new IJEField(54, 281, 1, "Decedent's Race--Native Hawaiian", "RACE11", 1);
+    private String RACE11;
     public String getRACE11()
     {
         return Get_Race(NvssRace.NativeHawaiian);
@@ -2027,6 +2195,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Guamanian or Chamorro</summary>
     IJEField metaRACE12 = new IJEField(55, 282, 1, "Decedent's Race--Guamanian or Chamorro", "RACE12", 1);
+    private String RACE12;
     public String getRACE12()
     {
         return Get_Race(NvssRace.GuamanianOrChamorro);
@@ -2041,6 +2210,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Samoan</summary>
     IJEField metaRACE13 = new IJEField(56, 283, 1, "Decedent's Race--Samoan", "RACE13", 1);
+    private String RACE13;
     public String getRACE13()
     {
         return Get_Race(NvssRace.Samoan);
@@ -2055,6 +2225,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Other Pacific Islander</summary>
     IJEField metaRACE14 = new IJEField(57, 284, 1, "Decedent's Race--Other Pacific Islander", "RACE14", 1);
+    private String RACE14;
     public String getRACE14()
     {
         return Get_Race(NvssRace.OtherPacificIslander);
@@ -2069,6 +2240,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Other</summary>
     IJEField metaRACE15 = new IJEField(58, 285, 1, "Decedent's Race--Other", "RACE15", 1);
+    private String RACE15;
     public String getRACE15()
     {
         return Get_Race(NvssRace.OtherRace);
@@ -2083,6 +2255,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--First American Indian or Alaska Native Literal</summary>
     IJEField metaRACE16 = new IJEField(59, 286, 30, "Decedent's Race--First American Indian or Alaska Native Literal", "RACE16", 1);
+    private String RACE16;
     public String getRACE16()
     {
         return Get_Race(NvssRace.FirstAmericanIndianOrAlaskanNativeLiteral);
@@ -2097,6 +2270,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Second American Indian or Alaska Native Literal</summary>
     IJEField metaRACE17 = new IJEField(60, 316, 30, "Decedent's Race--Second American Indian or Alaska Native Literal", "RACE17", 1);
+    private String RACE17;
     public String getRACE17()
     {
         return Get_Race(NvssRace.SecondAmericanIndianOrAlaskanNativeLiteral);
@@ -2111,6 +2285,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--First Other Asian Literal</summary>
     IJEField metaRACE18 = new IJEField(61, 346, 30, "Decedent's Race--First Other Asian Literal", "RACE18", 1);
+    private String RACE18;
     public String getRACE18()
     {
         return Get_Race(NvssRace.FirstOtherAsianLiteral);
@@ -2125,6 +2300,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Second Other Asian Literal</summary>
     IJEField metaRACE19 = new IJEField(62, 376, 30, "Decedent's Race--Second Other Asian Literal", "RACE19", 1);
+    private String RACE19;
     public String getRACE19()
     {
         return Get_Race(NvssRace.SecondOtherAsianLiteral);
@@ -2139,6 +2315,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--First Other Pacific Islander Literal</summary>
     IJEField metaRACE20 = new IJEField(63, 406, 30, "Decedent's Race--First Other Pacific Islander Literal", "RACE20", 1);
+    private String RACE20;
     public String getRACE20()
     {
         return Get_Race(NvssRace.FirstOtherPacificIslanderLiteral);
@@ -2153,6 +2330,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Second Other Pacific Islander Literal</summary>
     IJEField metaRACE21 = new IJEField(64, 436, 30, "Decedent's Race--Second Other Pacific Islander Literal", "RACE21", 1);
+    private String RACE21;
     public String getRACE21()
     {
         return Get_Race(NvssRace.SecondOtherPacificIslanderLiteral);
@@ -2167,6 +2345,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--First Other Literal</summary>
     IJEField metaRACE22 = new IJEField(65, 466, 30, "Decedent's Race--First Other Literal", "RACE22", 1);
+    private String RACE22;
     public String getRACE22()
     {
         return Get_Race(NvssRace.FirstOtherRaceLiteral);
@@ -2181,6 +2360,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Second Other Literal</summary>
     IJEField metaRACE23 = new IJEField(66, 496, 30, "Decedent's Race--Second Other Literal", "RACE23", 1);
+    private String RACE23;
     public String getRACE23()
     {
         return Get_Race(NvssRace.SecondOtherRaceLiteral);
@@ -2195,6 +2375,7 @@ public class IJEMortality
 
     /// <summary>First Edited Code</summary>
     IJEField metaRACE1E = new IJEField(67, 526, 3, "First Edited Code", "RACE1E", 1);
+    private String RACE1E;
     public String getRACE1E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "FirstEditedRaceCode", "RACE1E");
@@ -2206,6 +2387,7 @@ public class IJEMortality
 
     /// <summary>Second Edited Code</summary>
     IJEField metaRACE2E = new IJEField(68, 529, 3, "Second Edited Code", "RACE2E", 1);
+    private String RACE2E;
     public String getRACE2E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "SecondEditedRaceCode", "RACE2E");
@@ -2217,6 +2399,7 @@ public class IJEMortality
 
     /// <summary>Third Edited Code</summary>
     IJEField metaRACE3E = new IJEField(69, 532, 3, "Third Edited Code", "RACE3E", 1);
+    private String RACE3E;
     public String getRACE3E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "ThirdEditedRaceCode", "RACE3E");
@@ -2228,6 +2411,7 @@ public class IJEMortality
 
     /// <summary>Fourth Edited Code</summary>
     IJEField metaRACE4E = new IJEField(70, 535, 3, "Fourth Edited Code", "RACE4E", 1);
+    private String RACE4E;
     public String getRACE4E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "FourthEditedRaceCode", "RACE4E");
@@ -2239,6 +2423,7 @@ public class IJEMortality
 
     /// <summary>Fifth Edited Code</summary>
     IJEField metaRACE5E = new IJEField(71, 538, 3, "Fifth Edited Code", "RACE5E", 1);
+    private String RACE5E;
     public String getRACE5E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "FifthEditedRaceCode", "RACE5E");
@@ -2250,6 +2435,7 @@ public class IJEMortality
 
     /// <summary>Sixth Edited Code</summary>
     IJEField metaRACE6E = new IJEField(72, 541, 3, "Sixth Edited Code", "RACE6E", 1);
+    private String RACE6E;
     public String getRACE6E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "SixthEditedRaceCode", "RACE6E");
@@ -2261,6 +2447,7 @@ public class IJEMortality
 
     /// <summary>Seventh Edited Code</summary>
     IJEField metaRACE7E = new IJEField(73, 544, 3, "Seventh Edited Code", "RACE7E", 1);
+    private String RACE7E;
     public String getRACE7E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "SeventhEditedRaceCode", "RACE7E");
@@ -2272,6 +2459,7 @@ public class IJEMortality
 
     /// <summary>Eighth Edited Code</summary>
     IJEField metaRACE8E = new IJEField(74, 547, 3, "Eighth Edited Code", "RACE8E", 1);
+    private String RACE8E;
     public String getRACE8E()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "EighthEditedRaceCode", "RACE8E");
@@ -2283,6 +2471,7 @@ public class IJEMortality
 
     /// <summary>First American Indian Code</summary>
     IJEField metaRACE16C = new IJEField(75, 550, 3, "First American Indian Code", "RACE16C", 1);
+    private String RACE16C;
     public String getRACE16C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "FirstAmericanIndianRaceCode", "RACE16C");
@@ -2294,6 +2483,7 @@ public class IJEMortality
 
     /// <summary>Second American Indian Code</summary>
     IJEField metaRACE17C = new IJEField(76, 553, 3, "Second American Indian Code", "RACE17C", 1);
+    private String RACE17C;
     public String getRACE17C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "SecondAmericanIndianRaceCode", "RACE17C");
@@ -2305,6 +2495,7 @@ public class IJEMortality
 
     /// <summary>First Other Asian Code</summary>
     IJEField metaRACE18C = new IJEField(77, 556, 3, "First Other Asian Code", "RACE18C", 1);
+    private String RACE18C;
     public String getRACE18C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "FirstOtherAsianRaceCode", "RACE18C");
@@ -2316,6 +2507,7 @@ public class IJEMortality
 
     /// <summary>Second Other Asian Code</summary>
     IJEField metaRACE19C = new IJEField(78, 559, 3, "Second Other Asian Code", "RACE19C", 1);
+    private String RACE19C;
     public String getRACE19C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "SecondOtherAsianRaceCode", "RACE19C");
@@ -2327,6 +2519,7 @@ public class IJEMortality
 
     /// <summary>First Other Pacific Islander Code</summary>
     IJEField metaRACE20C = new IJEField(79, 562, 3, "First Other Pacific Islander Code", "RACE20C", 1);
+    private String RACE20C;
     public String getRACE20C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "FirstOtherPacificIslanderRaceCode", "RACE20C");
@@ -2338,6 +2531,7 @@ public class IJEMortality
 
     /// <summary>Second Other Pacific Islander Code</summary>
     IJEField metaRACE21C = new IJEField(80, 565, 3, "Second Other Pacific Islander Code", "RACE21C", 1);
+    private String RACE21C;
     public String getRACE21C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "SecondOtherPacificIslanderRaceCode", "RACE21C");
@@ -2349,6 +2543,7 @@ public class IJEMortality
 
     /// <summary>First Other Race Code</summary>
     IJEField metaRACE22C = new IJEField(81, 568, 3, "First Other Race Code", "RACE22C", 1);
+    private String RACE22C;
     public String getRACE22C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "FirstOtherRaceCode", "RACE22C");
@@ -2360,6 +2555,7 @@ public class IJEMortality
 
     /// <summary>Second Other Race Code</summary>
     IJEField metaRACE23C = new IJEField(82, 571, 3, "Second Other Race Code", "RACE23C", 1);
+    private String RACE23C;
     public String getRACE23C()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceCode.FHIRToIJE, "SecondOtherRaceCode", "RACE23C");
@@ -2371,6 +2567,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Race--Missing</summary>
     IJEField metaRACE_MVR = new IJEField(83, 574, 1, "Decedent's Race--Missing", "RACE_MVR", 1);
+    private String RACE_MVR;
     public String getRACE_MVR()
     {
         return Get_MappingFHIRToIJE(Mappings.RaceMissingValueReason.FHIRToIJE, "RaceMissingValueReason", "RACE_MVR");
@@ -2382,6 +2579,7 @@ public class IJEMortality
 
     /// <summary>Occupation -- Literal (OPTIONAL)</summary>
     IJEField metaOCCUP = new IJEField(84, 575, 40, "Occupation -- Literal (OPTIONAL)", "OCCUP", 1);
+    private String OCCUP;
     public String getOCCUP()
     {
         return LeftJustified_Get("OCCUP", "UsualOccupation");
@@ -2393,6 +2591,7 @@ public class IJEMortality
 
     /// <summary>Occupation -- Code</summary>
     IJEField metaOCCUPC = new IJEField(85, 615, 3, "Occupation -- Code", "OCCUPC", 1);
+    private String OCCUPC;
     public String getOCCUPC()
     {
         // NOTE: This is a placeholder, the IJE field OCCUPC is not currently implemented in FHIR
@@ -2405,6 +2604,7 @@ public class IJEMortality
 
     /// <summary>Industry -- Literal (OPTIONAL)</summary>
     IJEField metaINDUST = new IJEField(86, 618, 40, "Industry -- Literal (OPTIONAL)", "INDUST", 1);
+    private String INDUST;
     public String getINDUST()
     {
         return LeftJustified_Get("INDUST", "UsualIndustry");
@@ -2428,6 +2628,7 @@ public class IJEMortality
 
     /// <summary>Infant Death/Birth Linking - birth certificate number</summary>
     IJEField metaBCNO = new IJEField(88, 661, 6, "Infant Death/Birth Linking - birth certificate number", "BCNO", 1);
+    private String BCNO;
     public String getBCNO()
     {
         String bcno = record.getBirthRecordId();
@@ -2450,6 +2651,7 @@ public class IJEMortality
     {
         return LeftJustified_Get("IDOB_YR", "BirthRecordYear");
     }
+    private String IDOB_YR;
     public void setIDOB_YR(String value)
     {
         if (!isNullOrWhiteSpace(value))
@@ -2460,6 +2662,7 @@ public class IJEMortality
 
     /// <summary>Infant Death/Birth Linking - Birth state</summary>
     IJEField metaBSTATE = new IJEField(90, 671, 2, "Infant Death/Birth Linking - State, U.S. Territory or Canadian Province of Birth - code", "BSTATE", 1);
+    private String BSTATE;
     public String getBSTATE()
     {
         return LeftJustified_Get("BSTATE", "BirthRecordState");
@@ -2474,6 +2677,7 @@ public class IJEMortality
 
     /// <summary>Receipt date -- Year</summary>
     IJEField metaR_YR = new IJEField(91, 673, 4, "Receipt date -- Year", "R_YR", 1);
+    private String R_YR;
     public String getR_YR()
     {
         return NumericAllowingUnknown_Get("R_YR", "ReceiptYear");
@@ -2485,6 +2689,7 @@ public class IJEMortality
 
     /// <summary>Receipt date -- Month</summary>
     IJEField metaR_MO = new IJEField(92, 677, 2, "Receipt date -- Month", "R_MO", 1);
+    private String R_MO;
     public String getR_MO()
     {
         return NumericAllowingUnknown_Get("R_MO", "ReceiptMonth");
@@ -2496,6 +2701,7 @@ public class IJEMortality
 
     /// <summary>Receipt date -- Day</summary>
     IJEField metaR_DY = new IJEField(93, 679, 2, "Receipt date -- Day", "R_DY", 1);
+    private String R_DY;
     public String getR_DY()
     {
         return NumericAllowingUnknown_Get("R_DY", "ReceiptDay");
@@ -2507,6 +2713,7 @@ public class IJEMortality
 
     /// <summary>Occupation -- 4 digit Code (OPTIONAL)</summary>
     IJEField metaOCCUPC4 = new IJEField(94, 681, 4, "Occupation -- 4 digit Code (OPTIONAL)", "OCCUPC4", 1);
+    private String OCCUPC4;
     public String getOCCUPC4()
     {
         // NOTE: This is a placeholder, the IJE field OCCUPC4 is not currently implemented in FHIR
@@ -2519,6 +2726,7 @@ public class IJEMortality
 
     /// <summary>Industry -- 4 digit Code (OPTIONAL)</summary>
     IJEField metaINDUSTC = new IJEField(95, 685, 4, "Industry -- 4 digit Code (OPTIONAL)", "INDUSTC4", 1);
+    private String INDUSTC;
     public String getINDUSTC()
     {
         // NOTE: This is a placeholder, the IJE field INDUSTC4 is not currently implemented in FHIR
@@ -2531,6 +2739,7 @@ public class IJEMortality
 
     /// <summary>Date of Registration--Year</summary>
     IJEField metaDOR_YR = new IJEField(96, 689, 4, "Date of Registration--Year", "DOR_YR", 1);
+    private String DOR_YR;
     public String getDOR_YR()
     {
         return DateTime_Get("DOR_YR", "yyyy", "RegisteredTime");
@@ -2545,6 +2754,7 @@ public class IJEMortality
 
     /// <summary>Date of Registration--Month</summary>
     IJEField metaDOR_MO = new IJEField(97, 693, 2, "Date of Registration--Month", "DOR_MO", 1);
+    private String DOR_MO;
     public String getDOR_MO()
     {
         return DateTime_Get("DOR_MO", "MM", "RegisteredTime");
@@ -2559,6 +2769,7 @@ public class IJEMortality
 
     /// <summary>Date of Registration--Day</summary>
     IJEField metaDOR_DY = new IJEField(98, 695, 2, "Date of Registration--Day", "DOR_DY", 1);
+    private String DOR_DY;
     public String getDOR_DY()
     {
         return DateTime_Get("DOR_DY", "dd", "RegisteredTime");
@@ -2573,6 +2784,7 @@ public class IJEMortality
 
     /// <summary>FILLER 2 for expansion</summary>
     IJEField metaFILLER2 = new IJEField(99, 697, 4, "FILLER 2 for expansion", "FILLER2", 1);
+    private String FILLER2;
     public String getFILLER2()
     {
         // NOTE: This is a placeholder, the IJE field  is not currently implemented in FHIR
@@ -2585,6 +2797,7 @@ public class IJEMortality
 
     /// <summary>Manner of Death</summary>
     IJEField metaMANNER = new IJEField(100, 701, 1, "Manner of Death", "MANNER", 1);
+    private String MANNER;
     public String getMANNER()
     {
         return Get_MappingFHIRToIJE(Mappings.MannerOfDeath.FHIRToIJE, "MannerOfDeathType", "MANNER");
@@ -2596,6 +2809,7 @@ public class IJEMortality
 
     /// <summary>Intentional Reject</summary>
     IJEField metaINT_REJ = new IJEField(101, 702, 1, "Intentional Reject", "INT_REJ", 1);
+    private String INT_REJ;
     public String getINT_REJ()
     {
         return Get_MappingFHIRToIJE(Mappings.IntentionalReject.FHIRToIJE, "IntentionalReject", "INT_REJ");
@@ -2607,6 +2821,7 @@ public class IJEMortality
 
     /// <summary>Acme System Reject Codes</summary>
     IJEField metaSYS_REJ = new IJEField(102, 703, 1, "Acme System Reject Codes", "SYS_REJ", 1);
+    private String SYS_REJ;
     public String getSYS_REJ()
     {
         return Get_MappingFHIRToIJE(Mappings.SystemReject.FHIRToIJE, "AcmeSystemReject", "SYS_REJ");
@@ -2618,6 +2833,7 @@ public class IJEMortality
 
     /// <summary>Place of Injury (computer generated)</summary>
     IJEField metaINJPL = new IJEField(103, 704, 1, "Place of Injury (computer generated)", "INJPL", 1);
+    private String INJPL;
     public String getINJPL()
     {
         return Get_MappingFHIRToIJE(Mappings.PlaceOfInjury.FHIRToIJE, "PlaceOfInjury", "INJPL");
@@ -2629,6 +2845,7 @@ public class IJEMortality
 
     /// <summary>Manual Underlying Cause</summary>
     IJEField metaMAN_UC = new IJEField(104, 705, 5, "Manual Underlying Cause", "MAN_UC", 1);
+    private String MAN_UC;
     public String getMAN_UC()
     {
         return (ActualICD10toNCHSICD10(LeftJustified_Get("MAN_UC", "ManUnderlyingCOD")));
@@ -2640,6 +2857,7 @@ public class IJEMortality
 
     /// <summary>ACME Underlying Cause</summary>
     IJEField metaACME_UC = new IJEField(105, 710, 5, "ACME Underlying Cause", "ACME_UC", 1);
+    private String ACME_UC;
     public String getACME_UC()
     {
         return (ActualICD10toNCHSICD10(LeftJustified_Get("ACME_UC", "AutomatedUnderlyingCOD")));
@@ -2657,6 +2875,7 @@ public class IJEMortality
     // 1 char reserved”.  (not represented in the FHIR specification)
     // 1 char ‘e code indicator’
     IJEField metaEAC = new IJEField(106, 715, 160, "Entity-axis codes", "EAC", 1);
+    private String EAC;
     public String getEAC()
     {
         String eacStr = "";
@@ -2698,6 +2917,7 @@ public class IJEMortality
 
     /// <summary>Transax conversion flag: Computer Generated</summary>
     IJEField metaTRX_FLG = new IJEField(107, 875, 1, "Transax conversion flag: Computer Generated", "TRX_FLG", 1);
+    private String TRX_FLG;
     public String getTRX_FLG()
     {
         return Get_MappingFHIRToIJE(Mappings.TransaxConversion.FHIRToIJE, "TransaxConversion", "TRX_FLG");
@@ -2712,6 +2932,7 @@ public class IJEMortality
     // 4 char “ICD code” in NCHS format, without the ‘.’
     // 1 char WouldBeUnderlyingCauseOfDeathWithoutPregnancy, only significant if position=2”
     IJEField metaRAC = new IJEField(108, 876, 100, "Record-axis codes", "RAC", 1);
+    private String RAC;
     public String getRAC()
     {
         String racStr = "";
@@ -2752,6 +2973,7 @@ public class IJEMortality
 
     /// <summary>Was Autopsy performed</summary>
     IJEField metaAUTOP = new IJEField(109, 976, 1, "Was Autopsy performed", "AUTOP", 1);
+    private String AUTOP;
     public String getAUTOP()
     {
         return Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "AutopsyPerformedIndicator", "AUTOP");
@@ -2763,6 +2985,7 @@ public class IJEMortality
 
     /// <summary>Were Autopsy Findings Available to Complete the Cause of Death?</summary>
     IJEField metaAUTOPF = new IJEField(110, 977, 1, "Were Autopsy Findings Available to Complete the Cause of Death?", "AUTOPF", 1);
+    private String AUTOPF;
     public String getAUTOPF()
     {
         return Get_MappingFHIRToIJE(Mappings.YesNoUnknownNotApplicable.FHIRToIJE, "AutopsyResultsAvailable", "AUTOPF");
@@ -2774,6 +2997,7 @@ public class IJEMortality
 
     /// <summary>Did Tobacco Use Contribute to Death?</summary>
     IJEField metaTOBAC = new IJEField(111, 978, 1, "Did Tobacco Use Contribute to Death?", "TOBAC", 1);
+    private String TOBAC;
     public String getTOBAC()
     {
         return Get_MappingFHIRToIJE(Mappings.ContributoryTobaccoUse.FHIRToIJE, "TobaccoUse", "TOBAC");
@@ -2785,6 +3009,7 @@ public class IJEMortality
 
     /// <summary>Pregnancy</summary>
     IJEField metaPREG = new IJEField(112, 979, 1, "Pregnancy", "PREG", 1);
+    private String PREG;
     public String getPREG()
     {
         return Get_MappingFHIRToIJE(Mappings.PregnancyStatus.FHIRToIJE, "PregnancyStatus", "PREG");
@@ -2796,6 +3021,7 @@ public class IJEMortality
 
     /// <summary>If Female--Edit Flag: From EDR only</summary>
     IJEField metaPREG_BYPASS = new IJEField(113, 980, 1, "If Female--Edit Flag: From EDR only", "PREG_BYPASS", 1);
+    private String PREG_BYPASS;
     public String getPREG_BYPASS()
     {
         return Get_MappingFHIRToIJE(Mappings.EditBypass012.FHIRToIJE, "PregnancyStatusEditFlag", "PREG_BYPASS");
@@ -2807,6 +3033,7 @@ public class IJEMortality
 
     /// <summary>Date of injury--month</summary>
     IJEField metaDOI_MO = new IJEField(114, 981, 2, "Date of injury--month", "DOI_MO", 1);
+    private String DOI_MO;
     public String getDOI_MO()
     {
         return NumericAllowingUnknown_Get("DOI_MO", "InjuryMonth");
@@ -2818,6 +3045,7 @@ public class IJEMortality
 
     /// <summary>Date of injury--day</summary>
     IJEField metaDOI_DY = new IJEField(115, 983, 2, "Date of injury--day", "DOI_DY", 1);
+    private String DOI_DY;
     public String getDOI_DY()
     {
         return NumericAllowingUnknown_Get("DOI_DY", "InjuryDay");
@@ -2829,6 +3057,7 @@ public class IJEMortality
 
     /// <summary>Date of injury--year</summary>
     IJEField metaDOI_YR = new IJEField(116, 985, 4, "Date of injury--year", "DOI_YR", 1);
+    private String DOI_YR;
     public String getDOI_YR()
     {
         return NumericAllowingUnknown_Get("DOI_YR", "InjuryYear");
@@ -2840,6 +3069,7 @@ public class IJEMortality
 
     /// <summary>Time of injury</summary>
     IJEField metaTOI_HR = new IJEField(117, 989, 4, "Time of injury", "TOI_HR", 1);
+    private String TOI_HR;
     public String getTOI_HR()
     {
         return TimeAllowingUnknown_Get("TOI_HR", "InjuryTime");
@@ -2851,6 +3081,7 @@ public class IJEMortality
 
     /// <summary>Time of injury</summary>
     IJEField metaWORKINJ = new IJEField(118, 993, 1, "Injury at work", "WORKINJ", 1);
+    private String WORKINJ;
     public String getWORKINJ()
     {
         return Get_MappingFHIRToIJE(Mappings.YesNoUnknownNotApplicable.FHIRToIJE, "InjuryAtWork", "WORKINJ");
@@ -2862,6 +3093,7 @@ public class IJEMortality
 
     /// <summary>Title of Certifier</summary>
     IJEField metaCERTL = new IJEField(119, 994, 30, "Title of Certifier", "CERTL", 1);
+    private String CERTL;
     public String getCERTL()
     {
         String ret = record.getCertificationRoleHelper();
@@ -2888,6 +3120,7 @@ public class IJEMortality
 
     /// <summary>Activity at time of death (computer generated)</summary>
     IJEField metaINACT = new IJEField(120, 1024, 1, "Activity at time of death (computer generated)", "INACT", 1);
+    private String INACT;
     public String getINACT()
     {
         return Get_MappingFHIRToIJE(Mappings.ActivityAtTimeOfDeath.FHIRToIJE, "ActivityAtDeath", "INACT");
@@ -2899,6 +3132,7 @@ public class IJEMortality
 
     /// <summary>Auxiliary State file number</summary>
     IJEField metaAUXNO2 = new IJEField(121, 1025, 12, "Auxiliary State file number", "AUXNO2", 1);
+    private String AUXNO2;
     public String getAUXNO2()
     {
         if (record.getStateLocalIdentifier2() == null)
@@ -2918,6 +3152,7 @@ public class IJEMortality
 
     /// <summary>State Specific Data</summary>
     IJEField metaSTATESP = new IJEField(122, 1037, 30, "State Specific Data", "STATESP", 1);
+    private String STATESP;
     public String getSTATESP()
     {
         return LeftJustified_Get("STATESP", "StateSpecific");
@@ -2932,6 +3167,7 @@ public class IJEMortality
 
     /// <summary>Surgery Date--month</summary>
     IJEField metaSUR_MO = new IJEField(123, 1067, 2, "Surgery Date--month", "SUR_MO", 1);
+    private String SUR_MO;
     public String getSUR_MO()
     {
         return NumericAllowingUnknown_Get("SUR_MO", "SurgeryMonth");
@@ -2946,6 +3182,7 @@ public class IJEMortality
 
     /// <summary>Surgery Date--day</summary>
     IJEField metaSUR_DY = new IJEField(124, 1069, 2, "Surgery Date--day", "SUR_DY", 1);
+    private String SUR_DY;
     public String getSUR_DY()
     {
         return NumericAllowingUnknown_Get("SUR_DY", "SurgeryDay");
@@ -2960,6 +3197,7 @@ public class IJEMortality
 
     /// <summary>Surgery Date--year</summary>
     IJEField metaSUR_YR = new IJEField(125, 1071, 4, "Surgery Date--year", "SUR_YR", 1);
+    private String SUR_YR;
     public String getSUR_YR()
     {
         return NumericAllowingUnknown_Get("SUR_YR", "SurgeryYear");
@@ -2974,6 +3212,7 @@ public class IJEMortality
 
     /// <summary>Time of Injury Unit</summary>
     IJEField metaTOI_UNIT = new IJEField(126, 1075, 1, "Time of Injury Unit", "TOI_UNIT", 1);
+    private String TOI_UNIT;
     public String getTOI_UNIT()
     {
         if (DOI_YR != "9999" && DOI_YR != "    ")
@@ -2998,6 +3237,7 @@ public class IJEMortality
 
     /// <summary>For possible future change in transax</summary>
     IJEField metaBLANK1 = new IJEField(127, 1076, 5, "For possible future change in transax", "BLANK1", 1);
+    private String BLANK1;
     public String getBLANK1()
     {
         // NOTE: This is a placeholder, the IJE field BLANK1 is not currently implemented in FHIR
@@ -3010,6 +3250,7 @@ public class IJEMortality
 
     /// <summary>Decedent ever served in Armed Forces?</summary>
     IJEField metaARMEDF = new IJEField(128, 1081, 1, "Decedent ever served in Armed Forces?", "ARMEDF", 1);
+    private String ARMEDF;
     public String getARMEDF()
     {
         return Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "MilitaryService", "ARMEDF");
@@ -3024,6 +3265,7 @@ public class IJEMortality
 
     /// <summary>Death Institution name</summary>
     IJEField metaDINSTI = new IJEField(129, 1082, 30, "Death Institution name", "DINSTI", 1);
+    private String DINSTI;
     public String getDINSTI()
     {
         return LeftJustified_Get("DINSTI", "DeathLocationName");
@@ -3038,6 +3280,7 @@ public class IJEMortality
 
     /// <summary>Long String address for place of death</summary>
     IJEField metaADDRESS_D = new IJEField(130, 1112, 50, "Long String address for place of death", "ADDRESS_D", 1);
+    private String ADDRESS_D;
     public String getADDRESS_D()
     {
         return Map_Get("ADDRESS_D", "DeathLocationAddress", "addressLine1");
@@ -3052,6 +3295,7 @@ public class IJEMortality
 
     /// <summary>Place of death. Street number</summary>
     IJEField metaSTNUM_D = new IJEField(131, 1162, 10, "Place of death. Street number", "STNUM_D", 1);
+    private String STNUM_D;
     public String getSTNUM_D()
     {
         return Map_Geo_Get("STNUM_D", "DeathLocationAddress", "address", "stnum", true);
@@ -3091,6 +3335,7 @@ public class IJEMortality
     {
         return Map_Geo_Get("PREDIR_D", "DeathLocationAddress", "address", "predir", true);
     }
+    private String PREDIR_D;
     public void setPREDIR_D(String value)
     {
         if (!isNullOrWhiteSpace(value))
@@ -3105,6 +3350,7 @@ public class IJEMortality
     {
         return Map_Geo_Get("STNAME_D", "DeathLocationAddress", "address", "stname", true);
     }
+    private String STNAME_D;
     public void setSTNAME_D(String value)
     {
         if (!isNullOrWhiteSpace(value))
@@ -3115,6 +3361,7 @@ public class IJEMortality
 
     /// <summary>Place of death. Street designator</summary>
     IJEField metaSTDESIG_D = new IJEField(134, 1232, 10, "Place of death. Street designator", "STDESIG_D", 1);
+    private String STDESIG_D;
     public String getSTDESIG_D()
     {
         return Map_Geo_Get("STDESIG_D", "DeathLocationAddress", "address", "stdesig", true);
@@ -3129,6 +3376,7 @@ public class IJEMortality
 
     /// <summary>Place of death. Post Directional</summary>
     IJEField metaPOSTDIR_D = new IJEField(135, 1242, 10, "Place of death. Post Directional", "POSTDIR_D", 1);
+    private String POSTDIR_D;
     public String getPOSTDIR_D()
     {
         return Map_Geo_Get("POSTDIR_D", "DeathLocationAddress", "address", "postdir", true);
@@ -3143,6 +3391,7 @@ public class IJEMortality
 
     /// <summary>Place of death. City or Town name</summary>
     IJEField metaCITYTEXT_D = new IJEField(136, 1252, 28, "Place of death. City or Town name", "CITYTEXT_D", 1);
+    private String CITYTEXT_D;
     public String getCITYTEXT_D()
     {
         return Map_Geo_Get("CITYTEXT_D", "DeathLocationAddress", "address", "city", false);
@@ -3157,6 +3406,7 @@ public class IJEMortality
 
     /// <summary>Place of death. State name literal</summary>
     IJEField metaSTATETEXT_D = new IJEField(137, 1280, 28, "Place of death. State name literal", "STATETEXT_D", 1);
+    private String STATETEXT_D;
     public String getSTATETEXT_D()
     {
         String stateCode = Map_Geo_Get("DSTATE", "DeathLocationAddress", "address", "state", false);
@@ -3175,6 +3425,7 @@ public class IJEMortality
 
     /// <summary>Place of death. Zip code</summary>
     IJEField metaZIP9_D = new IJEField(138, 1308, 9, "Place of death. Zip code", "ZIP9_D", 1);
+    private String ZIP9_D;
     public String getZIP9_D()
     {
         return Map_Get("ZIP9_D", "DeathLocationAddress", "addressZip");
@@ -3189,6 +3440,7 @@ public class IJEMortality
 
     /// <summary>Place of death. County of Death</summary>
     IJEField metaCOUNTYTEXT_D = new IJEField(139, 1317, 28, "Place of death. County of Death", "COUNTYTEXT_D", 2);
+    private String COUNTYTEXT_D;
     public String getCOUNTYTEXT_D()
     {
         return Map_Geo_Get("COUNTYTEXT_D", "DeathLocationAddress", "address", "county", false);
@@ -3203,6 +3455,7 @@ public class IJEMortality
 
     /// <summary>Place of death. City FIPS code</summary>
     IJEField metaCITYCODE_D = new IJEField(140, 1345, 5, "Place of death. City FIPS code", "CITYCODE_D", 1);
+    private String CITYCODE_D;
     public String getCITYCODE_D()
     {
         return Map_Geo_Get("CITYCODE_D", "DeathLocationAddress", "address", "cityC", true);
@@ -3217,6 +3470,7 @@ public class IJEMortality
 
     /// <summary>Place of death. Longitude</summary>
     IJEField metaLONG_D = new IJEField(141, 1350, 17, "Place of death. Longitude", "LONG_D", 1);
+    private String LONG_D;
     public String getLONG_D()
     {
         return LeftJustified_Get("LONG_D", "DeathLocationLongitude");
@@ -3231,6 +3485,7 @@ public class IJEMortality
 
     /// <summary>Place of Death. Latitude</summary>
     IJEField metaLAT_D = new IJEField(142, 1367, 17, "Place of Death. Latitude", "LAT_D", 1);
+    private String LAT_D;
     public String getLAT_D()
     {
         return LeftJustified_Get("LAT_D", "DeathLocationLatitude");
@@ -3245,6 +3500,7 @@ public class IJEMortality
 
     /// <summary>Decedent's spouse living at decedent's DOD?</summary>
     IJEField metaSPOUSELV = new IJEField(143, 1384, 1, "Decedent's spouse living at decedent's DOD?", "SPOUSELV", 1);
+    private String SPOUSELV;
     public String getSPOUSELV()
     {
         return Get_MappingFHIRToIJE(Mappings.SpouseAlive.FHIRToIJE, "SpouseAlive", "SPOUSELV");
@@ -3259,6 +3515,7 @@ public class IJEMortality
 
     /// <summary>Spouse's First Name</summary>
     IJEField metaSPOUSEF = new IJEField(144, 1385, 50, "Spouse's First Name", "SPOUSEF", 1);
+    private String SPOUSEF;
     public String getSPOUSEF()
     {
         String[] names = record.getSpouseGivenNames();
@@ -3278,6 +3535,7 @@ public class IJEMortality
 
     /// <summary>Husband's Surname/Wife's Maiden Last Name</summary>
     IJEField metaSPOUSEL = new IJEField(145, 1435, 50, "Husband's Surname/Wife's Maiden Last Name", "SPOUSEL", 1);
+    private String SPOUSEL;
     public String getSPOUSEL()
     {
         return LeftJustified_Get("SPOUSEL", "SpouseMaidenName");
@@ -3292,6 +3550,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence - City or Town name</summary>
     IJEField metaCITYTEXT_R = new IJEField(152, 1560, 28, "Decedent's Residence - City or Town name", "CITYTEXT_R", 3);
+    private String CITYTEXT_R;
     public String getCITYTEXT_R()
     {
         return Map_Geo_Get("CITYTEXT_R", "Residence", "address", "city", false);
@@ -3306,6 +3565,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence - ZIP code</summary>
     IJEField metaZIP9_R = new IJEField(153, 1588, 9, "Decedent's Residence - ZIP code", "ZIP9_R", 1);
+    private String ZIP9_R;
     public String getZIP9_R()
     {
         return Map_Geo_Get("ZIP9_R", "Residence", "address", "zip", false);
@@ -3320,6 +3580,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence - County</summary>
     IJEField metaCOUNTYTEXT_R = new IJEField(154, 1597, 28, "Decedent's Residence - County", "COUNTYTEXT_R", 1);
+    private String COUNTYTEXT_R;
     public String getCOUNTYTEXT_R()
     {
         return Map_Geo_Get("COUNTYTEXT_R", "Residence", "address", "county", false);
@@ -3334,6 +3595,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence - State name</summary>
     IJEField metaSTATETEXT_R = new IJEField(155, 1625, 28, "Decedent's Residence - State name", "STATETEXT_R", 1);
+    private String STATETEXT_R;
     public String getSTATETEXT_R()
     {
         // expand STATEC 2 letter code to full name
@@ -3353,6 +3615,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Residence - COUNTRY name</summary>
     IJEField metaCOUNTRYTEXT_R = new IJEField(156, 1653, 28, "Decedent's Residence - COUNTRY name", "COUNTRYTEXT_R", 1);
+    private String COUNTRYTEXT_R;
     public String getCOUNTRYTEXT_R()
     {
         // This is Now just the two letter code.  Need to map it to country name
@@ -3372,6 +3635,7 @@ public class IJEMortality
 
     /// <summary>Long String address for decedent's place of residence same as above but allows states to choose the way they capture information.</summary>
     IJEField metaADDRESS_R = new IJEField(157, 1681, 50, "Long String address for decedent's place of residence same as above but allows states to choose the way they capture information.", "ADDRESS_R", 1);
+    private String ADDRESS_R;
     public String getADDRESS_R()
     {
         return Map_Get("ADDRESS_R", "Residence", "addressLine1");
@@ -3386,6 +3650,7 @@ public class IJEMortality
 
     /// <summary>Old NCHS residence state code</summary>
     IJEField metaRESSTATE = new IJEField(158, 1731, 2, "Old NCHS residence state code", "RESSTATE", 1);
+    private String RESSTATE;
     public String getRESSTATE()
     {
         // NOTE: This is a placeholder, the IJE field RESSTATE is not currently implemented in FHIR
@@ -3398,6 +3663,7 @@ public class IJEMortality
 
     /// <summary>Old NCHS residence city/county combo code</summary>
     IJEField metaRESCON = new IJEField(159, 1733, 3, "Old NCHS residence city/county combo code", "RESCON", 1);
+    private String RESCON;
     public String getRESCON()
     {
         // NOTE: This is a placeholder, the IJE field RESCON is not currently implemented in FHIR
@@ -3410,6 +3676,7 @@ public class IJEMortality
 
     /// <summary>Place of death. City FIPS code</summary>
     IJEField metaSTNUM_R = new IJEField(145, 1485, 10, "Place of death. Decedent's Residence - Street number", "STNUM_R", 1);
+    private String STNUM_R;
     public String getSTNUM_R()
     {
         return Map_Geo_Get("STNUM_R", "Residence", "address", "stnum", true);
@@ -3424,6 +3691,7 @@ public class IJEMortality
 
     /// <summary>Pre directional </summary>
     IJEField metaPREDIR_R = new IJEField(146, 1495, 10, "Place of death. Decedent's Residence - Pre Directional", "PREDIR_R", 2);
+    private String PREDIR_R;
     public String getPREDIR_R()
     {
         return Map_Geo_Get("PREDIR_R", "Residence", "address", "predir", true);
@@ -3439,6 +3707,7 @@ public class IJEMortality
 
     /// <summary>Street name</summary>
     IJEField metaSTNAME_R = new IJEField(147, 1505, 28, "Place of death. Decedent's Residence - Street Name", "STNAME_R", 3);
+    private String STNAME_R;
     public String getSTNAME_R()
     {
         return Map_Geo_Get("STNAME_R", "Residence", "address", "stname", true);
@@ -3453,6 +3722,7 @@ public class IJEMortality
 
     /// <summary>Street designator</summary>
     IJEField metaSTDESIG_R = new IJEField(148, 1533, 10, "Place of death. Decedent's Residence - Street Designator", "STDESIG_R", 4);
+    private String STDESIG_R;
     public String getSTDESIG_R()
     {
         return Map_Geo_Get("STDESIG_R", "Residence", "address", "stdesig", true);
@@ -3468,6 +3738,7 @@ public class IJEMortality
 
     /// <summary>Post Directional</summary>
     IJEField metaPOSTDIR_R = new IJEField(149, 1543, 10, "Place of death. Decedent's Residence - Post directional", "POSTDIR_R", 5);
+    private String POSTDIR_R;
     public String getPOSTDIR_R()
     {
         return Map_Geo_Get("POSTDIR_R", "Residence", "address", "postdir", true);
@@ -3483,6 +3754,7 @@ public class IJEMortality
 
     /// <summary>Unit number</summary>
     IJEField metaUNITNUM_R = new IJEField(150, 1553, 7, "Place of death. Decedent's Residence - Unit number", "UNITNUM_R", 6);
+    private String UNITNUM_R;
     public String getUNITNUM_R()
     {
         return Map_Geo_Get("UNITNUM_R", "Residence", "address", "unitnum", true);
@@ -3497,6 +3769,7 @@ public class IJEMortality
 
     /// <summary>Hispanic</summary>
     IJEField metaDETHNICE = new IJEField(160, 1736, 3, "Hispanic", "DETHNICE", 1);
+    private String DETHNICE;
     public String getDETHNICE()
     {
         return Get_MappingFHIRToIJE(Mappings.HispanicOrigin.FHIRToIJE, "HispanicCode", "DETHNICE");
@@ -3511,6 +3784,7 @@ public class IJEMortality
 
     /// <summary>Bridged Race</summary>
     IJEField metaNCHSBRIDGE = new IJEField(161, 1739, 2, "Bridged Race", "NCHSBRIDGE", 1);
+    private String NCHSBRIDGE;
     public String getNCHSBRIDGE()
     {
         // NOTE: This is a placeholder, the IJE field NCHSBRIDGE is not currently implemented in FHIR
@@ -3523,6 +3797,7 @@ public class IJEMortality
 
     /// <summary>Hispanic - old NCHS single ethnicity codes</summary>
     IJEField metaHISPOLDC = new IJEField(162, 1741, 1, "Hispanic - old NCHS single ethnicity codes", "HISPOLDC", 1);
+    private String HISPOLDC;
     public String getHISPOLDC()
     {
         // NOTE: This is a placeholder, the IJE field HISPOLDC is not currently implemented in FHIR
@@ -3536,6 +3811,7 @@ public class IJEMortality
 
     /// <summary>Race - old NCHS single race codes</summary>
     IJEField metaRACEOLDC = new IJEField(163, 1742, 1, "Race - old NCHS single race codes", "RACEOLDC", 1);
+    private String RACEOLDC;
     public String getRACEOLDC()
     {
         // NOTE: This is a placeholder, the IJE field RACEOLDC is not currently implemented in FHIR
@@ -3548,6 +3824,7 @@ public class IJEMortality
 
     /// <summary>Hispanic Origin - Specify</summary>
     IJEField metaHISPSTSP = new IJEField(164, 1743, 15, "Hispanic Origin - Specify", "HISPSTSP", 1);
+    private String HISPSTSP;
     public String getHISPSTSP()
     {
         // NOTE: This is a placeholder, the IJE field HISPSTSP is not currently implemented in FHIR
@@ -3560,6 +3837,7 @@ public class IJEMortality
 
     /// <summary>Race - Specify</summary>
     IJEField metaRACESTSP = new IJEField(165, 1758, 50, "Race - Specify", "RACESTSP", 1);
+    private String RACESTSP;
     public String getRACESTSP()
     {
         // NOTE: This is a placeholder, the IJE field RACESTSP is not currently implemented in FHIR
@@ -3572,6 +3850,7 @@ public class IJEMortality
 
     /// <summary>Middle Name of Decedent</summary>
     IJEField metaDMIDDLE = new IJEField(166, 1808, 50, "Middle Name of Decedent", "DMIDDLE", 3);
+    private String DMIDDLE;
     public String getDMIDDLE()
     {
         String[] names = record.getGivenNames();
@@ -3600,6 +3879,7 @@ public class IJEMortality
 
     /// <summary>Father's First Name</summary>
     IJEField metaDDADF = new IJEField(167, 1858, 50, "Father's First Name", "DDADF", 1);
+    private String DDADF;
     public String getDDADF()
     {
         String[] names = record.getFatherGivenNames();
@@ -3619,6 +3899,7 @@ public class IJEMortality
 
     /// <summary>Father's Middle Name</summary>
     IJEField metaDDADMID = new IJEField(168, 1908, 50, "Father's Middle Name", "DDADMID", 2);
+    private String DDADMID;
     public String getDDADMID()
     {
         String[] names = record.getFatherGivenNames();
@@ -3647,6 +3928,7 @@ public class IJEMortality
 
     /// <summary>Mother's First Name</summary>
     IJEField metaDMOMF = new IJEField(169, 1958, 50, "Mother's First Name", "DMOMF", 1);
+    private String DMOMF;
     public String getDMOMF()
     {
         String[] names = record.getMotherGivenNames();
@@ -3666,6 +3948,7 @@ public class IJEMortality
 
     /// <summary>Mother's Middle Name</summary>
     IJEField metaDMOMMID = new IJEField(170, 2008, 50, "Mother's Middle Name", "DMOMMID", 2);
+    private String DMOMMID;
     public String getDMOMMID()
     {
         String[] names = record.getMotherGivenNames();
@@ -3694,6 +3977,7 @@ public class IJEMortality
 
     /// <summary>Mother's Maiden Surname</summary>
     IJEField metaDMOMMDN = new IJEField(171, 2058, 50, "Mother's Maiden Surname", "DMOMMDN", 1);
+    private String DMOMMDN;
     public String getDMOMMDN()
     {
         return LeftJustified_Get("DMOMMDN", "MotherMaidenName");
@@ -3708,6 +3992,7 @@ public class IJEMortality
 
     /// <summary>Was case Referred to Medical Examiner/Coroner?</summary>
     IJEField metaREFERRED = new IJEField(172, 2108, 1, "Was case Referred to Medical Examiner/Coroner?", "REFERRED", 1);
+    private String REFERRED;
     public String getREFERRED()
     {
         return Get_MappingFHIRToIJE(Mappings.YesNoUnknown.FHIRToIJE, "ExaminerContacted", "REFERRED");
@@ -3722,6 +4007,7 @@ public class IJEMortality
 
     /// <summary>Place of Injury- literal</summary>
     IJEField metaPOILITRL = new IJEField(173, 2109, 50, "Place of Injury- literal", "POILITRL", 1);
+    private String POILITRL;
     public String getPOILITRL()
     {
         return LeftJustified_Get("POILITRL", "InjuryPlaceDescription");
@@ -3736,6 +4022,7 @@ public class IJEMortality
 
     /// <summary>Describe How Injury Occurred</summary>
     IJEField metaHOWINJ = new IJEField(174, 2159, 250, "Describe How Injury Occurred", "HOWINJ", 1);
+    private String HOWINJ;
     public String getgetHOWINJ()
     {
         return LeftJustified_Get("HOWINJ", "InjuryDescription");
@@ -3750,6 +4037,7 @@ public class IJEMortality
 
     /// <summary>If Transportation Accident, Specify</summary>
     IJEField metaTRANSPRT = new IJEField(175, 2409, 30, "If Transportation Accident, Specify", "TRANSPRT", 1);
+    private String TRANSPRT;
     public String getTRANSPRT()
     {
         String ret = record.getTransportationRoleHelper();
@@ -3779,6 +4067,7 @@ public class IJEMortality
 
     /// <summary>County of Injury - literal</summary>
     IJEField metaCOUNTYTEXT_I = new IJEField(176, 2439, 28, "County of Injury - literal", "COUNTYTEXT_I", 1);
+    private String COUNTYTEXT_I;
     public String getCOUNTYTEXT_I()
     {
         return Map_Geo_Get("COUNTYTEXT_I", "InjuryLocationAddress", "address", "county", false);
@@ -3793,6 +4082,7 @@ public class IJEMortality
 
     /// <summary>County of Injury code</summary>
     IJEField metaCOUNTYCODE_I = new IJEField(177, 2467, 3, "County of Injury code", "COUNTYCODE_I", 2);
+    private String COUNtYCODE_I;
     public String getCOUNTYCODE_I()
     {
         return Map_Geo_Get("COUNTYCODE_I", "InjuryLocationAddress", "address", "countyC", true);
@@ -3807,6 +4097,7 @@ public class IJEMortality
 
     /// <summary>Town/city of Injury - literal</summary>
     IJEField metaCITYTEXT_I = new IJEField(178, 2470, 28, "Town/city of Injury - literal", "CITYTEXT_I", 3);
+    private String CITYTEXT_I;
     public String getCITYTEXT_I()
     {
         return Map_Geo_Get("CITYTEXT_I", "InjuryLocationAddress", "address", "city", false);
@@ -3821,6 +4112,7 @@ public class IJEMortality
 
     /// <summary>Town/city of Injury code</summary>
     IJEField metaCITYCODE_I = new IJEField(179, 2498, 5, "Town/city of Injury code", "CITYCODE_I", 3);
+    private String CITYCODE_I;
     public String getCITYCODE_I()
     {
         return Map_Geo_Get("CITYCODE_I", "InjuryLocationAddress", "address", "cityC", true);
@@ -3835,6 +4127,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Injury - code</summary>
     IJEField metaSTATECODE_I = new IJEField(180, 2503, 2, "State, U.S. Territory or Canadian Province of Injury - code", "STATECODE_I", 1);
+    private String STATECODE_I;
     public String getSTATECODE_I()
     {
         return Map_Geo_Get("STATECODE_I", "InjuryLocationAddress", "address", "state", true);
@@ -3849,6 +4142,7 @@ public class IJEMortality
 
     /// <summary>Place of injury. Longitude</summary>
     IJEField metaLONG_I = new IJEField(181, 2505, 17, "Place of injury. Longitude", "LONG_I", 1);
+    private String LONG_I;
     public String getLONG_I()
     {
         return LeftJustified_Get("LONG_I", "InjuryLocationLongitude");
@@ -3863,6 +4157,7 @@ public class IJEMortality
 
     /// <summary>Place of injury. Latitude</summary>
     IJEField metaLAT_I = new IJEField(182, 2522, 17, "Place of injury. Latitude", "LAT_I", 1);
+    private String LAT_I;
     public String getLAT_I()
     {
         return LeftJustified_Get("LAT_I", "InjuryLocationLatitude");
@@ -3877,6 +4172,7 @@ public class IJEMortality
 
     /// <summary>Old NCHS education code if collected - receiving state will recode as they prefer</summary>
     IJEField metaOLDEDUC = new IJEField(183, 2539, 2, "Old NCHS education code if collected - receiving state will recode as they prefer", "OLDEDUC", 1);
+    private String OLDEDUC;
     public String getOLDEDUC()
     {
         // NOTE: This is a placeholder, the IJE field OLDEDUC is not currently implemented in FHIR
@@ -3889,6 +4185,7 @@ public class IJEMortality
 
     /// <summary>Replacement Record -- suggested codes</summary>
     IJEField metaREPLACE = new IJEField(184, 2541, 1, "Replacement Record -- suggested codes", "REPLACE", 1);
+    private String REPLACE;
     public String getREPLACE()
     {
         return Get_MappingFHIRToIJE(Mappings.ReplaceStatus.FHIRToIJE, "ReplaceStatus", "REPLACE");
@@ -3903,6 +4200,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Line a</summary>
     IJEField metaCOD1A = new IJEField(185, 2542, 120, "Cause of Death Part I Line a", "COD1A", 1);
+    private String COD1A;
     public String getCOD1A()
     {
         if (!isNullOrWhiteSpace(record.getCOD1A()))
@@ -3921,6 +4219,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Interval, Line a</summary>
     IJEField metaINTERVAL1A = new IJEField(186, 2662, 20, "Cause of Death Part I Interval, Line a", "INTERVAL1A", 2);
+    private String INTERVAL1A;
     public String getINTERVAL1A()
     {
         if (!isNullOrWhiteSpace(record.getINTERVAL1A()))
@@ -3939,6 +4238,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Line b</summary>
     IJEField metaCOD1B = new IJEField(187, 2682, 120, "Cause of Death Part I Line b", "COD1B", 3);
+    private String COD1B;
     public String getCOD1B()
     {
         if (!isNullOrWhiteSpace(record.getCOD1B()))
@@ -3957,6 +4257,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Interval, Line b</summary>
     IJEField metaINTERVAL1B = new IJEField(188, 2802, 20, "Cause of Death Part I Interval, Line b", "INTERVAL1B", 4);
+    private String INTERVAL1B;
     public String getINTERVAL1B()
     {
         if (!isNullOrWhiteSpace(record.getINTERVAL1B()))
@@ -3975,6 +4276,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Line c</summary>
     IJEField metaCOD1C = new IJEField(189, 2822, 120, "Cause of Death Part I Line c", "COD1C", 5);
+    private String COD1C;
     public String getCOD1C()
     {
         if (!isNullOrWhiteSpace(record.getCOD1C()))
@@ -3993,6 +4295,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Interval, Line c</summary>
     IJEField metaINTERVAL1C = new IJEField(190, 2942, 20, "Cause of Death Part I Interval, Line c", "INTERVAL1C", 6);
+    private String INTERVAL1C;
     public String getINTERVAL1C()
     {
         if (!isNullOrWhiteSpace(record.getINTERVAL1C()))
@@ -4012,6 +4315,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Line d</summary>
     IJEField metaCOD1D = new IJEField(191, 2962, 120, "Cause of Death Part I Line d", "COD1D", 7);
+    private String COD1D;
     public String getCOD1D()
     {
         if (!isNullOrWhiteSpace(record.getCOD1D()))
@@ -4030,6 +4334,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part I Interval, Line d</summary>
     IJEField metaINTERVAL1D = new IJEField(192, 3082, 20, "Cause of Death Part I Interval, Line d", "INTERVAL1D", 8);
+    private String INTERVAL1D;
     public String getINTERVAL1D()
     {
         if (!isNullOrWhiteSpace(record.getINTERVAL1D()))
@@ -4048,6 +4353,7 @@ public class IJEMortality
 
     /// <summary>Cause of Death Part II</summary>
     IJEField metaOTHERCONDITION = new IJEField(193, 3102, 240, "Cause of Death Part II", "OTHERCONDITION", 1);
+    private String OTHERCONDITION;
     public String getOTHERCONDITION()
     {
         if (record.getContributingConditions() != null)
@@ -4066,6 +4372,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Maiden Name</summary>
     IJEField metaDMAIDEN = new IJEField(194, 3342, 50, "Decedent's Maiden Name", "DMAIDEN", 1);
+    private String DMAIDEN;
     public String getDMAIDEN()
     {
         return LeftJustified_Get("DMAIDEN", "MaidenName");
@@ -4077,6 +4384,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Birth Place City - Code</summary>
     IJEField metaDBPLACECITYCODE = new IJEField(194, 3392, 5, "Decedent's Birth Place City - Code", "DBPLACECITYCODE", 3);
+    private String DBPLACECITYCODE;
     public String getDBPLACECITYCODE()
     {
         return Map_Geo_Get("DBPLACECITYCODE", "PlaceOfBirth", "address", "cityC", false);
@@ -4091,6 +4399,7 @@ public class IJEMortality
 
     /// <summary>Decedent's Birth Place City - Literal</summary>
     IJEField metaDBPLACECITY = new IJEField(196, 3397, 28, "Decedent's Birth Place City - Literal", "DBPLACECITY", 3);
+    private String DBPLACECITY;
     public String getDBPLACECITY()
     {
         return Map_Geo_Get("DBPLACECITY", "PlaceOfBirth", "address", "city", false);
@@ -4119,6 +4428,7 @@ public class IJEMortality
 
     /// <summary>Spouse's Middle Name</summary>
     IJEField metaSPOUSEMIDNAME = new IJEField(197, 3425, 50, "Spouse's Middle Name", "SPOUSEMIDNAME", 2);
+    private String SPOUSEMIDNAME;
     public String getSPOUSEMIDNAME()
     {
         String[] names = record.getSpouseGivenNames();
@@ -4147,6 +4457,7 @@ public class IJEMortality
 
     /// <summary>Spouse's Suffix</summary>
     IJEField metaSPOUSESUFFIX = new IJEField(198, 3475, 10, "Spouse's Suffix", "SPOUSESUFFIX", 1);
+    private String SPOUSESUFFIX;
     public String getSPOUSESUFFIX()
     {
         return LeftJustified_Get("SPOUSESUFFIX", "SpouseSuffix");
@@ -4161,6 +4472,7 @@ public class IJEMortality
 
     /// <summary>Father's Suffix</summary>
     IJEField metaFATHERSUFFIX = new IJEField(199, 3485, 10, "Father's Suffix", "FATHERSUFFIX", 1);
+    private String FATHERSUFFIX;
     public String getFATHERSUFFIX()
     {
         return LeftJustified_Get("FATHERSUFFIX", "FatherSuffix");
@@ -4175,6 +4487,7 @@ public class IJEMortality
 
     /// <summary>Mother's Suffix</summary>
     IJEField metaMOTHERSSUFFIX = new IJEField(200, 3495, 10, "Mother's Suffix", "MOTHERSSUFFIX", 1);
+    private String MOTHERSUFFIX;
     public String getMOTHERSSUFFIX()
     {
 
@@ -4190,6 +4503,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Disposition - code</summary>
     IJEField metaDISPSTATECD = new IJEField(202, 3535, 2, "State, U.S. Territory or Canadian Province of Disposition - code", "DISPSTATECD", 1);
+    private String DISPSTATECD;
     public String getDISPSTATECD()
     {
         return Map_Geo_Get("DISPSTATECD", "DispositionLocationAddress", "address", "state", true);
@@ -4204,6 +4518,7 @@ public class IJEMortality
 
     /// <summary>Disposition State or Territory - Literal</summary>
     IJEField metaDISPSTATE = new IJEField(203, 3537, 28, "Disposition State or Territory - Literal", "DISPSTATE", 1);
+    private String DISPSTATE;
     public String getDISPSTATE()
     {
         String stateCode = Map_Geo_Get("DISPSTATECD", "InjuryLocationAddress", "address", "state", false);
@@ -4217,6 +4532,7 @@ public class IJEMortality
 
     /// <summary>Disposition City - Code</summary>
     IJEField metaDISPCITYCODE = new IJEField(204, 3565, 5, "Disposition City - Code", "DISPCITYCODE", 1);
+    private String DISPCITYCODE;
     public String getDISPCITYCODE()
     {
         return Map_Geo_Get("DISPCITYCODE", "DispositionLocationAddress", "address", "cityC", false);
@@ -4231,6 +4547,7 @@ public class IJEMortality
 
     /// <summary>Disposition City - Literal</summary>
     IJEField metaDISPCITY = new IJEField(205, 3570, 28, "Disposition City - Literal", "DISPCITY", 3);
+    private String DISPCITY;
     public String getDISPCITY()
     {
         return Map_Geo_Get("DISPCITY", "DispositionLocationAddress", "address", "city", false);
@@ -4245,6 +4562,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility Name</summary>
     IJEField metaFUNFACNAME = new IJEField(206, 3598, 100, "Funeral Facility Name", "FUNFACNAME", 1);
+    private String FUNFACNAME;
     public String getFUNFACNAME()
     {
 
@@ -4260,6 +4578,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - Street number</summary>
     IJEField metaFUNFACSTNUM = new IJEField(207, 3698, 10, "Funeral Facility - Street number", "FUNFACSTNUM", 1);
+    private String FUNFACSTNUM;
     public String getFUNFACSTNUM()
     {
         return Map_Geo_Get("FUNFACSTNUM", "FuneralHomeAddress", "address", "stnum", true);
@@ -4274,6 +4593,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - Pre Directional</summary>
     IJEField metaFUNFACPREDIR = new IJEField(208, 3708, 10, "Funeral Facility - Pre Directional", "FUNFACPREDIR", 1);
+    private String FUNFACPREDIR;
     public String getFUNFACPREDIR()
     {
         return Map_Geo_Get("FUNFACPREDIR", "FuneralHomeAddress", "address", "predir", true);
@@ -4288,6 +4608,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - Street name</summary>
     IJEField metaFUNFACSTRNAME = new IJEField(209, 3718, 28, "Funeral Facility - Street name", "FUNFACSTRNAME", 1);
+    private String FUNFACSTRNAME;
     public String getFUNFACSTRNAME()
     {
         return Map_Geo_Get("FUNFACSTRNAME", "FuneralHomeAddress", "address", "stname", true);
@@ -4302,6 +4623,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - Street designator</summary>
     IJEField metaFUNFACSTRDESIG = new IJEField(210, 3746, 10, "Funeral Facility - Street designator", "FUNFACSTRDESIG", 1);
+    private String FUNFACSTRDESIG;
     public String getFUNFACSTRDESIG()
     {
         return Map_Geo_Get("FUNFACSTRDESIG", "FuneralHomeAddress", "address", "stdesig", true);
@@ -4316,6 +4638,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - Post Directional</summary>
     IJEField metaFUNPOSTDIR = new IJEField(211, 3756, 10, "Funeral Facility - Post Directional", "FUNPOSTDIR", 1);
+    private String FUNPOSTDIR;
     public String getFUNPOSTDIR()
     {
         return Map_Geo_Get("FUNPOSTDIR", "FuneralHomeAddress", "address", "postdir", true);
@@ -4330,6 +4653,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - Unit or apt number</summary>
     IJEField metaFUNUNITNUM = new IJEField(212, 3766, 7, "Funeral Facility - Unit or apt number", "FUNUNITNUM", 1);
+    private String FUNUNITNUM;
     public String getFUNUNITNUM()
     {
         return Map_Geo_Get("FUNUNITNUM", "FuneralHomeAddress", "address", "unitnum", true);
@@ -4344,6 +4668,7 @@ public class IJEMortality
 
     /// <summary>Long String address for Funeral Facility same as above but allows states to choose the way they capture information.</summary>
     IJEField metaFUNFACADDRESS = new IJEField(213, 3773, 50, "Long String address for Funeral Facility same as above but allows states to choose the way they capture information.", "FUNFACADDRESS", 1);
+    private String FUNFACADDRESS;
     public String getFUNFACADDRESS()
     {
         return Map_Get("FUNFACADDRESS", "FuneralHomeAddress", "addressLine1");
@@ -4358,6 +4683,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - City or Town name</summary>
     IJEField metaFUNCITYTEXT = new IJEField(214, 3823, 28, "Funeral Facility - City or Town name", "FUNCITYTEXT", 3);
+    private String FUNCITYTEXT;
     public String getFUNCITYTEXT()
     {
         return Map_Get("FUNCITYTEXT", "FuneralHomeAddress", "addressCity");
@@ -4372,6 +4698,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Funeral Facility - code</summary>
     IJEField metaFUNSTATECD = new IJEField(215, 3851, 2, "State, U.S. Territory or Canadian Province of Funeral Facility - code", "FUNSTATECD", 1);
+    private String FUNSTATECD;
     public String getFUNSTATECD()
     {
         return Map_Geo_Get("FUNSTATECD", "FuneralHomeAddress", "address", "state", true);
@@ -4386,6 +4713,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Funeral Facility - literal</summary>
     IJEField metaFUNSTATE = new IJEField(216, 3853, 28, "State, U.S. Territory or Canadian Province of Funeral Facility - literal", "FUNSTATE", 1);
+    private String FUNSTATE;
     public String getFUNSTATE()
     {
         String stateCode = Map_Geo_Get("FUNSTATE", "FuneralHomeAddress", "address", "state", false);
@@ -4404,6 +4732,7 @@ public class IJEMortality
 
     /// <summary>Funeral Facility - ZIP</summary>
     IJEField metaFUNZIP = new IJEField(217, 3881, 9, "Funeral Facility - ZIP", "FUNZIP", 1);
+    private String FUNZIP;
     public String getFUNZIP()
     {
         return Map_Get("FUNZIP", "FuneralHomeAddress", "addressZip");
@@ -4418,6 +4747,7 @@ public class IJEMortality
 
     /// <summary>Person Pronouncing Date Signed</summary>
     IJEField metaPPDATESIGNED = new IJEField(218, 3890, 8, "Person Pronouncing Date Signed", "PPDATESIGNED", 1);
+    private String PPDATESIGNED;
     public String getPPDATESIGNED()
     {
         Integer month = record.getDateOfDeathPronouncementMonth();
@@ -4447,13 +4777,16 @@ public class IJEMortality
 
     /// <summary>Person Pronouncing Time Pronounced</summary>
     IJEField metaPPTIME = new IJEField(219, 3898, 4, "Person Pronouncing Time Pronounced", "PPTIME", 1);
+    private String PPTIME;
     public String getPPTIME()
     {
         String fhirTimeStr = record.getDateOfDeathPronouncementTime();
-        if (fhirTimeStr == null) {
+        if (fhirTimeStr == null)
+        {
             return "    ";
         }
-        else {
+        else
+        {
             String HH = fhirTimeStr.substring(0, 2);
             String mm = fhirTimeStr.substring(3, 2);
             String ijeTime = HH + mm;
@@ -4473,6 +4806,7 @@ public class IJEMortality
 
     /// <summary>Certifier's First Name</summary>
     IJEField metaCERTFIRST = new IJEField(220, 3902, 50, "Certifier's First Name", "CERTFIRST", 1);
+    private String CERTFIRST;
     public String getCERTFIRST()
     {
         String[] names = record.getCertifierGivenNames();
@@ -4492,6 +4826,7 @@ public class IJEMortality
 
     /// <summary>Certifier's Middle Name </summary>
     IJEField metaCERTMIDDLE = new IJEField(221, 3952, 50, "Certifier's Middle Name", "CERTMIDDLE", 2);
+    private String CERTMIDDLE;
     public String getCERTMIDDLE()
     {
         String[] names = record.getCertifierGivenNames();
@@ -4520,6 +4855,7 @@ public class IJEMortality
 
     /// <summary>Certifier's Last Name</summary>
     IJEField metaCERTLAST = new IJEField(222, 4002, 50, "Certifier's Last Name", "CERTLAST", 3);
+    private String CERTLAST;
     public String getCERTLAST()
     {
         return LeftJustified_Get("CERTLAST", "CertifierFamilyName");
@@ -4534,6 +4870,7 @@ public class IJEMortality
 
     /// <summary>Certifier's Suffix Name</summary>
     IJEField metaCERTSUFFIX = new IJEField(223, 4052, 10, "Certifier's Suffix Name", "CERTSUFFIX", 4);
+    private String CERTSUFFIX;
     public String getCERTSUFFIX()
     {
         return LeftJustified_Get("CERTSUFFIX", "CertifierSuffix");
@@ -4548,6 +4885,7 @@ public class IJEMortality
 
     /// <summary>Certifier - Street number</summary>
     IJEField metaCERTSTNUM = new IJEField(224, 4062, 10, "Certifier - Street number", "CERTSTNUM", 1);
+    private String CERTSTNUM;
     public String getCERTSTNUM()
     {
         return Map_Geo_Get("CERTSTNUM", "CertifierAddress", "address", "stnum", true);
@@ -4562,6 +4900,7 @@ public class IJEMortality
 
     /// <summary>Certifier - Pre Directional</summary>
     IJEField metaCERTPREDIR = new IJEField(225, 4072, 10, "Certifier - Pre Directional", "CERTPREDIR", 1);
+    private String CERTPREDIR;
     public String getCERTPREDIR()
     {
         return Map_Geo_Get("CERTPREDIR", "CertifierAddress", "address", "predir", true);
@@ -4577,6 +4916,7 @@ public class IJEMortality
 
     /// <summary>Certifier - Street name</summary>
     IJEField metaCERTSTRNAME = new IJEField(226, 4082, 28, "Certifier - Street name", "CERTSTRNAME", 1);
+    private String CERTSTRNAME;
     public String getCERTSTRNAME()
     {
         return Map_Geo_Get("CERTSTRNAME", "CertifierAddress", "address", "stname", true);
@@ -4592,6 +4932,7 @@ public class IJEMortality
 
     /// <summary>Certifier - Street designator</summary>
     IJEField metaCERTSTRDESIG = new IJEField(227, 4110, 10, "Certifier - Street designator", "CERTSTRDESIG", 1);
+    private String CERTSTRDESIG;
     public String getCERTSTRDESIG()
     {
         return Map_Geo_Get("CERTSTRDESIG", "CertifierAddress", "address", "stdesig", true);
@@ -4607,6 +4948,7 @@ public class IJEMortality
 
     /// <summary>Certifier - Post Directional</summary>
     IJEField metaCERTPOSTDIR = new IJEField(228, 4120, 10, "Certifier - Post Directional", "CERTPOSTDIR", 1);
+    private String CERTPOSTDIR;
     public String getCERTPOSTDIR()
     {
         return Map_Geo_Get("CERTPOSTDIR", "CertifierAddress", "address", "postdir", true);
@@ -4622,6 +4964,7 @@ public class IJEMortality
 
     /// <summary>Certifier - Unit or apt number</summary>
     IJEField metaCERTUNITNUM = new IJEField(229, 4130, 7, "Certifier - Unit or apt number", "CERTUNITNUM", 1);
+    private String CERTUNITNUM;
     public String getCERTUNITNUM()
     {
         return Map_Geo_Get("CERTUNITNUM", "CertifierAddress", "address", "unitnum", true);
@@ -4636,6 +4979,7 @@ public class IJEMortality
 
     /// <summary>Long String address for Certifier same as above but allows states to choose the way they capture information.</summary>
     IJEField metaCERTADDRESS = new IJEField(230, 4137, 50, "Long String address for Certifier same as above but allows states to choose the way they capture information.", "CERTADDRESS", 1);
+    private String CERTADDRESS;
     public String getCERTADDRESS()
     {
         return Map_Get("CERTADDRESS", "CertifierAddress", "addressLine1");
@@ -4650,6 +4994,7 @@ public class IJEMortality
 
     /// <summary>Certifier - City or Town name</summary>
     IJEField metaCERTCITYTEXT = new IJEField(231, 4187, 28, "Certifier - City or Town name", "CERTCITYTEXT", 2);
+    private String CERTCITYTEXT;
     public String getCERTCITYTEXT()
     {
         return Map_Get("CERTCITYTEXT", "CertifierAddress", "addressCity");
@@ -4672,6 +5017,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Certifier - code</summary>
     IJEField metaCERTSTATECD = new IJEField(232, 4215, 2, "State, U.S. Territory or Canadian Province of Certifier - code", "CERTSTATECD", 1);
+    private String CERTSTATECD;
     public String getCERTSTATECD()
     {
         return dataLookup.StateNameToStateCode(Map_Get_Full("CERTSTATECD", "CertifierAddress", "addressState"));
@@ -4686,6 +5032,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Certifier - literal</summary>
     IJEField metaCERTSTATE = new IJEField(233, 4217, 28, "State, U.S. Territory or Canadian Province of Certifier - literal", "CERTSTATE", 1);
+    private String CERTSTATE;
     public String getCERTSTATE()
     {
         String stateCode = Map_Get("CERTSTATE", "CertifierAddress", "addressState");
@@ -4704,6 +5051,7 @@ public class IJEMortality
 
     /// <summary>Certifier - Zip</summary>
     IJEField metaCERTZIP = new IJEField(234, 4245, 9, "Certifier - Zip", "CERTZIP", 1);
+    private String CERTZIP;
     public String getCERTZIP()
     {
         return Map_Get("CERTZIP", "CertifierAddress", "addressZip");
@@ -4718,6 +5066,7 @@ public class IJEMortality
 
     /// <summary>Certifier Date Signed</summary>
     IJEField metaCERTDATE = new IJEField(235, 4254, 8, "Certifier Date Signed", "CERTDATE", 1);
+    private String CERTDATE;
     public String getCERTDATE()
     {
         return DateTime_Get("CERTDATE", "MMddyyyy", "CertifiedTime");
@@ -4732,6 +5081,7 @@ public class IJEMortality
 
     /// <summary>Date Filed</summary>
     IJEField metaFILEDATE = new IJEField(236, 4262, 8, "Date Filed", "FILEDATE", 1);
+    private String FILEDATE;
     public String getFILEDATE()
     {
         // NOTE: This is a placeholder, the IJE field FILEDATE is not currently implemented in FHIR
@@ -4744,6 +5094,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Injury - literal</summary>
     IJEField metaSTINJURY = new IJEField(237, 4270, 28, "State, U.S. Territory or Canadian Province of Injury - literal", "STINJURY", 1);
+    private String STINJURY;
     public String getSTINJURY()
     {
         String stateCode = Map_Geo_Get("STATECODE_I", "InjuryLocationAddress", "address", "state", false);
@@ -4762,6 +5113,7 @@ public class IJEMortality
 
     /// <summary>State, U.S. Territory or Canadian Province of Birth - literal</summary>
     IJEField metaSTATEBTH = new IJEField(238, 4298, 28, "State, U.S. Territory or Canadian Province of Birth - literal", "STATEBTH", 1);
+    private String STATEBTH;
     public String getSTATEBTH()
     {
         String stateCode = Map_Geo_Get("BPLACE_ST", "PlaceOfBirth", "address", "state", false);
@@ -4780,6 +5132,7 @@ public class IJEMortality
 
     /// <summary>Country of Death - Code</summary>
     IJEField metaDTHCOUNTRYCD = new IJEField(239, 4326, 2, "Country of Death - Code", "DTHCOUNTRYCD", 1);
+    private String DTHCOUNTRYCD;
     public String getDTHCOUNTRYCD()
     {
         return Map_Geo_Get("DTHCOUNTRYCD", "DeathLocationAddress", "address", "country", true);
@@ -4794,6 +5147,7 @@ public class IJEMortality
 
     /// <summary>Country of Death - Literal</summary>
     IJEField metaDTHCOUNTRY = new IJEField(240, 4328, 28, "Country of Death - Literal", "DTHCOUNTRY", 1);
+    private String DTHCOUNTRY;
     public String getDTHCOUNTRY()
     {
         String countryCode = Map_Geo_Get("DTHCOUNTRYCD", "Residence", "address", "country", false);
@@ -4812,6 +5166,7 @@ public class IJEMortality
 
     /// <summary>SSA State Source of Death</summary>
     IJEField metaSSADTHCODE = new IJEField(241, 4356, 3, "SSA State Source of Death", "SSADTHCODE", 1);
+    private String SSADTHCODE;
     public String getSSADTHCODE()
     {
         // NOTE: This is a placeholder, the IJE field SSADTHCODE is not currently implemented in FHIR
@@ -4824,6 +5179,7 @@ public class IJEMortality
 
     /// <summary>SSA Foreign Country Indicator</summary>
     IJEField metaSSAFOREIGN = new IJEField(242, 4359, 1, "SSA Foreign Country Indicator", "SSAFOREIGN", 1);
+    private String SSAFOREIGN;
     public String getSSAFOREIGN()
     {
         // NOTE: This is a placeholder, the IJE field SSAFOREIGN is not currently implemented in FHIR
@@ -4836,6 +5192,7 @@ public class IJEMortality
 
     /// <summary>SSA EDR Verify Code</summary>
     IJEField metaSSAVERIFY = new IJEField(243, 4360, 1, "SSA EDR Verify Code", "SSAVERIFY", 1);
+    private String SSAVERIFY;
     public String getSSAVERIFY()
     {
         // NOTE: This is a placeholder, the IJE field SSAVERIFY is not currently implemented in FHIR
@@ -4848,6 +5205,7 @@ public class IJEMortality
 
     /// <summary>SSA Date of SSN Verification</summary>
     IJEField metaSSADATEVER = new IJEField(244, 4361, 8, "SSA Date of SSN Verification", "SSADATEVER", 1);
+    private String SSADATEVER;
     public String getSSADATEVER()
     {
         // NOTE: This is a placeholder, the IJE field SSADATEVER is not currently implemented in FHIR
@@ -4860,6 +5218,7 @@ public class IJEMortality
 
     /// <summary>SSA Date of State Transmission</summary>
     IJEField metaSSADATETRANS = new IJEField(245, 4369, 8, "SSA Date of State Transmission", "SSADATETRANS", 1);
+    private String SSADATETRANS;
     public String getSSADATETRANS()
     {
         // NOTE: This is a placeholder, the IJE field SSADATETRANS is not currently implemented in FHIR
@@ -4872,6 +5231,7 @@ public class IJEMortality
 
     /// <summary>Hispanic Code for Literal</summary>
     IJEField metaDETHNIC5C = new IJEField(247, 4427, 3, "Hispanic Code for Literal", "DETHNIC5C", 1);
+    private String DETHNIC5C;
     public String getDETHNIC5C()
     {
         return Get_MappingFHIRToIJE(Mappings.HispanicOrigin.FHIRToIJE, "HispanicCodeForLiteral", "DETHNIC5C");
@@ -4883,6 +5243,7 @@ public class IJEMortality
 
     /// <summary>Blank for One-Byte Field 1</summary>
     IJEField metaPLACE1_1 = new IJEField(248, 4430, 1, "Blank for One-Byte Field 1", "PLACE1_1", 1);
+    private String PLACE1_1;
     public String getPLACE1_1()
     {
         return LeftJustified_Get("PLACE1_1", "EmergingIssue1_1");
@@ -4894,6 +5255,7 @@ public class IJEMortality
 
     /// <summary>Blank for One-Byte Field 2</summary>
     IJEField metaPLACE1_2 = new IJEField(249, 4431, 1, "Blank for One-Byte Field 2", "PLACE1_2", 1);
+    private String PLACE1_2;
     public String getPLACE1_2()
     {
         return LeftJustified_Get("PLACE1_2", "EmergingIssue1_2");
@@ -4905,6 +5267,7 @@ public class IJEMortality
 
     /// <summary>Blank for One-Byte Field 3</summary>
     IJEField metaPLACE1_3 = new IJEField(250, 4432, 1, "Blank for One-Byte Field 3", "PLACE1_3", 1);
+    private String PLACE1_3;
     public String getPLACE1_3()
     {
         return LeftJustified_Get("PLACE1_3", "EmergingIssue1_3");
@@ -4916,6 +5279,7 @@ public class IJEMortality
 
     /// <summary>Blank for One-Byte Field 4</summary>
     IJEField metaPLACE1_4 = new IJEField(251, 4433, 1, "Blank for One-Byte Field 4", "PLACE1_4", 1);
+    private String PLACE1_4;
     public String getPLACE1_4()
     {
         return LeftJustified_Get("PLACE1_4", "EmergingIssue1_4");
@@ -4927,6 +5291,7 @@ public class IJEMortality
 
     /// <summary>Blank for One-Byte Field 5</summary>
     IJEField metaPLACE1_5 = new IJEField(252, 4434, 1, "Blank for One-Byte Field 5", "PLACE1_5", 1);
+    private String PLACE1_5;
     public String getPLACE1_5()
     {
         return LeftJustified_Get("PLACE1_5", "EmergingIssue1_5");
@@ -4938,6 +5303,7 @@ public class IJEMortality
 
     /// <summary>Blank for One-Byte Field 6</summary>
     IJEField metaPLACE1_6 = new IJEField(253, 4435, 1, "Blank for One-Byte Field 6", "PLACE1_6", 1);
+    private String PLACE1_6;
     public String getPLACE1_6()
     {
         return LeftJustified_Get("PLACE1_6", "EmergingIssue1_6");
@@ -4949,6 +5315,7 @@ public class IJEMortality
 
     /// <summary>Blank for Eight-Byte Field 1</summary>
     IJEField metaPLACE8_1 = new IJEField(254, 4436, 8, "Blank for Eight-Byte Field 1", "PLACE8_1", 1);
+    private String PLACE8_1;
     public String getPLACE8_1()
     {
         return LeftJustified_Get("PLACE8_1", "EmergingIssue8_1");
@@ -4960,6 +5327,7 @@ public class IJEMortality
 
     /// <summary>Blank for Eight-Byte Field 2</summary>
     IJEField metaPLACE8_2 = new IJEField(255, 4444, 8, "Blank for Eight-Byte Field 2", "PLACE8_2", 1);
+    private String PLACE8_2;
     public String getPLACE8_2()
     {
         return LeftJustified_Get("PLACE8_2", "EmergingIssue8_2");
@@ -4971,6 +5339,7 @@ public class IJEMortality
 
     /// <summary>Blank for Eight-Byte Field 3</summary>
     IJEField metaPLACE8_3 = new IJEField(256, 4452, 8, "Blank for Eight-Byte Field 3", "PLACE8_3", 1);
+    private String PLACE8_3;
     public String getPLACE8_3()
     {
         return LeftJustified_Get("PLACE8_3", "EmergingIssue8_3");
@@ -4982,6 +5351,7 @@ public class IJEMortality
 
     /// <summary>Blank for Twenty-Byte Field</summary>
     IJEField metaPLACE20 = new IJEField(257, 4460, 20, "Blank for Twenty-Byte Field", "PLACE20", 1);
+    private String PLACE20;
     public String getPLACE20()
     {
         return LeftJustified_Get("PLACE20", "EmergingIssue20");

@@ -1,5 +1,6 @@
 package edu.gatech.chai.VRDR.model;
 
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Enumerations.*;
 import org.hl7.fhir.r4.model.Composition.CompositionStatus;
+//import org.hl7.fhir.r4.model.Element.
 
 import ca.uhn.fhir.model.api.annotation.*;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
@@ -46,7 +48,7 @@ public class DeathCertificateDocument extends Bundle {
     private static String BlankPlaceholder = "BLANK";
 
     /// <summary>Mortality data for code translations.</summary>
-    private MortalityData MortalityData = MortalityData.Instance;
+    //private MortalityData MortalityData = MortalityData.Instance;
 
     /// <summary>Useful for navigating around the FHIR Bundle using FHIRPaths.</summary>
     private ITypedElement Navigator;
@@ -151,7 +153,7 @@ public class DeathCertificateDocument extends Bundle {
         return outputList;
     }
 
-    public List<AutopsyPerformedIndicator> getAutopsyPerformedIndicator()
+    public List<AutopsyPerformedIndicator> getAutopsyPerformedIndicators()
     {
         List<Resource> resources = getRecords(AutopsyPerformedIndicator.class);
         return castListOfRecords(resources);
@@ -218,11 +220,11 @@ public class DeathCertificateDocument extends Bundle {
         return castListOfRecords(resources);
     }
 
-    public List<DecedentDispositionMethod> getDecedentDispositionMethod()
-    {
-        List<Resource> resources = getRecords(DecedentDispositionMethod.class);
-        return castListOfRecords(resources);
-    }
+//    public List<DecedentDispositionMethod> getDecedentDispositionMethod()
+//    {
+//        List<Resource> resources = getRecords(DecedentDispositionMethod.class);
+//        return castListOfRecords(resources);
+//    }
 
     public List<DecedentEducationLevel> getDecedentEducationLevel()
     {
@@ -379,15 +381,16 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getIdentifier()
     {
+        String result = null;
         if (Bundle != null && Bundle.getIdentifier() != null && Bundle.getIdentifier().getExtension() != null)
         {
             Extension ext = Bundle.getIdentifier().getExtension().stream().filter(ex -> ex.getUrl().equals(URL.ExtensionURL.CertificateNumber)).findFirst().get();
             if (ext != null && ext.getValue() != null)
             {
-                return (ext.getValue().toString());
+                result = (ext.getValue().toString());
             }
         }
-        return null;
+        return result;
     }
 
     public void setIdentifier(String value)
@@ -599,9 +602,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Composition).getExtension().stream().findAny(url='http://hl7.org/fhir/us/vrdr/StructureDefinition/FilingFormat')", "")]
-    private Map<String, String> FilingFormat;
+    private Map<String, StringType> FilingFormat;
 
-    public Map<String, String> getFilingFormat()
+    public Map<String, StringType> getFilingFormat()
     {
         if (Composition != null)
         {
@@ -615,7 +618,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFilingFormat(Map<String, String> value)
+    public void setFilingFormat(Map<String, StringType> value)
     {
         // TODO: Handle case where Composition == null (either create it or throw exception)
         Composition.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.FilingFormat);
@@ -642,9 +645,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getFilingFormatHelper()
     {
-        if (FilingFormat.containsKey("code") && isNullOrWhiteSpace(FilingFormat.get("code")))
+        if (FilingFormat.containsKey("code") && isNullOrWhiteSpace(String.valueOf(FilingFormat.get("code"))))
         {
-            return FilingFormat.get("code");
+            return String.valueOf(FilingFormat.get("code"));
         }
         return null;
     }
@@ -719,7 +722,7 @@ public class DeathCertificateDocument extends Bundle {
     public void setStateSpecific(String value)
     {
         // TODO: Handle case where Composition == null (either create it or throw exception)
-        Composition.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.StateSpecificField);
+        Composition.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.StateSpecificField));
         if (isNullOrWhiteSpace(value))
         {
             return;
@@ -747,9 +750,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Composition).getExtension().stream().findAny(url='http://hl7.org/fhir/us/vrdr/StructureDefinition/ReplaceStatus')", "")]
-    private Map<String, String> ReplaceStatus;
+    private Map<String, StringType> ReplaceStatus;
 
-    public Map<String, String> getReplaceStatus()
+    public Map<String, StringType> getReplaceStatus()
     {
         if (Composition != null)
         {
@@ -762,10 +765,10 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setReplaceStatus(Map<String, String> value)
+    public void setReplaceStatus(Map<String, StringType> value)
     {
         // TODO: Handle case where Composition == null (either create it or throw exception)
-        Composition.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.ReplaceStatus);
+        Composition.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.ReplaceStatus));
         Extension replaceStatus = new Extension();
         replaceStatus.setUrl(URL.ExtensionURL.ReplaceStatus);
         replaceStatus.setValue(MapToCodeableConcept(value));
@@ -789,9 +792,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getReplaceStatusHelper()
     {
-        if (ReplaceStatus.containsKey("code") && isNullOrWhiteSpace(ReplaceStatus.get("code")))
+        if (ReplaceStatus.containsKey("code") && isNullOrWhiteSpace(String.valueOf(ReplaceStatus.get("code"))))
         {
-            return ReplaceStatus.get("code");
+            return String.valueOf(ReplaceStatus.get("code"));
         }
         return null;
     }
@@ -826,9 +829,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Procedure).stream().findAny(code.coding.code='308646001')", "performer")]
-    private Map<String, String> CertificationRole;
+    private Map<String, StringType> CertificationRole;
 
-    public Map<String, String> getCertificationRole()
+    public Map<String, StringType> getCertificationRole()
     {
         if (DeathCertification == null)
         {
@@ -842,7 +845,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setCertificationRole(Map<String, String> value)
+    public void setCertificationRole(Map<String, StringType> value)
     {
         if (DeathCertification == null)
         {
@@ -874,12 +877,12 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (CertificationRole.containsKey("code"))
         {
-            String code = CertificationRole.get("code");
+            String code = String.valueOf(CertificationRole.get("code"));
             if (code == "OTH")
             {
-                if (CertificationRole.containsKey("text") && isNullOrWhiteSpace(CertificationRole.get("text")))
+                if (CertificationRole.containsKey("text") && isNullOrWhiteSpace(String.valueOf(CertificationRole.get("text"))))
                 {
-                    return (CertificationRole.get("text"));
+                    return String.valueOf((CertificationRole.get("text")));
                 }
                 return ("Other");
             }
@@ -929,9 +932,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='69449-7')", "")]
-    private Map<String, String> MannerOfDeathType;
+    private Map<String, StringType> MannerOfDeathType;
 
-    public Map<String, String> getMannerOfDeathType()
+    public Map<String, StringType> getMannerOfDeathType()
     {
         if (MannerOfDeath != null && MannerOfDeath.getValue() != null && MannerOfDeath.getValue() instanceof CodeableConcept)
         {
@@ -940,7 +943,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setMannerOfDeathType(Map<String, String> value)
+    public void setMannerOfDeathType(Map<String, StringType> value)
     {
         if (isMapEmptyOrDefault(value) && MannerOfDeath == null)
         {
@@ -987,9 +990,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getMannerOfDeathTypeHelper()
     {
-        if (MannerOfDeathType.containsKey("code") && isNullOrWhiteSpace(MannerOfDeathType.get("code")))
+        if (MannerOfDeathType.containsKey("code") && isNullOrWhiteSpace(String.valueOf(MannerOfDeathType.get("code"))))
         {
-            return MannerOfDeathType.get("code");
+            return String.valueOf(MannerOfDeathType.get("code"));
         }
         return null;
     }
@@ -1300,7 +1303,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (ConditionContributingToDeath != null && ConditionContributingToDeath.getValue() != null)
         {
-            return (CodeableConceptToMap((CodeableConcept) ConditionContributingToDeath.getValue())).get("text");
+            return String.valueOf((CodeableConceptToMap((CodeableConcept) ConditionContributingToDeath.getValue())).get("text"));
         }
         return null;
     }
@@ -1361,78 +1364,82 @@ public class DeathCertificateDocument extends Bundle {
 
     //  [Property("Causes Of Death", Property.Types.TupleArr, "Death Certification", "Conditions that resulted in the cause of death.", true, IGURL.CauseOfDeathPart1, true, 50)]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='69453-9')", "")]
-    private List<Tuple> CausesOfDeath;
+    private Tuple[] CausesOfDeath;
 
-    public List<Tuple> getCausesOfDeath()
+    public Tuple[] getCausesOfDeath()
     {
-        List<Tuple> results = new ArrayList<Tuple>();
+        List<Tuple> results = new ArrayList();
+        Tuple tuple = new Tuple();
         if (isNullOrEmpty(COD1A)  ||  isNullOrEmpty(INTERVAL1A))
         {
-            results.add(Tuple.Create(COD1A, INTERVAL1A));
+            tuple.addChild(COD1A).addChild(INTERVAL1A);
         }
         if (isNullOrEmpty(COD1B)  ||  isNullOrEmpty(INTERVAL1B))
         {
-            results.add(Tuple.Create(COD1B, INTERVAL1B));
+            //results.add(Tuple.Create(COD1B, INTERVAL1B));
+            tuple.addChild(COD1B).addChild(INTERVAL1B);
         }
         if (isNullOrEmpty(COD1C)  ||  isNullOrEmpty(INTERVAL1C))
         {
-            results.add(Tuple.Create(COD1C, INTERVAL1C));
+            //results.add(Tuple.Create(COD1C, INTERVAL1C));
+            tuple.addChild(COD1C).addChild(INTERVAL1C);
         }
         if (isNullOrEmpty(COD1D)  ||  isNullOrEmpty(INTERVAL1D))
         {
-            results.add(Tuple.Create(COD1D, INTERVAL1D));
+            //results.add(Tuple.Create(COD1D, INTERVAL1D));
+            tuple.addChild(COD1D).addChild(INTERVAL1D);
         }
-
-        return results;
+        results.add(tuple);
+        return (Tuple[]) results.toArray();
     }
 
-    public void setCausesOfDeath(String value)
+    public void setCausesOfDeath(Tuple[] value)
     {
         if (value != null)
         {
             if (value.length > 0)
             {
-                if (isNullOrWhiteSpace(value[0].Item1))
+                if (isNullOrWhiteSpace(String.valueOf(value[0].children().get(0))))
                 {
-                    COD1A = value[0].Item1;
+                    COD1A = String.valueOf(value[0].children().get(0));
                 }
-                if (isNullOrWhiteSpace(value[0].Item2))
+                if (isNullOrWhiteSpace(String.valueOf(value[0].children().get(1))))
                 {
-                    INTERVAL1A = value[0].Item2;
+                    INTERVAL1A = String.valueOf(value[0].children().get(1));
                 }
             }
             if (value.length > 1)
             {
-                if (isNullOrWhiteSpace(value[1].Item1))
+                if (isNullOrWhiteSpace(String.valueOf(value[1].children().get(0))))
                 {
-                    COD1B = value[1].Item1;
+                    COD1B = String.valueOf(value[1].children().get(0));
                 }
-                if (isNullOrWhiteSpace(value[1].Item2))
+                if (isNullOrWhiteSpace(String.valueOf(value[1].children().get(1))))
                 {
-                    INTERVAL1B = value[1].Item2;
+                    INTERVAL1B = String.valueOf(value[1].children().get(1));
                 }
             }
             if (value.length > 2)
             {
-                if (isNullOrWhiteSpace(value[2].Item1))
+                if (isNullOrWhiteSpace(String.valueOf(value[2].children().get(1))))
                 {
-                    COD1C = value[2].Item1;
+                    COD1C = String.valueOf(value[2].children().get(1));
 
                 }
-                if (isNullOrWhiteSpace(value[2].Item2))
+                if (isNullOrWhiteSpace(String.valueOf(value[2].children().get(1))))
                 {
-                    INTERVAL1C = value[2].Item2;
+                    INTERVAL1C = String.valueOf(value[2].children().get(1));
                 }
             }
             if (value.length > 3)
             {
-                if (isNullOrWhiteSpace(value[3].Item1))
+                if (isNullOrWhiteSpace(String.valueOf(value[3].children().get(1))))
                 {
-                    COD1D = value[3].Item1;
+                    COD1D = String.valueOf(value[3].children().get(1));
                 }
-                if (isNullOrWhiteSpace(value[3].Item2))
+                if (isNullOrWhiteSpace(String.valueOf(value[3].children().get(1))))
                 {
-                    INTERVAL1D = value[3].Item2;
+                    INTERVAL1D = String.valueOf(value[3].children().get(1));
                 }
             }
         }
@@ -1453,7 +1460,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (CauseOfDeathConditionA != null && CauseOfDeathConditionA.getValue() != null)
         {
-            return (CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionA.getValue())).get("text");
+            return String.valueOf((CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionA.getValue())).get("text"));
         }
         return null;
     }
@@ -1584,7 +1591,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (CauseOfDeathConditionB != null && CauseOfDeathConditionB.getValue() != null)
         {
-            return (CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionB.getValue())).get("text");
+            return String.valueOf((CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionB.getValue())).get("text"));
         }
         return null;
     }
@@ -1620,7 +1627,7 @@ public class DeathCertificateDocument extends Bundle {
             Observation.ObservationComponentComponent intervalComp = CauseOfDeathConditionB.getComponent().stream().filter(entry -> entry.getCode() != null && entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69440-6")).findFirst().get();
             if (intervalComp != null && intervalComp.getValue() != null && intervalComp.getValue() instanceof StringType)
             {
-                return intervalComp.getValue().toString();
+                return String.valueOf(intervalComp.getValue());
             }
         }
         return null;
@@ -1715,7 +1722,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (CauseOfDeathConditionC != null && CauseOfDeathConditionC.getValue() != null)
         {
-            return (CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionC.getValue())).get("text");
+            return String.valueOf((CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionC.getValue())).get("text"));
         }
         return null;
     }
@@ -1803,7 +1810,8 @@ public class DeathCertificateDocument extends Bundle {
     // [PropertyParam("code", "The code used to describe this concept.")]
     // [PropertyParam("system", "The relevant code system.")]
     // [PropertyParam("display", "The human readable version of this code.")]
-    public Map<String, String> getCODE1C()
+    private Map<String, StringType> CODE1C;
+    public Map<String, StringType> getCODE1C()
     {
         if (CauseOfDeathConditionC != null && CauseOfDeathConditionC.getCode() != null)
         {
@@ -1812,7 +1820,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeMap();
     }
 
-    public void setCODE1C(Map<String, String> value)
+    public void setCODE1C(Map<String, StringType> value)
     {
         if (CauseOfDeathConditionC == null)
         {
@@ -1846,7 +1854,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (CauseOfDeathConditionD != null && CauseOfDeathConditionD.getValue() != null)
         {
-            return (CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionD.getValue())).get("text");
+            return String.valueOf(CodeableConceptToMap((CodeableConcept) CauseOfDeathConditionD.getValue()).get("text"));
         }
         return null;
     }
@@ -1879,8 +1887,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (CauseOfDeathConditionD != null && CauseOfDeathConditionD.getComponent() != null)
         {
-            Observation.ObservationComponentComponent intervalComp = CauseOfDeathConditionD.getComponent().stream().filter(entry -> entry.getCode() != null &&
-                    entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69440-6")).findFirst().get();
+            Observation.ObservationComponentComponent intervalComp = CauseOfDeathConditionD.getComponent().stream().filter(entry -> entry.getCode() != null && entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69440-6")).findFirst().get();
             if (intervalComp != null && intervalComp.getValue() != null && intervalComp.getValue() instanceof StringType)
             {
                 return intervalComp.getValue().toString();
@@ -1900,11 +1907,10 @@ public class DeathCertificateDocument extends Bundle {
             CauseOfDeathConditionD = CauseOfDeathCondition(3);
         }
         // Find correct component; if doesn't exist add another
-        Observation.ObservationComponentComponent intervalComp = CauseOfDeathConditionD.getComponent().stream().filter((entry -> entry.getCode() != null &&
-                entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69440-6");
+        Observation.ObservationComponentComponent intervalComp = CauseOfDeathConditionD.getComponent().stream().filter(entry -> entry.getCode() != null && entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69440-6")).findFirst().get();
         if (intervalComp != null)
         {
-            ((Observation.ObservationComponentComponent) intervalComp).setValue(new StringType(value);
+            ((Observation.ObservationComponentComponent) intervalComp).setValue(new StringType(value));
         }
         else
         {
@@ -1935,16 +1941,17 @@ public class DeathCertificateDocument extends Bundle {
     // [PropertyParam("code", "The code used to describe this concept.")]
     // [PropertyParam("system", "The relevant code system.")]
     // [PropertyParam("display", "The human readable version of this code.")]
-    public Map<String, String> getCODE1D()
+    private Map<String, StringType> CODE1D;
+    public Map<String, StringType> getCODE1D()
     {
         if (CauseOfDeathConditionD != null && CauseOfDeathConditionD.getCode() != null)
         {
             return CodeableConceptToMap(CauseOfDeathConditionD.getCode());
         }
-        return EmptyCodeMap();
+        return DeathCertificateDocumentUtil.EmptyCodeMap();
     }
 
-    public void setCODE1D(Map<String, String> value)
+    public void setCODE1D(Map<String, StringType> value)
     {
         if (CauseOfDeathConditionD == null)
         {
@@ -1985,7 +1992,7 @@ public class DeathCertificateDocument extends Bundle {
 
     public String[] getGivenNames()
     {
-        String[] names = DeathCertificateDocumentUtil.GetAllString("Bundle.getEntry().getResource().stream().filter($this is Patient).getName().stream().filter(use='official').given");
+        String[] names = GetAllString("Bundle.getEntry().getResource().stream().filter($this is Patient).getName().stream().filter(use='official').given");
         return names != null ? names : new String[0];
     }
 
@@ -2163,13 +2170,13 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Patient).getExtension().stream().findAny(url='http://hl7.org/fhir/us/vrdr/StructureDefinition/NVSS-SexAtDeath')", "")]
-    private Map<String, String> SexAtDeath;
+    private Map<String, StringType> SexAtDeath;
 
-    public Map<String, String> getSexAtDeath()
+    public Map<String, StringType> getSexAtDeath()
     {
         if (Decedent != null)
         {
-            Extension sex = Decedent.getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.NVSSSexAtDeath);
+            Extension sex = Decedent.getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.NVSSSexAtDeath)).findFirst().get();
             if (sex != null && sex.getValue() != null && sex.getValue() != null && sex.getValue() instanceof CodeableConcept)
             {
                 return CodeableConceptToMap((CodeableConcept) sex.getValue());
@@ -2178,7 +2185,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSexAtDeath(Map<String, String> value)
+    public void setSexAtDeath(Map<String, StringType> value)
     {
         Decedent.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.NVSSSexAtDeath));
         if (isMapEmptyOrDefault(value) && Decedent.getExtension() == null)
@@ -2207,9 +2214,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getSexAtDeathHelper()
     {
-        if (SexAtDeath.containsKey("code") && isNullOrWhiteSpace(SexAtDeath.get("code")))
+        if (SexAtDeath.containsKey("code") && isNullOrWhiteSpace(String.valueOf(SexAtDeath.get("code"))))
         {
-            return SexAtDeath.get("code");
+            return String.valueOf(SexAtDeath.get("code"));
         }
         return null;
     }
@@ -2218,7 +2225,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (isNullOrWhiteSpace(value))
         {
-            DeathCertificateDocumentUtil.SetCodeValue("SexAtDeath", value, ValueSets.AdministrativeGender.Codes);
+            SetCodeValue("SexAtDeath", value, ValueSets.AdministrativeGender.Codes);
         }
     }
 
@@ -2283,13 +2290,13 @@ public class DeathCertificateDocument extends Bundle {
         return null;
     }
 
-    public void setBirthYear(String value)
+    public void setBirthYear(Integer value)
     {
         if (Decedent.getBirthDateElement() == null)
         {
             AddBirthDateToDecedent();
         }
-        DeathCertificateDocumentUtil.SetPartialDate(Decedent.getBirthDateElement().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate), URL.ExtensionURL.DateYear, value);
+        DeathCertificateDocumentUtil.SetPartialDate(Decedent.getBirthDateElement().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate)).findFirst().get(), URL.ExtensionURL.DateYear, value);
     }
 
     /// <summary>Decedent's Month of Birth.</summary>
@@ -2313,13 +2320,13 @@ public class DeathCertificateDocument extends Bundle {
         return null;
     }
 
-    public void setBirthMonth(String value)
+    public void setBirthMonth(Integer value)
     {
         if (Decedent.getBirthDateElement() == null)
         {
             AddBirthDateToDecedent();
         }
-        SetPartialDate(Decedent.getBirthDateElement().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate), URL.ExtensionURL.DateMonth, value);
+        SetPartialDate(Decedent.getBirthDateElement().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate)).findFirst().get(), URL.ExtensionURL.DateMonth, value);
     }
 
     /// <summary>Decedent's Day of Birth.</summary>
@@ -2343,7 +2350,7 @@ public class DeathCertificateDocument extends Bundle {
         return null;
     }
 
-    public void setBirthDay(String value)
+    public void setBirthDay(Integer value)
     {
         if (Decedent.getBirthDateElement() == null)
         {
@@ -2475,22 +2482,22 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Patient)", "address")]
-    private Map<String, String> ResidenceWithinCityLimits;
+    private Map<String, StringType> ResidenceWithinCityLimits;
 
-    public Map<String, String> getResidenceWithinCityLimits()
+    public Map<String, StringType> getResidenceWithinCityLimits()
     {
         if (Decedent != null && Decedent.getAddress().get(0) != null)
         {
             Extension cityLimits = Decedent.getAddress().get(0).getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.WithinCityLimitsIndicator)).findFirst().get();
             if (cityLimits != null && cityLimits.getValue() != null && cityLimits.getValue() instanceof Coding)
             {
-                return CodingToDict((Coding) cityLimits.getValue());
+                return CodingToMap((Coding) cityLimits.getValue());
             }
         }
         return DeathCertificateDocumentUtil.EmptyCodeMap();
     }
 
-    public void setResidenceWithinCityLimits(Map<String, String> value)
+    public void setResidenceWithinCityLimits(Map<String, StringType> value)
     {
         if (Decedent != null)
         {
@@ -2521,9 +2528,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getResidenceWithinCityLimitsHelper()
     {
-        if (ResidenceWithinCityLimits.containsKey("code") && isNullOrWhiteSpace(ResidenceWithinCityLimits.get("code")))
+        if (ResidenceWithinCityLimits.containsKey("code") && isNullOrWhiteSpace(String.valueOf(ResidenceWithinCityLimits.get("code"))))
         {
-            return ResidenceWithinCityLimits.get("code");
+            return String.valueOf(ResidenceWithinCityLimits.get("code"));
         }
         return null;
     }
@@ -2588,13 +2595,13 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='inputraceandethnicity')", "")]
-    private Map<String, String> Ethnicity1;
+    private Map<String, StringType> Ethnicity1;
 
-    public Map<String, String> getEthnicity1()
+    public Map<String, StringType> getEthnicity1()
     {
         if (InputRaceAndEthnicityObs != null)
         {
-            Observation.ObservationComponentComponent ethnicity = InputRaceAndEthnicityObs.getComponent().stream().filter((c -> c.getCode().getCoding().get(0).getCode().equals(NvssEthnicity.Mexican));
+            Observation.ObservationComponentComponent ethnicity = InputRaceAndEthnicityObs.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals(NvssEthnicity.Mexican)).findFirst().get();
             if (ethnicity != null && ethnicity.getValue() != null && ethnicity.getValue() instanceof CodeableConcept)
             {
                 return CodeableConceptToMap((CodeableConcept) ethnicity.getValue());
@@ -2603,7 +2610,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setEthnicity1(Map<String, String> value)
+    public void setEthnicity1(Map<String, StringType> value)
     {
         if (InputRaceAndEthnicityObs == null)
         {
@@ -2631,9 +2638,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getEthnicity1Helper()
     {
-        if (Ethnicity1.containsKey("code") && isNullOrWhiteSpace(Ethnicity1.get("code")))
+        if (Ethnicity1.containsKey("code") && isNullOrWhiteSpace(String.valueOf(Ethnicity1.get("code"))))
         {
-            return Ethnicity1.get("code");
+            return String.valueOf(Ethnicity1.get("code"));
         }
         return null;
     }
@@ -2667,13 +2674,13 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='inputraceandethnicity')", "")]
-    private Map<String, String> Ethnicity2;
+    private Map<String, StringType> Ethnicity2;
 
-    public Map<String, String> getEthnicity2()
+    public Map<String, StringType> getEthnicity2()
     {
         if (InputRaceAndEthnicityObs != null)
         {
-            Observation.ObservationComponentComponent ethnicity = InputRaceAndEthnicityObs.getComponent().stream().filter((c -> c.getCode().getCoding().get(0).getCode().equals(NvssEthnicity.PuertoRican));
+            Observation.ObservationComponentComponent ethnicity = InputRaceAndEthnicityObs.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals(NvssEthnicity.PuertoRican)).findFirst().get();
             if (ethnicity != null && ethnicity.getValue() != null && ethnicity.getValue() instanceof CodeableConcept)
             {
                 return CodeableConceptToMap((CodeableConcept) ethnicity.getValue());
@@ -2682,7 +2689,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setEthnicity2(Map<String, String> value)
+    public void setEthnicity2(Map<String, StringType> value)
     {
         if (InputRaceAndEthnicityObs == null)
         {
@@ -2710,9 +2717,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getEthnicity2Helper()
     {
-        if (Ethnicity2.containsKey("code") && isNullOrWhiteSpace(Ethnicity2.get("code")))
+        if (Ethnicity2.containsKey("code") && isNullOrWhiteSpace(String.valueOf(Ethnicity2.get("code"))))
         {
-            return Ethnicity2.get("code");
+            return String.valueOf(Ethnicity2.get("code"));
         }
         return null;
     }
@@ -2746,13 +2753,13 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='inputraceandethnicity')", "")]
-    private Map<String, String> Ethnicity3;
+    private Map<String, StringType> Ethnicity3;
 
-    public Map<String, String> getEthnicity3()
+    public Map<String, StringType> getEthnicity3()
     {
         if (InputRaceAndEthnicityObs != null)
         {
-            Observation.ObservationComponentComponent ethnicity = InputRaceAndEthnicityObs.getComponent().stream().filter((c -> c.getCode().getCoding().get(0).getCode().equals(NvssEthnicity.Cuban));
+            Observation.ObservationComponentComponent ethnicity = InputRaceAndEthnicityObs.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals(NvssEthnicity.Cuban)).findFirst().get();
             if (ethnicity != null && ethnicity.getValue() != null && ethnicity.getValue() instanceof CodeableConcept)
             {
                 return CodeableConceptToMap((CodeableConcept) ethnicity.getValue());
@@ -2761,7 +2768,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setEthnicity3(Map<String, String> value)
+    public void setEthnicity3(Map<String, StringType> value)
     {
         if (InputRaceAndEthnicityObs == null)
         {
@@ -2789,9 +2796,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getEthnicity3Helper()
     {
-        if (Ethnicity3.containsKey("code") && isNullOrWhiteSpace(Ethnicity3.get("code")))
+        if (Ethnicity3.containsKey("code") && isNullOrWhiteSpace(String.valueOf(Ethnicity3.get("code"))))
         {
-            return Ethnicity3.get("code");
+            return String.valueOf(Ethnicity3.get("code"));
         }
         return null;
     }
@@ -2825,9 +2832,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='inputraceandethnicity')", "")]
-    private Map<String, String> Ethnicity4;
+    private Map<String, StringType> Ethnicity4;
 
-    public Map<String, String> getEthnicity4()
+    public Map<String, StringType> getEthnicity4()
     {
         if (InputRaceAndEthnicityObs != null)
         {
@@ -2840,7 +2847,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setEthnicity4(Map<String, String> value)
+    public void setEthnicity4(Map<String, StringType> value)
     {
         if (InputRaceAndEthnicityObs == null)
         {
@@ -2868,9 +2875,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getEthnicity4Helper()
     {
-        if (Ethnicity4.containsKey("code") && isNullOrWhiteSpace(Ethnicity4.get("code")))
+        if (Ethnicity4.containsKey("code") && isNullOrWhiteSpace(String.valueOf(Ethnicity4.get("code"))))
         {
-            return Ethnicity4.get("code");
+            return String.valueOf(Ethnicity4.get("code"));
         }
         return null;
     }
@@ -2941,21 +2948,20 @@ public class DeathCertificateDocument extends Bundle {
     /// </example>
     //  [Property("Race", Property.Types.TupleArr, "Decedent Demographics", "Decedent's Race", true, IGURL.InputRaceAndEthnicity, true, 38)]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='inputraceandethnicity')", "")]
-    private Tuple<String, String>[] Race;
+    private Tuple[] Race;
 
-    public Tuple<String, String>[] getRace()
+    public Tuple[] getRace()
     {
         // filter the boolean race values
-        var booleanRaceCodes = NvssRace.GetBooleanRaceCodes();
-        List<String> raceCodes = booleanRaceCodes.Concat(NvssRace.GetLiteralRaceCodes()).ToList();
+        List booleanRaceCodes = NvssRace.GetBooleanRaceCodes();
+        booleanRaceCodes.addAll(NvssRace.GetLiteralRaceCodes());//.toList();
+        List<String> raceCodes = booleanRaceCodes;
 
-        var races = new ArrayList<Tuple<String, String>>()
-        {
-        };
+        List races = new ArrayList<Tuple>();// {};
 
         if (InputRaceAndEthnicityObs == null)
         {
-            return races.toArray();
+            return (Tuple[]) races.toArray();
         }
         for (String raceCode:raceCodes)
         {
@@ -2968,37 +2974,48 @@ public class DeathCertificateDocument extends Bundle {
                     if (component.getValue() == null)
                     {
                         // If there is no value given, set the race to blank.
-                        var race = Tuple.Create(raceCode, "");
+                        Tuple race = new Tuple();
+                        race.addChild(raceCode).addChild("");
                         races.add(race);
                         continue;
                     }
 
                     // Todo Find conversion from BooleanType to bool
-                    String raceboolean = ((BooleanType) component.getValue()).toString();
+                    String raceBoolean = ((BooleanType) component.getValue()).toString();
 
-                    if (Convert.ToBoolean(raceBool))
+                    if (Boolean.parseBoolean(raceBoolean))
                     {
-                        var race = Tuple.Create(raceCode, "Y");
-                        races.add(race);
-                    } else {
-                        var race = Tuple.Create(raceCode, "N");
+                        //var race = Tuple.Create(raceCode, "Y");
+                        Tuple race = new Tuple();
+                        race.addChild(raceCode).addChild("Y");
                         races.add(race);
                     }
-                } else {
+                    else
+                    {
+                        //var race = Tuple.Create(raceCode, "N");
+                        Tuple race = new Tuple();
+                        race.addChild(raceCode).addChild("N");
+                        races.add(race);
+                    }
+                }
+                else
+                {
                     // Ignore unless there's a value present
                     if (component.getValue() != null)
                     {
-                        var race = Tuple.Create(raceCode, component.getValue().toString());
+                        //var race = Tuple.Create(raceCode, component.getValue().toString());
+                        Tuple race = new Tuple();
+                        race.addChild(raceCode).addChild(component.getValue().toString());
                         races.add(race);
                     }
                 }
 
             }
         }
-        return races.toArray();
+        return (Tuple[]) races.toArray();
     }
 
-    public void setRace(String value)
+    public void setRace(Tuple[] value)
     {
         if (InputRaceAndEthnicityObs == null)
         {
@@ -3006,15 +3023,15 @@ public class DeathCertificateDocument extends Bundle {
         }
         var booleanRaceCodes = NvssRace.GetBooleanRaceCodes();
         var literalRaceCodes = NvssRace.GetLiteralRaceCodes();
-        for (Tuple<String, String> element : value)
+        for (Tuple element : value)
         {
-            InputRaceAndEthnicityObs.getComponent().removeIf(c -> c.getCode().getCoding().get(0).getCode().equals(element.));
+            InputRaceAndEthnicityObs.getComponent().removeIf(c -> c.getCode().getCoding().get(0).getCode().equals(element));
             Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
-            String displayValue = NvssRace.GetDisplayValueForCode(element.getItem1());
-            component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode, element.getItem1()), displayValue));//, null);
-            if (booleanRaceCodes.contains(element.Item1))
+            String displayValue = NvssRace.GetDisplayValueForCode(element.children().get(0).toString());
+            component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode, element.children().get(0).toString(), displayValue)));//, null);
+            if (booleanRaceCodes.contains(element.children().get(0)))
             {
-                if (element.Item2 == "Y")
+                if (element.children().get(1).equals("Y"))
                 {
                     component.setValue(new BooleanType(true));
                 }
@@ -3022,13 +3039,13 @@ public class DeathCertificateDocument extends Bundle {
                 {
                     component.setValue(new BooleanType(false));
                 }
-            } else if (literalRaceCodes.contains(element.getItem1()))
+            } else if (literalRaceCodes.contains(element.children().get(0)))
             {
-                component.setValue(new StringType(element.Item2));
+                component.setValue(new StringType(element.children().get(1).toString()));
             }
             else
             {
-                throw new ArgumentException("Invalid race literal code found: " + element.Item1 + " with value: " + element.Item2);
+                throw new IllegalArgumentException("Invalid race literal code found: " + element.children().get(0) + " with value: " + element.children().get(1));
             }
             InputRaceAndEthnicityObs.getComponent().add(component);
         }
@@ -3055,9 +3072,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='MissingValueReason')", "")]
-    public Map<String, String> RaceMissingValueReason;
+    public Map<String, StringType> RaceMissingValueReason;
 
-    public Map<String, String> getRaceMissingValueReason()
+    public Map<String, StringType> getRaceMissingValueReason()
     {
         if (InputRaceAndEthnicityObs != null)
         {
@@ -3070,7 +3087,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setRaceMissingValueReason(Map<String, String> value)
+    public void setRaceMissingValueReason(Map<String, StringType> value)
     {
         if (InputRaceAndEthnicityObs == null)
         {
@@ -3098,9 +3115,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getRaceMissingValueReasonHelper()
     {
-        if (RaceMissingValueReason.containsKey("code") && isNullOrWhiteSpace(RaceMissingValueReason.get("code")))
+        if (RaceMissingValueReason.containsKey("code") && isNullOrWhiteSpace(String.valueOf(RaceMissingValueReason.get("code"))))
         {
-            return RaceMissingValueReason.get("code");
+            return String.valueOf(RaceMissingValueReason.get("code"));
         }
         return null;
     }
@@ -3192,9 +3209,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [Property("Contact Relationship", Property.Types.Dictionary, "Decedent Demographics", "The informant's relationship to the decedent", true, IGURL.Decedent, true, 24)]
     //  [PropertyParam("relationship", "The relationship to the decedent.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Patient)", "contact")]
-    private Map<String, String> ContactRelationship;
+    private Map<String, StringType> ContactRelationship;
 
-    public Map<String, String> getContactRelationship()
+    public Map<String, StringType> getContactRelationship()
     {
         if (Decedent != null && Decedent.getContact() != null)
         {
@@ -3207,7 +3224,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setContactRelationship(Map<String, String> value)
+    public void setContactRelationship(Map<String, StringType> value)
     {
         Patient.ContactComponent component = new Patient.ContactComponent();
         component.getRelationship().add(MapToCodeableConcept(value));
@@ -3236,9 +3253,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Patient)", "maritalStatus")]
-    private Map<String, String> MaritalStatus;
+    private Map<String, StringType> MaritalStatus;
 
-    public Map<String, String> getMaritalStatus()
+    public Map<String, StringType> getMaritalStatus()
     {
         if (Decedent != null && Decedent.getMaritalStatus() != null && Decedent.getMaritalStatus() != null)
         {
@@ -3247,7 +3264,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setMaritalStatus(Map<String, String> value)
+    public void setMaritalStatus(Map<String, StringType> value)
     {
         if (Decedent.getMaritalStatus() == null)
         {
@@ -3285,9 +3302,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Patient)", "maritalStatus")]
-    private Map<String, String> MaritalStatusEditFlag;
+    private Map<String, StringType> MaritalStatusEditFlag;
 
-    public Map<String, String> getMaritalStatusEditFlag()
+    public Map<String, StringType> getMaritalStatusEditFlag()
     {
         if (Decedent != null && Decedent.getMaritalStatus() != null && Decedent.getMaritalStatus().getExtension().get(0) != null)
         {
@@ -3300,7 +3317,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setMaritalStatusEditFlag(Map<String, String> value)
+    public void setMaritalStatusEditFlag(Map<String, StringType> value)
     {
         if (Decedent.getMaritalStatus() == null)
         {
@@ -3327,9 +3344,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getMaritalStatusHelper()
     {
-        if (MaritalStatus.containsKey("code") && isNullOrWhiteSpace(MaritalStatus.get("code")))
+        if (MaritalStatus.containsKey("code") && isNullOrWhiteSpace(String.valueOf(MaritalStatus.get("code"))))
         {
-            return MaritalStatus.get("code");
+            return String.valueOf(MaritalStatus.get("code"));
         }
         return null;
     }
@@ -3359,9 +3376,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getMaritalStatusEditFlagHelper()
     {
-        if (MaritalStatusEditFlag.containsKey("code") && isNullOrWhiteSpace(MaritalStatusEditFlag.get("code")))
+        if (MaritalStatusEditFlag.containsKey("code") && isNullOrWhiteSpace(String.valueOf(MaritalStatusEditFlag.get("code"))))
         {
-            return MaritalStatusEditFlag.get("code");
+            return String.valueOf(MaritalStatusEditFlag.get("code"));
         }
         return null;
     }
@@ -3430,7 +3447,7 @@ public class DeathCertificateDocument extends Bundle {
         {
             // Evaluation of method System.Linq.Enumerable.stream().filter requires calling method System.Reflection.TypeInfo.get_DeclaredFields, which cannot be called in this context.
             //HumanName name = Father.getName().stream().filter(n -> n.getUse().equals(HumanName.NameUse.OFFICIAL);
-            String[] names = DeathCertificateDocumentUtil.GetAllString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='FTH').getName().stream().filter(use='official').given");
+            String[] names = GetAllString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='FTH').getName().stream().filter(use='official').given");
             return names != null ? names : new String[0];
         }
         return new String[0];
@@ -3541,7 +3558,7 @@ public class DeathCertificateDocument extends Bundle {
         {
             // Evaluation of method System.Linq.Enumerable.stream().filter requires calling method System.Reflection.TypeInfo.get_DeclaredFields, which cannot be called in this context.
             //HumanName name = Mother.getName().stream().filter(n -> n.getUse().equals(HumanName.NameUse.OFFICIAL);
-            String[] names = DeathCertificateDocumentUtil.GetAllString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='MTH').getName().stream().filter(use='official').given");
+            String[] names = GetAllString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='MTH').getName().stream().filter(use='official').given");
             return names != null ? names : new String[0];
         }
         return new String[0];
@@ -3655,7 +3672,7 @@ public class DeathCertificateDocument extends Bundle {
         {
             // Evaluation of method System.Linq.Enumerable.stream().filter requires calling method System.Reflection.TypeInfo.get_DeclaredFields, which cannot be called in this context.
             //HumanName name = Spouse.getName().stream().filter(n -> n.getUse().equals(HumanName.NameUse.OFFICIAL);
-            String[] names = DeathCertificateDocumentUtil.GetAllString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='SPS').getName().stream().filter(use='official').given");
+            String[] names = GetAllString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='SPS').getName().stream().filter(use='official').given");
             return names != null ? names : new String[0];
         }
         return new String[0];
@@ -3686,7 +3703,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (Spouse != null && Spouse.getName() != null)
         {
-            return DeathCertificateDocumentUtil.GetFirstString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='SPS').getName().stream().filter(use='official').family");
+            return GetFirstString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='SPS').getName().stream().filter(use='official').family");
         }
         return null;
     }
@@ -3700,7 +3717,7 @@ public class DeathCertificateDocument extends Bundle {
         HumanName name = Spouse.getName().stream().filter(n -> n.getUse().equals(HumanName.NameUse.OFFICIAL)).findFirst().get();
         if (name != null && isNullOrEmpty(value))
         {
-            name.setFamily(value;
+            name.setFamily(value);
         }
         else if (isNullOrEmpty(value))
         {
@@ -3812,9 +3829,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Patient)", "")]
-    private Map<String, String> SpouseAlive;
+    private Map<String, StringType> SpouseAlive;
 
-    public Map<String, String> getSpouseAlive()
+    public Map<String, StringType> getSpouseAlive()
     {
         if (Decedent != null)
         {
@@ -3827,7 +3844,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSpouseAlive(Map<String, String> value)
+    public void setSpouseAlive(Map<String, StringType> value)
     {
         Extension ext = new Extension();
         ext.setUrl(URL.ExtensionURL.SpouseAlive);
@@ -3846,11 +3863,11 @@ public class DeathCertificateDocument extends Bundle {
 
     //  [Property("Spouse Alive Helper", Property.Types.String, "Decedent Demographics", "Spouse Alive", false, IGURL.Decedent, false, 27)]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Patient)", "")]
-    private String SpouseAliveHelper;
+    private StringType SpouseAliveHelper;
 
-    public String getSpouseAliveHelper()
+    public StringType getSpouseAliveHelper()
     {
-        if (SpouseAlive.containsKey("code") && isNullOrWhiteSpace(SpouseAlive.get("code")))
+        if (SpouseAlive.containsKey("code") && isNullOrWhiteSpace(String.valueOf(SpouseAlive.get("code"))))
         {
             return SpouseAlive.get("code");
         }
@@ -3887,9 +3904,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='80913-7').getValue().coding", "")]
-    private Map<String, String> EducationLevel;
+    private Map<String, StringType> EducationLevel;
 
-    public Map<String, String> getEducationLevel()
+    public Map<String, StringType> getEducationLevel()
     {
         if (DecedentEducationLevel != null && DecedentEducationLevel.getValue() != null && DecedentEducationLevel.getValue() instanceof CodeableConcept)
         {
@@ -3898,7 +3915,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setEducationLevel(Map<String, String> value)
+    public void setEducationLevel(Map<String, StringType> value)
     {
         if (isMapEmptyOrDefault(value) && DecedentEducationLevel == null)
         {
@@ -3934,9 +3951,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getEducationLevelHelper()
     {
-        if (EducationLevel.containsKey("code") && isNullOrWhiteSpace(EducationLevel.get("code")))
+        if (EducationLevel.containsKey("code") && isNullOrWhiteSpace(String.valueOf(EducationLevel.get("code"))))
         {
-            return EducationLevel.get("code");
+            return String.valueOf(EducationLevel.get("code"));
         }
         return null;
     }
@@ -3970,9 +3987,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='80913-7')", "")]
-    private Map<String, String> EducationLevelEditFlag;
+    private Map<String, StringType> EducationLevelEditFlag;
 
-    public Map<String, String> getEducationLevelEditFlag()
+    public Map<String, StringType> getEducationLevelEditFlag()
     {
         Extension editFlag = DecedentEducationLevel != null ? DecedentEducationLevel.getValue() != null ? DecedentEducationLevel.getValue().getExtension() != null ? DecedentEducationLevel.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.BypassEditFlag)).findFirst().get() : null : null : null;
         if (editFlag != null && editFlag.getValue() != null && editFlag.getValue() instanceof CodeableConcept) ///
@@ -3982,7 +3999,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setEducationLevelEditFlag(Map<String, String> value)
+    public void setEducationLevelEditFlag(Map<String, StringType> value)
     {
         if (DeathCertificateDocumentUtil.isMapEmptyOrDefault(value) && DecedentEducationLevel == null)
         {
@@ -4019,9 +4036,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getEducationLevelEditFlagHelper()
     {
-        if (EducationLevelEditFlag.containsKey("code") && isNullOrWhiteSpace(EducationLevelEditFlag.get("code")))
+        if (EducationLevelEditFlag.containsKey("code") && isNullOrWhiteSpace(String.valueOf(EducationLevelEditFlag.get("code"))))
         {
-            return EducationLevelEditFlag.get("code");
+            return String.valueOf(EducationLevelEditFlag.get("code"));
         }
         return null;
     }
@@ -4211,10 +4228,10 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (UsualWork != null && UsualWork.getValue() != null && UsualWork.getValue() instanceof CodeableConcept)
         {
-            Map<String, String> map = CodeableConceptToMap((CodeableConcept) UsualWork.getValue());
+            Map<String, StringType> map = CodeableConceptToMap((CodeableConcept) UsualWork.getValue());
             if (map.containsKey("text"))
             {
-                return map.get("text");
+                return String.valueOf(map.get("text"));
             }
         }
         return null;
@@ -4254,7 +4271,7 @@ public class DeathCertificateDocument extends Bundle {
             if (component != null && component.getValue() != null && component.getValue() instanceof CodeableConcept
                     && CodeableConceptToMap((CodeableConcept) component.getValue()).containsKey("text"))
             {
-                return CodeableConceptToMap((CodeableConcept) component.getValue()).get("text");
+                return String.valueOf(CodeableConceptToMap((CodeableConcept) component.getValue()).get("text"));
             }
         }
         return null;
@@ -4299,9 +4316,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='55280-2')", "")]
-    private Map<String, String> MilitaryService;
+    private Map<String, StringType> MilitaryService;
 
-    public Map<String, String> getMilitaryService()
+    public Map<String, StringType> getMilitaryService()
     {
         if (MilitaryServiceObs != null && MilitaryServiceObs.getValue() != null && MilitaryServiceObs.getValue() instanceof CodeableConcept)
         {
@@ -4310,7 +4327,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setMilitaryService(Map<String, String> value)
+    public void setMilitaryService(Map<String, StringType> value)
     {
         if (DeathCertificateDocumentUtil.isMapEmptyOrDefault(value) && MilitaryServiceObs == null)
         {
@@ -4352,9 +4369,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getMilitaryServiceHelper()
     {
-        if (MilitaryService.containsKey("code") && isNullOrWhiteSpace(MilitaryService.get("code")))
+        if (MilitaryService.containsKey("code") && isNullOrWhiteSpace(String.valueOf(MilitaryService.get("code"))))
         {
-            return (MilitaryService.get("code"));
+            return String.valueOf(MilitaryService.get("code"));
         }
         return null;
     }
@@ -4815,8 +4832,8 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='80905-3')", "")]
-    private Map<String, String> DecedentDispositionMethod;
-    public Map<String, String> getDecedentDispositionMethod()
+    private Map<String, StringType> DecedentDispositionMethod;
+    public Map<String, StringType> getDecedentDispositionMethod()
     {
         if (DispositionMethod != null && DispositionMethod.getValue() != null && DispositionMethod.getValue() instanceof CodeableConcept)
         {
@@ -4825,7 +4842,7 @@ public class DeathCertificateDocument extends Bundle {
         return DeathCertificateDocumentUtil.EmptyCodeableMap();
     }
 
-    public void setDecedentDispositionMethod(Map<String, String> value)
+    public void setDecedentDispositionMethod(Map<String, StringType> value)
     {
         if (DispositionMethod == null)
         {
@@ -4866,9 +4883,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='80905-3')", "")]
     public String getDecedentDispositionMethodHelper()
     {
-        if (DecedentDispositionMethod.containsKey("code") && isNullOrWhiteSpace(DecedentDispositionMethod.get("code")))
+        if (DecedentDispositionMethod.containsKey("code") && isNullOrWhiteSpace(String.valueOf(DecedentDispositionMethod.get("code"))))
         {
-            return DecedentDispositionMethod.get("code");
+            return String.valueOf(DecedentDispositionMethod.get("code"));
         }
         return null;
     }
@@ -4908,9 +4925,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='85699-7')", "")]
-    private Map<String, String> AutopsyPerformedIndicator;
+    private Map<String, StringType> AutopsyPerformedIndicator;
 
-    public Map<String, String> getAutopsyPerformedIndicator()
+    public Map<String, StringType> getAutopsyPerformedIndicator()
     {
         if (AutopsyPerformed != null && AutopsyPerformed.getValue() != null && AutopsyPerformed.getValue() instanceof CodeableConcept)
         {
@@ -4919,7 +4936,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setAutopsyPerformedIndicator(Map<String, String> value)
+    public void setAutopsyPerformedIndicator(Map<String, StringType> value)
     {
         if (isMapEmptyOrDefault(value) && AutopsyPerformed == null)
         {
@@ -4945,9 +4962,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='85699-7')", "")]
     public String getAutopsyPerformedIndicatorHelper()
     {
-        if (AutopsyPerformedIndicator.containsKey("code") && isNullOrWhiteSpace(AutopsyPerformedIndicator.get("code")))
+        if (AutopsyPerformedIndicator.containsKey("code") && isNullOrWhiteSpace(String.valueOf(AutopsyPerformedIndicator.get("code"))))
         {
-            return AutopsyPerformedIndicator.get("code");
+            return String.valueOf(AutopsyPerformedIndicator.get("code"));
         }
         return null;
     }
@@ -5043,13 +5060,13 @@ public class DeathCertificateDocument extends Bundle {
         return null;
     }
 
-    public void setDeathDay(String value)
+    public void setDeathDay(Integer value)
     {
         if (DeathDateObs == null)
         {
             CreateDeathDateObs();
         }
-        SetPartialDate(DeathDateObs.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDateTime), URL.ExtensionURL.DateDay, value);
+        SetPartialDate(DeathDateObs.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDateTime)).findFirst().get(), URL.ExtensionURL.DateDay, value);
     }
 
     /// <summary>Decedent's Time of Death.</summary>
@@ -5228,7 +5245,7 @@ public class DeathCertificateDocument extends Bundle {
         }
         if (pronouncementDateObs != null && pronouncementDateObs.getValue() == null)
         {
-            pronouncementDateObs.setValue(new DateTimeType(); // initialize date object
+            pronouncementDateObs.setValue(new DateTimeType()); // initialize date object
         }
         if (pronouncementDateObs != null && pronouncementDateObs.getValue() != null && pronouncementDateObs.getValue() instanceof DateTimeType)
         {
@@ -5289,7 +5306,7 @@ public class DeathCertificateDocument extends Bundle {
         }
         Observation.ObservationComponentComponent pronouncementDateObs = GetOrCreateDateOfDeathPronouncementObs();
         // if we are only storing time, set just the valueTime
-        if (pronouncementDateObs != null && (pronouncementDateObs.getValue() == null  ||  pronouncementDateObs.getValue() instanceof Time))
+        if (pronouncementDateObs != null && (pronouncementDateObs.getValue() == null  ||  pronouncementDateObs.getValue() instanceof DateTimeType)) // Time
         {
             pronouncementDateObs.setValue(new DateTimeType(value)); // set to FhirTime
             return;
@@ -5336,9 +5353,9 @@ public class DeathCertificateDocument extends Bundle {
 
     //  [Property("DateOfDeathDeterminationMethod", Property.Types.Dictionary, "Death Investigation", "Date of Death Determination Method.", true, IGURL.DeathDate, true, 25)]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='81956-5').method", "")]
-    private Map<String, String> DateOfDeathDeterminationMethod;
+    private Map<String, StringType> DateOfDeathDeterminationMethod;
 
-    public Map<String, String> getDateOfDeathDeterminationMethod()
+    public Map<String, StringType> getDateOfDeathDeterminationMethod()
     {
         if (DeathDateObs != null && (DeathDateObs.getMethod()) != null)
         {
@@ -5347,7 +5364,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setDateOfDeathDeterminationMethod(Map<String, String> value)
+    public void setDateOfDeathDeterminationMethod(Map<String, StringType> value)
     {
         if (DeathDateObs == null)
         {
@@ -5452,7 +5469,7 @@ public class DeathCertificateDocument extends Bundle {
     private Integer DateOfDeathPronouncementYear;
     private Integer DateOfDeathPronouncementMonth;
     private Integer DateOfDeathPronouncementDay;
-    private String DateOfDeathPronouncementTime;
+
 
     public String getDateOfDeathPronouncement()
     {
@@ -5519,13 +5536,13 @@ public class DeathCertificateDocument extends Bundle {
         return null;
     }
 
-    public void setSurgeryYear(String value)
+    public void setSurgeryYear(Integer value)
     {
         if (SurgeryDateObs == null)
         {
             CreateSurgeryDateObs();
         }
-        SetPartialDate(SurgeryDateObs.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate), URL.ExtensionURL.DateYear, value);
+        SetPartialDate(SurgeryDateObs.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate)).findFirst().get(), URL.ExtensionURL.DateYear, value);
     }
 
 
@@ -5550,13 +5567,13 @@ public class DeathCertificateDocument extends Bundle {
         return null;
     }
 
-    public void setSurgeryMonth(String value)
+    public void setSurgeryMonth(Integer value)
     {
         if (SurgeryDateObs == null)
         {
             CreateSurgeryDateObs();
         }
-        SetPartialDate(SurgeryDateObs.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate), URL.ExtensionURL.DateMonth, value);
+        SetPartialDate(SurgeryDateObs.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.PartialDate)).findFirst().get(), URL.ExtensionURL.DateMonth, value);
     }
 
     /// <summary>Decedent's Day of Surgery.</summary>
@@ -5645,9 +5662,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='85699-7')", "")]
-    private Map<String, String> AutopsyResultsAvailable;
+    private Map<String, StringType> AutopsyResultsAvailable;
 
-    public Map<String, String> getAutopsyResultsAvailable()
+    public Map<String, StringType> getAutopsyResultsAvailable()
     {
         if (AutopsyPerformed == null || AutopsyPerformed.getComponent() == null)
         {
@@ -5661,7 +5678,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setAutopsyResultsAvailable(Map<String, String> value)
+    public void setAutopsyResultsAvailable(Map<String, StringType> value)
     {
         if (DeathCertificateDocumentUtil.isMapEmptyOrDefault(value) && AutopsyPerformed == null)
         {
@@ -5692,9 +5709,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getAutopsyResultsAvailableHelper()
     {
-        if (AutopsyResultsAvailable.containsKey("code") && isNullOrWhiteSpace(AutopsyResultsAvailable.get("code")))
+        if (AutopsyResultsAvailable.containsKey("code") && isNullOrWhiteSpace(String.valueOf(AutopsyResultsAvailable.get("code"))))
         {
-            return AutopsyResultsAvailable.get("code");
+            return String.valueOf(AutopsyResultsAvailable.get("code"));
         }
         return null;
     }
@@ -5810,7 +5827,7 @@ public class DeathCertificateDocument extends Bundle {
         {
             CreateDeathLocation();
         }
-        DeathLocationLoc.setAddress(mapToAddress(value);
+        DeathLocationLoc.setAddress(mapToAddress(value));
         UpdateDeathRecordIdentifier();
     }
 
@@ -5996,9 +6013,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [PropertyParam("text", "Additional descriptive text.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='81956-5')", "component")]
-    private Map<String, String> DeathLocationType;
+    private Map<String, StringType> DeathLocationType;
 
-    public Map<String, String> getDeathLocationType()
+    public Map<String, StringType> getDeathLocationType()
     {
         if (DeathDateObs != null && DeathDateObs.getComponent().size() > 0) // if there is a value for death location type, return it
         {
@@ -6011,7 +6028,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setDeathLocationType(Map<String, String> value)
+    public void setDeathLocationType(Map<String, StringType> value)
     {
         if (isMapEmptyOrDefault(value) && DeathDateObs == null)
         {
@@ -6052,9 +6069,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getDeathLocationTypeHelper()
     {
-        if (DeathLocationType != null && DeathLocationType.containsKey("code") && isNullOrWhiteSpace(DeathLocationType.get("code")))
+        if (DeathLocationType != null && DeathLocationType.containsKey("code") && isNullOrWhiteSpace(String.valueOf(DeathLocationType.get("code"))))
         {
-            return DeathLocationType.get("code");
+            return String.valueOf(DeathLocationType.get("code"));
         }
         return null;
     }
@@ -6117,9 +6134,9 @@ public class DeathCertificateDocument extends Bundle {
         };
     }
 
-    public void setAgeAtDeath(String value)
+    public void setAgeAtDeath(Map<String, String> value)
     {
-        String extractedValue = GetValue(value, "value");
+        String extractedValue = DeathCertificateDocumentUtil.GetValue(value, "value");
         String extractedCode = GetValue(value, "code");
         ;
         String extractedSystem = GetValue(value, "system");
@@ -6310,9 +6327,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [PropertyParam("text", "Additional descriptive text.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='39016-1').getValue().extension", "")]
-    private Map<String, String> AgeAtDeathEditFlag;
+    private Map<String, StringType> AgeAtDeathEditFlag;
 
-    public Map<String, String> getAgeAtDeathEditFlag()
+    public Map<String, StringType> getAgeAtDeathEditFlag()
     {
         Extension editFlag = AgeAtDeathObs != null ? AgeAtDeathObs.getValue() != null ? AgeAtDeathObs.getValue().getExtension() != null ? AgeAtDeathObs.getValue().getExtension().stream().filter(ext -> ext.getUrl().equals(URL.ExtensionURL.BypassEditFlag)).findFirst().get() : null : null : null;
         if (editFlag != null && editFlag.getValue() != null && editFlag.getValue() instanceof CodeableConcept)
@@ -6322,7 +6339,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setAgeAtDeathEditFlag(Map<String, String> value)
+    public void setAgeAtDeathEditFlag(Map<String, StringType> value)
     {
         if (isMapEmptyOrDefault(value) && AgeAtDeathObs == null)
         {
@@ -6350,7 +6367,7 @@ public class DeathCertificateDocument extends Bundle {
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='39016-1').getValue().extension", "")]
     public String getAgeAtDeathEditFlagHelper()
     {
-        return AgeAtDeathEditFlag.containsKey("code") && isNullOrWhiteSpace(AgeAtDeathEditFlag.get("code")) ? AgeAtDeathEditFlag.get("code") : null;
+        return AgeAtDeathEditFlag.containsKey("code") && isNullOrWhiteSpace(String.valueOf(AgeAtDeathEditFlag.get("code"))) ? String.valueOf(AgeAtDeathEditFlag.get("code")) : null;
     }
 
     public void setAgeAtDeathEditFlagHelper(String value)
@@ -6384,9 +6401,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='69442-2')", "")]
-    private Map<String, String> PregnancyStatus;
+    private Map<String, StringType> PregnancyStatus;
 
-    public Map<String, String> getPregnancyStatus()
+    public Map<String, StringType> getPregnancyStatus()
     {
         if (PregnancyObs != null && PregnancyObs.getValue() != null && PregnancyObs.getValue() instanceof CodeableConcept)
         {
@@ -6395,7 +6412,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setPregnancyStatus(Map<String, String> value)
+    public void setPregnancyStatus(Map<String, StringType> value)
     {
         if (DeathCertificateDocumentUtil.isMapEmptyOrDefault(value) && PregnancyObs == null)
         {
@@ -6433,9 +6450,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getPregnancyStatusHelper()
     {
-        if (PregnancyStatus.containsKey("code") && isNullOrWhiteSpace(PregnancyStatus.get("code")))
+        if (PregnancyStatus.containsKey("code") && isNullOrWhiteSpace(String.valueOf(PregnancyStatus.get("code"))))
         {
-            return PregnancyStatus.get("code");
+            return String.valueOf(PregnancyStatus.get("code"));
         }
         return null;
     }
@@ -6470,8 +6487,8 @@ public class DeathCertificateDocument extends Bundle {
 //                [PropertyParam("display","The human readable version of this code.")]
 //                [FHIRPath("Bundle.entry.resource.where($this is Observation).where(code.coding.code='69442-2')","")]
 
-    private Map<String, String> PregnancyStatusEditFlag;
-    public Map<String, String> getPregnancyStatusEditFlag()
+    private Map<String, StringType> PregnancyStatusEditFlag;
+    public Map<String, StringType> getPregnancyStatusEditFlag()
     {
         if (PregnancyObs != null && PregnancyObs.getValue() != null && PregnancyObs.getValue().getExtension() != null)
         {
@@ -6484,7 +6501,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setPregnancyStatusEditFlag(Map<String, String> value)
+    public void setPregnancyStatusEditFlag(Map<String, StringType> value)
     {
         if (isMapEmptyOrDefault(value) && PregnancyObs == null)
         {
@@ -6529,7 +6546,7 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='69442-2')", "")]
 //private Map<String, String> PregnancyObs;
-    public Map<String, String> getPregnancyObs()
+    public Map<String, StringType> getPregnancyObs()
     {
         if(PregnancyObs != null && PregnancyObs.getValue() != null && PregnancyObs.getValue().getExtension() != null)
         {
@@ -6542,7 +6559,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setPregnancyObs(Map<String, String> value)
+    public void setPregnancyObs(Map<String, StringType> value)
     {
         if(isMapEmptyOrDefault(value)&&PregnancyObs == null)
         {
@@ -6560,7 +6577,7 @@ public class DeathCertificateDocument extends Bundle {
         {
             PregnancyObs.setValue(new CodeableConcept());
         }
-        Extension editFlag=new Extension(URL.ExtensionURL.BypassEditFlag,MapToCodeableConcept(value));
+        Extension editFlag = new Extension(URL.ExtensionURL.BypassEditFlag,MapToCodeableConcept(value));
         PregnancyObs.getValue().getExtension().add(editFlag);
     }
 
@@ -6579,15 +6596,16 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getPregnancyStatusEditFlagHelper()
     {
-        if(PregnancyStatusEditFlag.containsKey("code")&&isNullOrWhiteSpace(PregnancyStatusEditFlag.get("code"))){
-            return PregnancyStatusEditFlag.get("code");
+        if(PregnancyStatusEditFlag.containsKey("code")&&isNullOrWhiteSpace(String.valueOf(PregnancyStatusEditFlag.get("code"))))
+        {
+            return String.valueOf(PregnancyStatusEditFlag.get("code"));
         }
         return null;
     }
 
     public void setPregnancyStatusEditFlagHelper(String value)
     {
-        if(isNullOrWhiteSpace(value)
+        if(isNullOrWhiteSpace(value))
         {
             SetCodeValue("PregnancyStatusEditFlag", value, ValueSets.EditBypass012.Codes);
         }
@@ -6611,9 +6629,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='74497-9')", "")]
-    private Map<String, String> ExaminerContacted;
+    private Map<String, StringType> ExaminerContacted;
 
-    public Map<String, String> getExaminerContacted(){
+    public Map<String, StringType> getExaminerContacted(){
         if(ExaminerContactedObs != null && ExaminerContactedObs.getValue() != null && ExaminerContactedObs.getValue() instanceof CodeableConcept)
         {
             CodeableConcept cc=(CodeableConcept)ExaminerContactedObs.getValue();
@@ -6622,7 +6640,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setExaminerContacted(Map<String, String> value)
+    public void setExaminerContacted(Map<String, StringType> value)
     {
         if(isMapEmptyOrDefault(value)&&ExaminerContactedObs == null)
         {
@@ -6631,7 +6649,7 @@ public class DeathCertificateDocument extends Bundle {
         CodeableConcept contactedCoding=MapToCodeableConcept(value);
         if(ExaminerContactedObs == null)
         {
-            ExaminerContactedObs=new Observation();
+            ExaminerContactedObs = new Observation();
             ExaminerContactedObs.setId(UUID.randomUUID().toString());
             ExaminerContactedObs.setMeta(new Meta());
             CanonicalType[]ec_profile={URL.ProfileURL.ExaminerContacted};
@@ -6666,9 +6684,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getExaminerContactedHelper()
     {
-        if(ExaminerContacted.containsKey("code")&&isNullOrWhiteSpace(ExaminerContacted.get("code")))
+        if(ExaminerContacted.containsKey("code")&&isNullOrWhiteSpace(String.valueOf(ExaminerContacted.get("code"))))
         {
-            return ExaminerContacted.get("code");
+            return String.valueOf(ExaminerContacted.get("code"));
         }
         return null;
     }
@@ -6864,7 +6882,7 @@ public class DeathCertificateDocument extends Bundle {
         }
         if(isNullOrWhiteSpace(value))
         {
-            InjuryLocationLoc.setName(value;
+            InjuryLocationLoc.setName(value);
         }
         else
         {
@@ -6882,7 +6900,7 @@ public class DeathCertificateDocument extends Bundle {
         }
         if(EmergingIssues == null)
         {
-            EmergingIssues=new Observation();
+            EmergingIssues = new Observation();
             EmergingIssues.setId(UUID.randomUUID().toString());
             EmergingIssues.setMeta(new Meta());
             CanonicalType[]tb_profile={URL.ProfileURL.EmergingIssues};
@@ -6898,7 +6916,7 @@ public class DeathCertificateDocument extends Bundle {
         }
         // Remove existing component (if it exists) and add an appropriate component.
         EmergingIssues.getComponent().removeIf(cmp->cmp.getCode() != null && cmp.getCode().getCoding() != null && cmp.getCode().getCoding().size()>0&&cmp.getCode().getCoding().get(0).getCode().equals(identifier));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,identifier,null)));//, null);
         component.setValue(new StringType(value));
         EmergingIssues.getComponent().add(component);
@@ -6912,7 +6930,7 @@ public class DeathCertificateDocument extends Bundle {
             return null;
         }
         // Remove existing component (if it exists) and add an appropriate component.
-        Observation.ObservationComponentComponent issue=EmergingIssues.getComponent().stream().filter((c->c.getCode().getCoding()[0].Code==identifier);
+        Observation.ObservationComponentComponent issue=EmergingIssues.getComponent().stream().filter(c->c.getCode().getCoding().get(0).getCode().equals(identifier)).findFirst().get();
         if(issue != null && issue.getValue() != null && issue.getValue() instanceof StringType)
         {
             return issue.getValue().toString();
@@ -7368,7 +7386,8 @@ public class DeathCertificateDocument extends Bundle {
         return null;
     }
 
-    public void setInjuryDescription(String value){
+    public void setInjuryDescription(String value)
+    {
         if(isNullOrWhiteSpace(value)&&InjuryIncidentObs == null)
         {
             return;
@@ -7402,10 +7421,10 @@ public class DeathCertificateDocument extends Bundle {
             Observation.ObservationComponentComponent placeComp=InjuryIncidentObs.getComponent().stream().filter(entry->entry.getCode() != null && entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69450-5")).findFirst().get();
             if(placeComp != null && placeComp.getValue() != null && placeComp.getValue() instanceof CodeableConcept)
             {
-                Map<String, String> map=CodeableConceptToMap((CodeableConcept)placeComp.getValue());
+                Map<String, StringType> map=CodeableConceptToMap((CodeableConcept)placeComp.getValue());
                 if(map.containsKey("text"))
                 {
-                    return(map.get("text"));
+                    return String.valueOf(map.get("text"));
                 }
             }
         }
@@ -7458,21 +7477,23 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='11374-6')", "")]
-    private Map<String, String> InjuryAtWork;
+    private Map<String, StringType> InjuryAtWork;
 
-    public Map<String, String> getInjuryAtWork(){
-            if(InjuryIncidentObs != null && InjuryIncidentObs.getComponent().size()>0){
-            // Find correct component
-            Observation.ObservationComponentComponent placeComp=InjuryIncidentObs.getComponent().stream().filter((entry->entry.getCode() != null
-            &&entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69444-8");
-            if(placeComp != null && placeComp.getValue() != null && placeComp.getValue() instanceof CodeableConcept){
-            return CodeableConceptToMap((CodeableConcept)placeComp.getValue());
+    public Map<String, StringType> getInjuryAtWork()
+    {
+        if(InjuryIncidentObs != null && InjuryIncidentObs.getComponent().size()>0)
+        {
+        // Find correct component
+            Observation.ObservationComponentComponent placeComp=InjuryIncidentObs.getComponent().stream().filter(entry->entry.getCode() != null &&entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69444-8")).findFirst().get();
+            if(placeComp != null && placeComp.getValue() != null && placeComp.getValue() instanceof CodeableConcept)
+            {
+                return CodeableConceptToMap((CodeableConcept)placeComp.getValue());
             }
-            }
-            return EmptyCodeableMap();
-            }
+        }
+        return EmptyCodeableMap();
+    }
 
-    public void setInjuryAtWork(Map<String, String> value)
+    public void setInjuryAtWork(Map<String, StringType> value)
     {
         if(isMapEmptyOrDefault(value)&&InjuryIncidentObs == null)
         {
@@ -7491,7 +7512,7 @@ public class DeathCertificateDocument extends Bundle {
         }
         else
         {
-            Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+            Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
             component.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC,"69444-8","Did death result from injury at work")));//, null);
             component.setValue(MapToCodeableConcept(value));
             InjuryIncidentObs.getComponent().add(component);
@@ -7513,9 +7534,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getInjuryAtWorkHelper()
     {
-        if(InjuryAtWork.containsKey("code")&&isNullOrWhiteSpace(InjuryAtWork.get("code")))
+        if(InjuryAtWork.containsKey("code")&&isNullOrWhiteSpace(String.valueOf(InjuryAtWork.get("code"))))
         {
-            return InjuryAtWork.get("code");
+            return String.valueOf(InjuryAtWork.get("code"));
         }
         return null;
     }
@@ -7550,9 +7571,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='11374-6')", "")]  // The component  code is '69451-3'
-    private Map<String, String> TransportationRole;
+    private Map<String, StringType> TransportationRole;
 
-    public Map<String, String> getTransportationRole()
+    public Map<String, StringType> getTransportationRole()
     {
         if(InjuryIncidentObs != null && InjuryIncidentObs.getComponent().size()>0)
         {
@@ -7566,7 +7587,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setTransportationRole(Map<String, String> value)
+    public void setTransportationRole(Map<String, StringType> value)
     {
         if(isMapEmptyOrDefault(value)&&InjuryIncidentObs == null)
         {
@@ -7585,7 +7606,7 @@ public class DeathCertificateDocument extends Bundle {
         }
         else
         {
-            Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+            Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
             component.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC,"69451-3","Transportation role of decedent")));//, null);
             component.setValue(MapToCodeableConcept(value));
             InjuryIncidentObs.getComponent().add(component);
@@ -7612,12 +7633,12 @@ public class DeathCertificateDocument extends Bundle {
     {
         if(TransportationRole.containsKey("code"))
         {
-            String code=TransportationRole.get("code");
+            String code=String.valueOf(TransportationRole.get("code"));
             if(code=="OTH")
             {
                 if(TransportationRole.containsKey("text"))
                 {
-                    return(TransportationRole.get("text"));
+                    return(String.valueOf(TransportationRole.get("text")));
                 }
                 return("Other");
             }
@@ -7647,7 +7668,7 @@ public class DeathCertificateDocument extends Bundle {
             entry.getCode().getCoding().get(0) != null && entry.getCode().getCoding().get(0).getCode().equals("69451-3")).findFirst().get();
             if(transportComp == null)
             {
-                transportComp=new Observation.ObservationComponentComponent();
+                transportComp = new Observation.ObservationComponentComponent();
                 transportComp.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC,"69451-3","Transportation role of decedent"))); ////null
                 InjuryIncidentObs.getComponent().add(transportComp);
             }
@@ -7681,9 +7702,9 @@ public class DeathCertificateDocument extends Bundle {
     //  [PropertyParam("system", "The relevant code system.")]
     //  [PropertyParam("display", "The human readable version of this code.")]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='69443-0')", "")]
-    private Map<String, String> TobaccoUse;
+    private Map<String, StringType> TobaccoUse;
 
-    public Map<String, String> getTobaccoUse()
+    public Map<String, StringType> getTobaccoUse()
     {
         if(TobaccoUseObs != null && TobaccoUseObs.getValue() != null && TobaccoUseObs.getValue() instanceof CodeableConcept)
         {
@@ -7692,11 +7713,11 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setTobaccoUse(Map<String, String> value)
+    public void setTobaccoUse(Map<String, StringType> value)
     {
         if(TobaccoUseObs == null)
         {
-            TobaccoUseObs=new Observation();
+            TobaccoUseObs = new Observation();
             TobaccoUseObs.setId(UUID.randomUUID().toString());
             TobaccoUseObs.setMeta(new Meta());
             CanonicalType[]tb_profile={URL.ProfileURL.TobaccoUseContributedToDeath};
@@ -7732,9 +7753,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getTobaccoUseHelper()
     {
-        if(TobaccoUse.containsKey("code")&&isNullOrWhiteSpace(TobaccoUse.get("code")))
+        if(TobaccoUse.containsKey("code")&&isNullOrWhiteSpace(String.valueOf(TobaccoUse.get("code"))))
         {
-            return TobaccoUse.get("code");
+            return String.valueOf(TobaccoUse.get("code"));
         }
         return null;
     }
@@ -7754,7 +7775,7 @@ public class DeathCertificateDocument extends Bundle {
 
     private void CreateInputRaceEthnicityObs()
     {
-        InputRaceAndEthnicityObs=new Observation();
+        InputRaceAndEthnicityObs = new Observation();
         InputRaceAndEthnicityObs.setId(UUID.randomUUID().toString());
         InputRaceAndEthnicityObs.setMeta(new Meta());
         CanonicalType[]raceethnicity_profile={URL.ProfileURL.InputRaceAndEthnicity};
@@ -7773,7 +7794,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Certifier.</summary>
     private void CreateCertifier()
     {
-        Certifier=new Practitioner();
+        Certifier = new Practitioner();
         Certifier.setId(UUID.randomUUID().toString());
         Certifier.setMeta(new Meta());
         CanonicalType[]certifier_profile={URL.ProfileURL.Certifier};
@@ -7787,9 +7808,9 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Death Certification.</summary>
     private void CreateDeathCertification()
     {
-        DeathCertification=new Procedure();
+        DeathCertification = new Procedure();
         DeathCertification.setId(UUID.randomUUID().toString());
-        DeathCertification.setSubject(new Reference("urn:uuid:"+Decedent.getId());
+        DeathCertification.setSubject(new Reference("urn:uuid:"+Decedent.getId()));
         DeathCertification.setMeta(new Meta());
         CanonicalType[]deathcertification_profile={URL.ProfileURL.DeathCertification};
         DeathCertification.getMeta().setProfile(Arrays.asList(deathcertification_profile));
@@ -7804,7 +7825,7 @@ public class DeathCertificateDocument extends Bundle {
     private Observation CauseOfDeathCondition(int index)
     {
         Observation CodCondition;
-        CodCondition=new Observation();
+        CodCondition = new Observation();
         CodCondition.setId(UUID.randomUUID().toString());
         CodCondition.setMeta(new Meta());
         CanonicalType[]condition_profile={URL.ProfileURL.CauseOfDeathPart1};
@@ -7813,7 +7834,7 @@ public class DeathCertificateDocument extends Bundle {
         CodCondition.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC,"69453-9","Cause of death [US Standard Certificate of Death]")));//, null);
         CodCondition.setSubject(new Reference("urn:uuid:"+Decedent.getId()));
         CodCondition.getPerformer().add(new Reference("urn:uuid:"+Certifier.getId()));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"lineNumber","line number")));//, null);
         component.setValue(new IntegerType(index+1)); // index is 0-3, linenumbers are 1-4
         CodCondition.getComponent().add(component);
@@ -7832,7 +7853,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Spouse.</summary>
     private void CreateFather()
     {
-        Father=new RelatedPerson();
+        Father = new RelatedPerson();
         Father.setId(UUID.randomUUID().toString());
         Father.setMeta(new Meta());
         CanonicalType[]father_profile={URL.ProfileURL.DecedentFather};
@@ -7853,7 +7874,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Mother.</summary>
     private void CreateMother()
     {
-        Mother=new RelatedPerson();
+        Mother = new RelatedPerson();
         Mother.setId(UUID.randomUUID().toString());
         Mother.setMeta(new Meta());
         CanonicalType[]mother_profile={URL.ProfileURL.DecedentMother};
@@ -7874,7 +7895,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Spouse.</summary>
     private void CreateSpouse()
     {
-        Spouse=new RelatedPerson();
+        Spouse = new RelatedPerson();
         Spouse.setId(UUID.randomUUID().toString());
         Spouse.setMeta(new Meta());
         CanonicalType[]spouse_profile={URL.ProfileURL.DecedentSpouse};
@@ -7895,7 +7916,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create an empty EducationLevel Observation, to be populated in either EducationLevel or EducationLevelEditFlag.</summary>
     private void CreateEducationLevelObs()
     {
-        DecedentEducationLevel=new Observation();
+        DecedentEducationLevel = new Observation();
         DecedentEducationLevel.setId(UUID.randomUUID().toString());
         DecedentEducationLevel.setMeta(new Meta());
         CanonicalType[]educationlevel_profile={URL.ProfileURL.DecedentEducationLevel};
@@ -7916,7 +7937,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create an empty BirthRecordIdentifier Observation.</summary>
     private void CreateBirthRecordIdentifier()
     {
-        BirthRecordIdentifier=new Observation();
+        BirthRecordIdentifier = new Observation();
         BirthRecordIdentifier.setId(UUID.randomUUID().toString());
         BirthRecordIdentifier.setMeta(new Meta());
         CanonicalType[]br_profile={URL.ProfileURL.BirthRecordIdentifier};
@@ -7944,12 +7965,12 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create an empty Coding Status Value Parameters.</summary>
     private void CreateCodingStatusValues()
     {
-        CodingStatusValues=new Parameters();
+        CodingStatusValues = new Parameters();
         CodingStatusValues.setId(UUID.randomUUID().toString());
         CodingStatusValues.setMeta(new Meta());
         CanonicalType[]profile={URL.ProfileURL.CodingStatusValues};
         CodingStatusValues.getMeta().setProfile(Arrays.asList(profile));
-        DateType date=new DateType();
+        DateType date = new DateType();
         date.getExtension().add(NewBlankPartialDateTimeExtension(false));
         CodingStatusValues.addParameter("receiptDate",date);
         AddReferenceToComposition(CodingStatusValues.getId(),"CodedContent");
@@ -7965,7 +7986,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Usual Work.</summary>
     private void CreateUsualWork()
     {
-        UsualWork=new Observation();
+        UsualWork = new Observation();
         UsualWork.setId(UUID.randomUUID().toString());
         UsualWork.setMeta(new Meta());
         CanonicalType[]usualwork_profile={URL.ProfileURL.DecedentUsualWork};
@@ -7991,7 +8012,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Funeral Home.</summary>
     private void CreateFuneralHome()
     {
-        FuneralHome=new Organization();
+        FuneralHome = new Organization();
         FuneralHome.setId(UUID.randomUUID().toString());
         FuneralHome.setMeta(new Meta());
         CanonicalType[]funeralhome_profile={URL.ProfileURL.FuneralHome};
@@ -8011,13 +8032,13 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Disposition Location.</summary>
     private void CreateDispositionLocation()
     {
-        DispositionLocation=new Location();
+        DispositionLocation = new Location();
         DispositionLocation.setId(UUID.randomUUID().toString());
         DispositionLocation.setMeta(new Meta());
         CanonicalType[]dispositionlocation_profile={URL.ProfileURL.DispositionLocation};
         DispositionLocation.getMeta().setProfile(Arrays.asList(dispositionlocation_profile));
         DispositionLocation.setName(BlankPlaceholder); // We cannot have a blank String, but the field is required to be present
-        Coding pt=new Coding(CodeSystems.HL7_location_physical_type,"si","Site");
+        Coding pt = new Coding(CodeSystems.HL7_location_physical_type,"si","Site");
         DispositionLocation.setPhysicalType(new CodeableConcept());
         DispositionLocation.getPhysicalType().getCoding().add(pt);
         DispositionLocation.getType().add(new CodeableConcept(new Coding(CodeSystems.LocationType,"disposition","disposition location")));//, null));
@@ -8037,7 +8058,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Autopsy Performed </summary>
     private void CreateAutopsyPerformed()
     {
-        AutopsyPerformed=new Observation();
+        AutopsyPerformed = new Observation();
         AutopsyPerformed.setId(UUID.randomUUID().toString());
         AutopsyPerformed.setMeta(new Meta());
         CanonicalType[]autopsyperformed_profile={URL.ProfileURL.AutopsyPerformedIndicator};
@@ -8058,7 +8079,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Age At Death Obs</summary>
     private void CreateAgeAtDeathObs()
     {
-        AgeAtDeathObs=new Observation();
+        AgeAtDeathObs = new Observation();
         AgeAtDeathObs.setId(UUID.randomUUID().toString());
         AgeAtDeathObs.setMeta(new Meta());
         CanonicalType[]age_profile={URL.ProfileURL.DecedentAge};
@@ -8081,7 +8102,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary> Create Pregnancy Status. </summary>
     private void CreatePregnancyObs()
     {
-        PregnancyObs=new Observation();
+        PregnancyObs = new Observation();
         PregnancyObs.setId(UUID.randomUUID().toString());
         PregnancyObs.setMeta(new Meta());
         CanonicalType[]p_profile={URL.ProfileURL.DecedentPregnancyStatus};
@@ -8099,7 +8120,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Injury Location.</summary>
     private void CreateInjuryLocationLoc()
     {
-        InjuryLocationLoc=new Location();
+        InjuryLocationLoc = new Location();
         InjuryLocationLoc.setId(UUID.randomUUID().toString());
         InjuryLocationLoc.setMeta(new Meta());
         CanonicalType[]injurylocation_profile={URL.ProfileURL.InjuryLocation};
@@ -8120,7 +8141,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Injury Incident.</summary>
     private void CreateInjuryIncidentObs()
     {
-        InjuryIncidentObs=new Observation();
+        InjuryIncidentObs = new Observation();
         InjuryIncidentObs.setId(UUID.randomUUID().toString());
         InjuryIncidentObs.setMeta(new Meta());
         CanonicalType[]iio_profile={URL.ProfileURL.InjuryIncident};
@@ -8143,7 +8164,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Death Location </summary>
     private void CreateDeathLocation()
     {
-        DeathLocationLoc=new Location();
+        DeathLocationLoc = new Location();
         DeathLocationLoc.setId(UUID.randomUUID().toString());
         DeathLocationLoc.setMeta(new Meta());
         CanonicalType[]deathlocation_profile={URL.ProfileURL.DeathLocation};
@@ -8164,7 +8185,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Death Date Observation.</summary>
     public void CreateDeathDateObs()
     {
-        DeathDateObs=new Observation();
+        DeathDateObs = new Observation();
         DeathDateObs.setId(UUID.randomUUID().toString());
         DeathDateObs.setMeta(new Meta());
         CanonicalType[]deathdate_profile={URL.ProfileURL.DeathDate};
@@ -8198,16 +8219,16 @@ public class DeathCertificateDocument extends Bundle {
         {
             CreateDeathDateObs(); // Create it
         }
-        Observation.ObservationComponentComponent datetimePronouncedDeadComponent=new Observation.ObservationComponentComponent();
-        Observation.ObservationComponentComponent pronComp=DeathDateObs.getComponent().stream().filter((entry->((Observation.ObservationComponentComponent)entry).getCode() != null
-        &&((Observation.ObservationComponentComponent)entry).getCode().getCoding().stream().filter(() != null && ((Observation.ObservationComponentComponent)entry).getCode().getCoding().stream().filter().getCode().equals("80616-6")).findFirst();
+        Observation.ObservationComponentComponent datetimePronouncedDeadComponent = new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent pronComp = DeathDateObs.getComponent().stream().filter(entry -> entry.getCode() != null && entry.getCode().getCoding() != null && entry.getCode().getCoding().get(0).getCode().equals("80616-6")).findFirst().get();
+
         if(pronComp!= null)
         {
             datetimePronouncedDeadComponent=pronComp;
         }
         else
         {
-            datetimePronouncedDeadComponent=new Observation.ObservationComponentComponent();
+            datetimePronouncedDeadComponent = new Observation.ObservationComponentComponent();
             datetimePronouncedDeadComponent.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC,"80616-6","Date and time pronounced dead [US Standard Certificate of Death]")));//, null);
             DeathDateObs.getComponent().add(datetimePronouncedDeadComponent);
         }
@@ -8221,7 +8242,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create Surgery Date Observation.</summary>
     private void CreateSurgeryDateObs()
     {
-        SurgeryDateObs=new Observation();
+        SurgeryDateObs = new Observation();
         SurgeryDateObs.setId(UUID.randomUUID().toString());
         SurgeryDateObs.setMeta(new Meta());
         CanonicalType[]profile={URL.ProfileURL.SurgeryDate};
@@ -8230,7 +8251,7 @@ public class DeathCertificateDocument extends Bundle {
         SurgeryDateObs.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC,"80992-1","Date and time of surgery")));//, null);
         SurgeryDateObs.setSubject(new Reference("urn:uuid:"+Decedent.getId()));
         // A SurgeryDate can be represented either using the PartialDateTime or the valueDateTime as with DeathDate above
-        SurgeryDateObs.setValue(new DateTimeType();
+        SurgeryDateObs.setValue(new DateTimeType());
         SurgeryDateObs.getValue().getExtension().add(NewBlankPartialDateTimeExtension(false));
         AddReferenceToComposition(SurgeryDateObs.getId(),"DeathInvestigation");
         //Bundle.addResourceEntry(SurgeryDateObs, "urn:uuid:" + SurgeryDateObs.getId());
@@ -8246,7 +8267,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create an empty ActivityAtTimeOfDeathObs, to be populated in ActivityAtDeath.</summary>
     private void CreateActivityAtTimeOfDeathObs()
     {
-        ActivityAtTimeOfDeathObs=new Observation();
+        ActivityAtTimeOfDeathObs = new Observation();
         ActivityAtTimeOfDeathObs.setId(UUID.randomUUID().toString());
         ActivityAtTimeOfDeathObs.setMeta(new Meta());
         CanonicalType[]profile={URL.ProfileURL.ActivityAtTimeOfDeath};
@@ -8267,12 +8288,12 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create an empty AutomatedUnderlyingCODObs, to be populated in AutomatedUnderlyingCOD.</summary>
     private void CreateAutomatedUnderlyingCauseOfDeathObs()
     {
-        AutomatedUnderlyingCauseOfDeathObs=new Observation();
+        AutomatedUnderlyingCauseOfDeathObs = new Observation();
         AutomatedUnderlyingCauseOfDeathObs.setId(UUID.randomUUID().toString());
         AutomatedUnderlyingCauseOfDeathObs.setMeta(new Meta());
         CanonicalType[]profile={URL.ProfileURL.AutomatedUnderlyingCauseOfDeath};
-        AutomatedUnderlyingCauseOfDeathObs.getMeta().setProfile(profile;
-        AutomatedUnderlyingCauseOfDeathObs.setStatus(ObservationStatus.FINAL;
+        AutomatedUnderlyingCauseOfDeathObs.getMeta().setProfile(Arrays.asList(profile));
+        AutomatedUnderlyingCauseOfDeathObs.setStatus(ObservationStatus.FINAL);
         AutomatedUnderlyingCauseOfDeathObs.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC,"80358-5","Cause of death.underlying [Automated]")));//, null);
         AutomatedUnderlyingCauseOfDeathObs.setSubject(new Reference("urn:uuid:"+Decedent.getId()));
         AddReferenceToComposition(AutomatedUnderlyingCauseOfDeathObs.getId(),"CodedContent");
@@ -8288,7 +8309,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create an empty AutomatedUnderlyingCODObs, to be populated in AutomatedUnderlyingCOD.</summary>
     private void CreateManualUnderlyingCauseOfDeathObs()
     {
-        ManualUnderlyingCauseOfDeathObs=new Observation();
+        ManualUnderlyingCauseOfDeathObs = new Observation();
         ManualUnderlyingCauseOfDeathObs.setId(UUID.randomUUID().toString());
         ManualUnderlyingCauseOfDeathObs.setMeta(new Meta());
         CanonicalType[]profile={URL.ProfileURL.AutomatedUnderlyingCauseOfDeath};
@@ -8308,7 +8329,7 @@ public class DeathCertificateDocument extends Bundle {
 
     /// <summary>Create an empty PlaceOfInjuryObs, to be populated in PlaceOfInjury.</summary>
     private void CreatePlaceOfInjuryObs(){
-        PlaceOfInjuryObs=new Observation();
+        PlaceOfInjuryObs = new Observation();
         PlaceOfInjuryObs.setId(UUID.randomUUID().toString());
         PlaceOfInjuryObs.setMeta(new Meta());
         CanonicalType[]profile={URL.ProfileURL.AutomatedUnderlyingCauseOfDeath};
@@ -8329,7 +8350,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Create an empty CodedRaceAndEthnicityObs, to be populated in Various Methods.</summary>
     private void CreateCodedRaceAndEthnicityObs()
     {
-        CodedRaceAndEthnicityObs=new Observation();
+        CodedRaceAndEthnicityObs = new Observation();
         CodedRaceAndEthnicityObs.setId(UUID.randomUUID().toString());
         CodedRaceAndEthnicityObs.setMeta(new Meta());
         CanonicalType[]profile={URL.ProfileURL.CodedRaceAndEthnicity};
@@ -8370,8 +8391,8 @@ public class DeathCertificateDocument extends Bundle {
         }
 
         //Composition.Section.get(0).getEntry().add(new Reference("urn:uuid:" + reference));
-        Composition.SectionComponent section=new Composition.SectionComponent();
-        String[]sections=new String[]{"DecedentDemographics","DeathInvestigation","DeathCertification","DecedentDisposition","CodedContent"};
+        Composition.SectionComponent section = new Composition.SectionComponent();
+        String[]sections = new String[]{"DecedentDemographics","DeathInvestigation","DeathCertification","DecedentDisposition","CodedContent"};
         if(Arrays.asList(sections).contains(code))
         {
             // Find the right section
@@ -8384,9 +8405,9 @@ public class DeathCertificateDocument extends Bundle {
             }
             if(section.getCode() == null)
             {
-                Map<String, String> coding=new HashMap<>();
-                coding.put("system",CodeSystems.DocumentSections);
-                coding.put("code",code);
+                Map<String, StringType> coding = new HashMap<>();
+                coding.put("system", new StringType(CodeSystems.DocumentSections));
+                coding.put("code", new StringType(code));
                 section.setCode(DeathCertificateDocumentUtil.MapToCodeableConcept(coding));
                 Composition.getSection().add(section);
             }
@@ -8436,7 +8457,7 @@ public class DeathCertificateDocument extends Bundle {
         }
 
         // Grab Certifier
-        if(Composition == null || (Composition.getAttester() == null || Composition.getAttester().stream().filter() == null || Composition.getAttester().get(0).getParty() == null || isNullOrWhiteSpace(Composition.getAttester().get(0).getParty().getReference())))
+        if(Composition == null || (Composition.getAttester() == null || Composition.getAttester().size() == 0 || Composition.getAttester().get(0).getParty() == null || isNullOrWhiteSpace(Composition.getAttester().get(0).getParty().getReference())))
         {
             if(fullRecord)
             {
@@ -8627,7 +8648,7 @@ public class DeathCertificateDocument extends Bundle {
                 case"80356-9":
                     if(EntityAxisCauseOfDeathObsList == null)
                     {
-                        EntityAxisCauseOfDeathObsList=new ArrayList();
+                        EntityAxisCauseOfDeathObsList = new ArrayList();
                     }
                     EntityAxisCauseOfDeathObsList.add(obs);
                     break;
@@ -8674,9 +8695,9 @@ public class DeathCertificateDocument extends Bundle {
             }
         }
 
-        for(Element rp:Bundle.getEntry().stream().filter(entry->entry.getResource() instanceof Location).collect(Collectors.toList()))
+        for(BundleEntryComponent rp:Bundle.getEntry().stream().filter(entry->entry.getResource() instanceof Location).collect(Collectors.toList()))
         {
-            Location lcn=(Location)rp.;
+            Location lcn = (Location)rp.getResource();
             if(lcn.getType() == null || lcn.getType().get(0).getCoding() == null || lcn.getType().get(0).getCoding().get(0).getCode() == null)
             {
                 throw new IllegalArgumentException("Found a Location resource that did not contain a type code. All Locations must include a type code to specify the role of the location.");
@@ -8731,8 +8752,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='80626-5')", "")]
-    private Map<String, String> ActivityAtDeath;
-    public Map<String, String> getActivityAtDeath()
+    private Map<String, StringType> ActivityAtDeath;
+    public Map<String, StringType> getActivityAtDeath()
     {
         if(ActivityAtTimeOfDeathObs != null && ActivityAtTimeOfDeathObs.getValue() != null && ActivityAtTimeOfDeathObs.getValue() instanceof CodeableConcept)
         {
@@ -8741,7 +8762,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setActivityAtDeath(Map<String, String> value)
+    public void setActivityAtDeath(Map<String, StringType> value)
     {
         if(ActivityAtTimeOfDeathObs == null)
         {
@@ -8763,9 +8784,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='80626-5')", "")]
     public String getActivityAtDeathHelper()
     {
-        if(ActivityAtDeath.containsKey("code")&&isNullOrWhiteSpace(ActivityAtDeath.get("code")))
+        if(ActivityAtDeath.containsKey("code")&&isNullOrWhiteSpace(String.valueOf(ActivityAtDeath.get("code"))))
         {
-            return ActivityAtDeath.get("code");
+            return String.valueOf(ActivityAtDeath.get("code"));
         }
         return null;
     }
@@ -8794,7 +8815,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if(AutomatedUnderlyingCauseOfDeathObs != null && AutomatedUnderlyingCauseOfDeathObs.getValue() != null && AutomatedUnderlyingCauseOfDeathObs.getValue() instanceof CodeableConcept)
         {
-            String codeableConceptValueCode=CodeableConceptToMap((CodeableConcept)AutomatedUnderlyingCauseOfDeathObs.getValue()).get("code");
+            String codeableConceptValueCode= String.valueOf(CodeableConceptToMap((CodeableConcept)AutomatedUnderlyingCauseOfDeathObs.getValue()).get("code"));
             if(!isNullOrWhiteSpace(codeableConceptValueCode))
             {
                 return codeableConceptValueCode;
@@ -8833,7 +8854,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if(ManualUnderlyingCauseOfDeathObs != null && ManualUnderlyingCauseOfDeathObs.getValue() != null && ManualUnderlyingCauseOfDeathObs.getValue() instanceof CodeableConcept)
         {
-            String codeableConceptValueCode=CodeableConceptToMap((CodeableConcept)ManualUnderlyingCauseOfDeathObs.getValue()).get("code");
+            String codeableConceptValueCode= String.valueOf(CodeableConceptToMap((CodeableConcept)ManualUnderlyingCauseOfDeathObs.getValue()).get("code"));
             if(isNullOrWhiteSpace(codeableConceptValueCode))
             {
                 return null;
@@ -8878,8 +8899,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='11376-1')", "")]
-    private Map<String, String> PlaceOfInjury;
-    public Map<String, String> getPlaceOfInjury()
+    private Map<String, StringType> PlaceOfInjury;
+    public Map<String, StringType> getPlaceOfInjury()
     {
         if(PlaceOfInjuryObs != null && PlaceOfInjuryObs.getValue() != null && PlaceOfInjuryObs.getValue() instanceof CodeableConcept)
         {
@@ -8888,7 +8909,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setPlaceOfInjury(Map<String, String> value)
+    public void setPlaceOfInjury(Map<String, StringType> value)
     {
         if(PlaceOfInjuryObs == null)
         {
@@ -8910,9 +8931,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='11376-1')", "")]
     public String getPlaceOfInjuryHelper()
     {
-        if(PlaceOfInjury.containsKey("code") && !isNullOrWhiteSpace(PlaceOfInjury.get("code")))
+        if(PlaceOfInjury.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(PlaceOfInjury.get("code"))))
         {
-            return PlaceOfInjury.get("code");
+            return String.valueOf(PlaceOfInjury.get("code"));
         }
         return null;
     }
@@ -8947,8 +8968,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> FirstEditedRaceCode;
-    public Map<String, String> getFirstEditedRaceCode()
+    private Map<String, StringType> FirstEditedRaceCode;
+    public Map<String, StringType> getFirstEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -8961,14 +8982,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFirstEditedRaceCode(Map<String, String> value)
+    public void setFirstEditedRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("FirstEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"FirstEditedCode","First Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -8987,9 +9008,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstEditedRaceCodeHelper()
     {
-        if(FirstEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstEditedRaceCode.get("code")))
+        if(FirstEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstEditedRaceCode.get("code"))))
         {
-            return FirstEditedRaceCode.get("code");
+            return String.valueOf(FirstEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9023,8 +9044,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> SecondEditedRaceCode;
-    public Map<String, String> getSecondEditedRaceCode()
+    private Map<String, StringType> SecondEditedRaceCode;
+    public Map<String, StringType> getSecondEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9037,14 +9058,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSecondEditedRaceCode(Map<String, String> value)
+    public void setSecondEditedRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SecondEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"SecondEditedCode","Second Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9064,9 +9085,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondEditedRaceCodeHelper()
     {
-        if(SecondEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondEditedRaceCode.get("code")))
+        if(SecondEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondEditedRaceCode.get("code"))))
         {
-            return SecondEditedRaceCode.get("code");
+            return String.valueOf(SecondEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9100,8 +9121,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> ThirdEditedRaceCode;
-    public Map<String, String> getThirdEditedRaceCode()
+    private Map<String, StringType> ThirdEditedRaceCode;
+    public Map<String, StringType> getThirdEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9114,14 +9135,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setThirdEditedRaceCode(Map<String, String> value)
+    public void setThirdEditedRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("ThirdEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"ThirdEditedCode","Third Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9141,9 +9162,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String ThirdEditedRaceCodeHelper()
     {
-        if(ThirdEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(ThirdEditedRaceCode.get("code")))
+        if(ThirdEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(ThirdEditedRaceCode.get("code"))))
         {
-            return ThirdEditedRaceCode.get("code");
+            return String.valueOf(ThirdEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9177,8 +9198,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> FourthEditedRaceCode;
-    public Map<String, String> getFourthEditedRaceCode()
+    private Map<String, StringType> FourthEditedRaceCode;
+    public Map<String, StringType> getFourthEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9191,14 +9212,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFourthEditedRaceCode(Map<String, String> value)
+    public void setFourthEditedRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("FourthEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"FourthEditedCode","Fourth Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9218,9 +9239,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFourthEditedRaceCodeHelper()
     {
-        if(FourthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(FourthEditedRaceCode.get("code")))
+        if(FourthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FourthEditedRaceCode.get("code"))))
         {
-            return FourthEditedRaceCode.get("code");
+            return String.valueOf(FourthEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9255,8 +9276,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> FifthEditedRaceCode;
-    public Map<String, String> getFifthEditedRaceCode()
+    private Map<String, StringType> FifthEditedRaceCode;
+    public Map<String, StringType> getFifthEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9269,14 +9290,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFifthEditedRaceCode(Map<String, String> value)
+    public void setFifthEditedRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("FifthEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"FifthEditedCode","Fifth Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9296,9 +9317,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFifthEditedRaceCodeHelper()
     {
-        if(FifthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(FifthEditedRaceCode.get("code")))
+        if(FifthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FifthEditedRaceCode.get("code"))))
         {
-            return FifthEditedRaceCode.get("code");
+            return String.valueOf(FifthEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9333,8 +9354,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> SixthEditedRaceCode;
-    public Map<String, String> getSixthEditedRaceCode()
+    private Map<String, StringType> SixthEditedRaceCode;
+    public Map<String, StringType> getSixthEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9347,12 +9368,12 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSixthEditedRaceCode(Map<String, String> value){
+    public void setSixthEditedRaceCode(Map<String, StringType> value){
         if(CodedRaceAndEthnicityObs == null){
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SixthEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"SixthEditedCode","Sixth Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9372,9 +9393,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSixthEditedRaceCodeHelper()
     {
-        if(SixthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(SixthEditedRaceCode.get("code")))
+        if(SixthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SixthEditedRaceCode.get("code"))))
         {
-            return SixthEditedRaceCode.get("code");
+            return String.valueOf(SixthEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9409,8 +9430,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> SeventhEditedRaceCode;
-    public Map<String, String> getSeventhEditedRaceCode()
+    private Map<String, StringType> SeventhEditedRaceCode;
+    public Map<String, StringType> getSeventhEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9423,14 +9444,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSeventhEditedRaceCode(Map<String, String> value)
+    public void setSeventhEditedRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SeventhEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"SeventhEditedCode","Seventh Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9450,9 +9471,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSeventhEditedRaceCodeHelper()
     {
-        if(SeventhEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(SeventhEditedRaceCode.get("code")))
+        if(SeventhEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SeventhEditedRaceCode.get("code"))))
         {
-            return SeventhEditedRaceCode.get("code");
+            return String.valueOf(SeventhEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9487,8 +9508,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> EighthEditedRaceCode;
-    public Map<String, String> getEighthEditedRaceCode()
+    private Map<String, StringType> EighthEditedRaceCode;
+    public Map<String, StringType> getEighthEditedRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9501,14 +9522,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setEighthEditedRaceCode(Map<String, String> value)
+    public void setEighthEditedRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("EighthEditedCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"EighthEditedCode","Eighth Edited Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9528,9 +9549,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getEighthEditedRaceCodeHelper()
     {
-        if(EighthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(EighthEditedRaceCode.get("code")))
+        if(EighthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(EighthEditedRaceCode.get("code"))))
         {
-            return EighthEditedRaceCode.get("code");
+            return String.valueOf(EighthEditedRaceCode.get("code"));
         }
         return null;
     }
@@ -9564,8 +9585,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> FirstAmericanIndianRaceCode;
-    public Map<String, String> getFirstAmericanIndianRaceCode()
+    private Map<String, StringType> FirstAmericanIndianRaceCode;
+    public Map<String, StringType> getFirstAmericanIndianRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9578,14 +9599,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFirstAmericanIndianRaceCode(Map<String, String> value)
+    public void setFirstAmericanIndianRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("FirstAmericanIndianRace"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"FirstAmericanIndianRace","First American Indian Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9605,8 +9626,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstAmericanIndianRaceCodeHelper()
     {
-        if(FirstAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstAmericanIndianRaceCode.get("code"))){
-            return FirstAmericanIndianRaceCode.get("code");
+        if(FirstAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstAmericanIndianRaceCode.get("code"))))
+        {
+            return String.valueOf(FirstAmericanIndianRaceCode.get("code"));
         }
         return null;
     }
@@ -9640,8 +9662,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> SecondAmericanIndianRaceCode;
-    public Map<String, String> getSecondAmericanIndianRaceCode()
+    private Map<String, StringType> SecondAmericanIndianRaceCode;
+    public Map<String, StringType> getSecondAmericanIndianRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9654,14 +9676,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSecondAmericanIndianRaceCode(Map<String, String> value)
+    public void setSecondAmericanIndianRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SecondAmericanIndianRace"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"SecondAmericanIndianRace","Second American Indian Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9681,9 +9703,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondAmericanIndianRaceCodeHelper()
     {
-        if(SecondAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondAmericanIndianRaceCode.get("code")))
+        if(SecondAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondAmericanIndianRaceCode.get("code"))))
         {
-            return SecondAmericanIndianRaceCode.get("code");
+            return String.valueOf(SecondAmericanIndianRaceCode.get("code"));
         }
         return null;
     }
@@ -9718,8 +9740,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> FirstOtherAsianRaceCode;
-    public Map<String, String> getFirstOtherAsianRaceCode(){
+    private Map<String, StringType> FirstOtherAsianRaceCode;
+    public Map<String, StringType> getFirstOtherAsianRaceCode(){
         if(CodedRaceAndEthnicityObs != null)
         {
             Observation.ObservationComponentComponent racecode = CodedRaceAndEthnicityObs.getComponent().stream().filter(c->c.getCode().getCoding().get(0).getCode().equals("FirstOtherAsianRace")).findFirst().get();
@@ -9731,14 +9753,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFirstOtherAsianRaceCode(Map<String, String> value)
+    public void setFirstOtherAsianRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("FirstOtherAsianRace"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"FirstOtherAsianRace","First Other Asian Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9758,9 +9780,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstOtherAsianRaceCodeHelper()
     {
-        if(FirstOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstOtherAsianRaceCode.get("code")))
+        if(FirstOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstOtherAsianRaceCode.get("code"))))
         {
-            return FirstOtherAsianRaceCode.get("code");
+            return String.valueOf(FirstOtherAsianRaceCode.get("code"));
         }
         return null;
     }
@@ -9795,8 +9817,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> SecondOtherAsianRaceCode;
-    public Map<String, String> getSecondOtherAsianRaceCode()
+    private Map<String, StringType> SecondOtherAsianRaceCode;
+    public Map<String, StringType> getSecondOtherAsianRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9809,14 +9831,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSecondOtherAsianRaceCode(Map<String, String> value)
+    public void setSecondOtherAsianRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SecondOtherAsianRace"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"SecondOtherAsianRace","Second Other Asian Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9836,9 +9858,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondOtherAsianRaceCodeHelper()
     {
-        if(SecondOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondOtherAsianRaceCode.get("code")))
+        if(SecondOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondOtherAsianRaceCode.get("code"))))
         {
-            return SecondOtherAsianRaceCode.get("code");
+            return String.valueOf(SecondOtherAsianRaceCode.get("code"));
         }
         return null;
     }
@@ -9873,8 +9895,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> FirstOtherPacificIslanderRaceCode;
-    public Map<String, String> getFirstOtherPacificIslanderRaceCode()
+    private Map<String, StringType> FirstOtherPacificIslanderRaceCode;
+    public Map<String, StringType> getFirstOtherPacificIslanderRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9886,14 +9908,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFirstOtherPacificIslanderRaceCode(Map<String, String> value)
+    public void setFirstOtherPacificIslanderRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("FirstOtherPacificIslanderRace"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"FirstOtherPacificIslanderRace","First Other Pacific Islander Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9913,9 +9935,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstOtherPacificIslanderRaceCodeHelper()
     {
-        if(FirstOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstOtherPacificIslanderRaceCode.get("code")))
+        if(FirstOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstOtherPacificIslanderRaceCode.get("code"))))
         {
-            return FirstOtherPacificIslanderRaceCode.get("code");
+            return String.valueOf(FirstOtherPacificIslanderRaceCode.get("code"));
         }
         return null;
     }
@@ -9950,8 +9972,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> SecondOtherPacificIslanderRaceCode;
-    public Map<String, String> getSecondOtherPacificIslanderRaceCode()
+    private Map<String, StringType> SecondOtherPacificIslanderRaceCode;
+    public Map<String, StringType> getSecondOtherPacificIslanderRaceCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -9964,14 +9986,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSecondOtherPacificIslanderRaceCode(Map<String, String> value)
+    public void setSecondOtherPacificIslanderRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SecondOtherPacificIslanderRace"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"SecondOtherPacificIslanderRace","Second Other Pacific Islander Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -9991,8 +10013,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondOtherPacificIslanderRaceCodeHelper()
     {
-        if(SecondOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondOtherPacificIslanderRaceCode.get("code"))){
-            return SecondOtherPacificIslanderRaceCode.get("code");
+        if(SecondOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondOtherPacificIslanderRaceCode.get("code"))))
+        {
+            return String.valueOf(SecondOtherPacificIslanderRaceCode.get("code"));
         }
         return null;
     }
@@ -10027,11 +10050,11 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> FirstOtherRaceCode;
-    public Map<String, String> getFirstOtherRaceCode(){
+    private Map<String, StringType> FirstOtherRaceCode;
+    public Map<String, StringType> getFirstOtherRaceCode(){
         if(CodedRaceAndEthnicityObs != null)
         {
-            Observation.ObservationComponentComponent racecode = CodedRaceAndEthnicityObs.getComponent().stream().filter(c->c.getCode().getCoding().get(0).getCode().equals("FirstOtherRace");
+            Observation.ObservationComponentComponent racecode = CodedRaceAndEthnicityObs.getComponent().stream().filter(c->c.getCode().getCoding().get(0).getCode().equals("FirstOtherRace")).findFirst().get();
             if(racecode != null && racecode.getValue() != null && racecode.getValue() instanceof CodeableConcept)
             {
                 return CodeableConceptToMap((CodeableConcept)racecode.getValue());
@@ -10040,14 +10063,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setFirstOtherRaceCode(Map<String, String> value)
+    public void setFirstOtherRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("FirstOtherRace"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"FirstOtherRace","First Other Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -10066,9 +10089,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("code", "The code used to describe this concept.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstOtherRaceCodeHelper(){
-        if(FirstOtherRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstOtherRaceCode.get("code")))
+        if(FirstOtherRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstOtherRaceCode.get("code"))))
         {
-            return FirstOtherRaceCode.get("code");
+            return String.valueOf(FirstOtherRaceCode.get("code"));
         }
         return null;
     }
@@ -10102,11 +10125,11 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> SecondOtherRaceCode;
-    public Map<String, String> getSecondOtherRaceCode(){
+    private Map<String, StringType> SecondOtherRaceCode;
+    public Map<String, StringType> getSecondOtherRaceCode(){
         if(CodedRaceAndEthnicityObs != null)
         {
-            Observation.ObservationComponentComponent racecode = CodedRaceAndEthnicityObs.getComponent().stream().filter(c->c.getCode().getCoding().get(0).getCode().equals("SecondOtherRace");
+            Observation.ObservationComponentComponent racecode = CodedRaceAndEthnicityObs.getComponent().stream().filter(c->c.getCode().getCoding().get(0).getCode().equals("SecondOtherRace")).findFirst().get();
             if(racecode != null && racecode.getValue() != null && racecode.getValue() instanceof CodeableConcept)
             {
                 return CodeableConceptToMap((CodeableConcept)racecode.getValue());
@@ -10115,14 +10138,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setSecondOtherRaceCode(Map<String, String> value)
+    public void setSecondOtherRaceCode(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
-        CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SecondOtherRace");
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("SecondOtherRace"));
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"SecondOtherRace","Second Other Race")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -10142,9 +10165,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondOtherRaceCodeHelper()
     {
-        if(SecondOtherRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondOtherRaceCode.get("code")))
+        if(SecondOtherRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondOtherRaceCode.get("code"))))
         {
-            return SecondOtherRaceCode.get("code");
+            return String.valueOf(SecondOtherRaceCode.get("code"));
         }
         return null;
     }
@@ -10178,8 +10201,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> HispanicCode;
-    public Map<String, String> getHispanicCode()
+    private Map<String, StringType> HispanicCode;
+    public Map<String, StringType> getHispanicCode()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -10191,13 +10214,13 @@ public class DeathCertificateDocument extends Bundle {
         }
         return EmptyCodeableMap();
     }
-    public void setHispanicCode(Map<String, String> value){
+    public void setHispanicCode(Map<String, StringType> value){
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("HispanicCode"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"HispanicCode","Hispanic Code")));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -10217,9 +10240,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getHispanicCodeHelper()
     {
-        if(HispanicCode.containsKey("code") && !isNullOrWhiteSpace(HispanicCode.get("code")))
+        if(HispanicCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(HispanicCode.get("code"))))
         {
-            return HispanicCode.get("code");
+            return String.valueOf(HispanicCode.get("code"));
         }
         return null;
     }
@@ -10254,8 +10277,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> HispanicCodeForLiteral;
-    public Map<String, String> getHispanicCodeForLiteral()
+    private Map<String, StringType> HispanicCodeForLiteral;
+    public Map<String, StringType> getHispanicCodeForLiteral()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -10268,7 +10291,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setHispanicCodeForLiteral(Map<String, String> value)
+    public void setHispanicCodeForLiteral(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
@@ -10295,16 +10318,17 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getHispanicCodeForLiteralHelper()
     {
-        if(HispanicCodeForLiteral.containsKey("code") && !isNullOrWhiteSpace(HispanicCodeForLiteral.get("code")))
+        if(HispanicCodeForLiteral.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(HispanicCodeForLiteral.get("code"))))
         {
-            return HispanicCodeForLiteral.get("code");
+            return String.valueOf(HispanicCodeForLiteral.get("code"));
         }
         return null;
     }
 
     public void setHispanicCodeForLiteralHelper(String value)
     {
-        if(!isNullOrWhiteSpace(value)){
+        if(!isNullOrWhiteSpace(value))
+        {
             SetCodeValue("HispanicCodeForLiteral", value, ValueSets.HispanicOrigin.Codes);
         }
     }
@@ -10331,8 +10355,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
-    private Map<String, String> RaceRecode40;
-    public Map<String, String> getRaceRecode40()
+    private Map<String, StringType> RaceRecode40;
+    public Map<String, StringType> getRaceRecode40()
     {
         if(CodedRaceAndEthnicityObs != null)
         {
@@ -10345,14 +10369,14 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setRaceRecode40(Map<String, String> value)
+    public void setRaceRecode40(Map<String, StringType> value)
     {
         if(CodedRaceAndEthnicityObs == null)
         {
             CreateCodedRaceAndEthnicityObs();
         }
         CodedRaceAndEthnicityObs.getComponent().removeIf(c->c.getCode().getCoding().get(0).getCode().equals("RaceRecode40"));
-        Observation.ObservationComponentComponent component=new Observation.ObservationComponentComponent();
+        Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
         component.setCode(new CodeableConcept(new Coding(CodeSystems.ComponentCode,"RaceRecode40",null)));//, null);
         component.setValue(MapToCodeableConcept(value));
         CodedRaceAndEthnicityObs.getComponent().add(component);
@@ -10763,8 +10787,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=codingstatus)", "")]
-    private Map<String, String> IntentionalReject;
-    public Map<String, String> getIntentionalReject()
+    private Map<String, StringType> IntentionalReject;
+    public Map<String, StringType> getIntentionalReject()
     {
         CodeableConcept intentionalReject = this.CodingStatusValues != null ? (CodeableConcept)this.CodingStatusValues.getParameter("intentionalReject") : null;
         if(intentionalReject != null)
@@ -10774,7 +10798,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setIntentionalReject(Map<String, String> value)
+    public void setIntentionalReject(Map<String, StringType> value)
     {
         if(CodingStatusValues == null)
         {
@@ -10803,8 +10827,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=codingstatus)", "")]
     public String getIntentionalRejectHelper()
     {
-        if(IntentionalReject.containsKey("code") && !isNullOrWhiteSpace(IntentionalReject.get("code"))){
-            return IntentionalReject.get("code");
+        if(IntentionalReject.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(IntentionalReject.get("code"))))
+        {
+            return String.valueOf(IntentionalReject.get("code"));
         }
         return null;
     }
@@ -10838,10 +10863,10 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=codingstatus)", "")]
-    private Map<String, String> AcmeSystemReject;
-    public Map<String, String> getAcmeSystemReject()
+    private Map<String, StringType> AcmeSystemReject;
+    public Map<String, StringType> getAcmeSystemReject()
     {
-        CodeableConcept acmeSystemReject = this.CodingStatusValues != null ? (CodeableConcept)this.CodingStatusValues.getParameter("acmeSystemReject");
+        CodeableConcept acmeSystemReject = this.CodingStatusValues != null ? (CodeableConcept)this.CodingStatusValues.getParameter("acmeSystemReject") : null;
         if(acmeSystemReject != null)
         {
             return CodeableConceptToMap(acmeSystemReject);
@@ -10849,15 +10874,17 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
      }
     
-    public void setAcmeSystemReject(Map<String, String> value){
-        if(CodingStatusValues == null){
+    public void setAcmeSystemReject(Map<String, StringType> value)
+    {
+        if(CodingStatusValues == null)
+        {
             CreateCodingStatusValues();
         }
         if(CodingStatusValues.hasParameter("acmeSystemReject"))
             CodingStatusValues.setParameter("acmeSystemReject", "");
         if(value != null)
         {
-            CodingStatusValues.setParameter("acmeSystemReject",MapToCodeableConcept(value));
+            CodingStatusValues.setParameter("acmeSystemReject", MapToCodeableConcept(value));
         }
     }
 
@@ -10877,8 +10904,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=codingstatus)", "")]
     public String getAcmeSystemRejectHelper()
     {
-        if(AcmeSystemReject.containsKey("code") && !isNullOrWhiteSpace(ValueSets.AcmeSystemReject.Codes[0][0].toString())){
-            return AcmeSystemReject.get("code");
+        if(AcmeSystemReject.containsKey("code") && !isNullOrWhiteSpace(ValueSets.AcmeSystemReject.Codes[0][0].toString()))
+        {
+            return String.valueOf(AcmeSystemReject.get("code"));
         }
         return null;
     }
@@ -10911,8 +10939,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[PropertyParam("system", "The relevant code system.")]
     ///[PropertyParam("display", "The human readable version of this code.")]
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=codingstatus)", "")]
-    private Map<String, String> TransaxConversion;
-    public Map<String, String> getTransaxConversion()
+    private Map<String, StringType> TransaxConversion;
+    public Map<String, StringType> getTransaxConversion()
     {
         CodeableConcept transaxConversion = this.CodingStatusValues != null ? (CodeableConcept)CodingStatusValues.getParameter("transaxConversion") : null;
         if(transaxConversion != null)
@@ -10922,7 +10950,7 @@ public class DeathCertificateDocument extends Bundle {
         return EmptyCodeableMap();
     }
 
-    public void setTransaxConversion(Map<String, String> value)
+    public void setTransaxConversion(Map<String, StringType> value)
     {
         if(CodingStatusValues == null)
         {
@@ -10951,8 +10979,8 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=codingstatus)", "")]
     public String getTransaxConversionHelper()
     {
-        if(TransaxConversion.containsKey("code") && !isNullOrWhiteSpace(TransaxConversion.get("code"))){
-            return TransaxConversion.get("code");
+        if(TransaxConversion.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(TransaxConversion.get("code")))){
+            return String.valueOf(TransaxConversion.get("code"));
         }
         return null;
     }
@@ -10978,9 +11006,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getRaceRecode40Helper()
     {
-        if(RaceRecode40.containsKey("code") && !isNullOrWhiteSpace(RaceRecode40.get("code")))
+        if(RaceRecode40.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(RaceRecode40.get("code"))))
         {
-            return RaceRecode40.get("code");
+            return String.valueOf(RaceRecode40.get("code"));
         }
         return null;
     }
@@ -10993,6 +11021,140 @@ public class DeathCertificateDocument extends Bundle {
         }
     }
 
+    /// <summary>Given a FHIR path, return the elements that match the given path;
+    /// returns an empty array if no matches are found.</summary>
+    /// <param name="path">represents a FHIR path.</param>
+    /// <returns>all elements that match the given path, or an empty array if no matches are found.</returns>
+    public Object[] GetAll(String path)
+    {
+        var matches = Navigator.Select(path);
+        List list = new ArrayList();
+        for(Object match:matches)
+        {
+            list.add(match.getValue());
+        }
+        return list.toArray();
+    }
+
+
+    /// <summary>Given a FHIR path, return the first element that matches the given path.</summary>
+    /// <param name="path">represents a FHIR path.</param>
+    /// <returns>the first element that matches the given path, or null if no match is found.</returns>
+    public Object GetFirst(String path)
+    {
+        var matches = Navigator.Select(path);
+        if (matches.size() > 0)
+        {
+            return matches.get(0).getValue();
+        }
+        else
+        {
+            return null; // Nothing found
+        }
+    }
+
+    /// <summary>Given a FHIR path, return the last element that matches the given path.</summary>
+    /// <param name="path">represents a FHIR path.</param>
+    /// <returns>the last element that matches the given path, or null if no match is found.</returns>
+    public Object GetLast(String path)
+    {
+        var matches = Navigator.Select(path);
+        if (matches.size() > 0)
+        {
+            return matches.Last().getValue();
+        }
+        else
+        {
+            return null; // Nothing found
+        }
+    }
+
+    /// <summary>Given a FHIR path, return the elements that match the given path as a String;
+    /// returns an empty array if no matches are found.</summary>
+    /// <param name="path">represents a FHIR path.</param>
+    /// <returns>all elements that match the given path as a String, or an empty array if no matches are found.</returns>
+    public String[] GetAllString(String path)
+    {
+        List<String> list = new ArrayList();
+        for(Object match:GetAll(path))
+        {
+            list.add((String)(match));
+        }
+        return (String[])list.toArray();
+    }
+
+    /// <summary>Given a FHIR path, return the first element that matches the given path as a String;
+    /// returns null if no match is found.</summary>
+    /// <param name="path">represents a FHIR path.</param>
+    /// <returns>the first element that matches the given path as a String, or null if no match is found.</returns>
+    public String GetFirstString(String path)
+    {
+        Object first = GetFirst(path);
+        if (first != null)
+        {
+            return (String)(first);
+        }
+        else
+        {
+            return null; // Nothing found
+        }
+    }
+
+    /// <summary>Given a FHIR path, return the last element that matches the given path as a String;
+    /// returns an empty String if no match is found.</summary>
+    /// <param name="path">represents a FHIR path.</param>
+    /// <returns>the last element that matches the given path as a String, or null if no match is found.</returns>
+    public String GetLastString(String path)
+    {
+        String last = GetLast(path).toString();
+        if (last != null)
+        {
+            return last;
+        }
+        else
+        {
+            return null; // Nothing found
+        }
+    }
+    
+    /// <summary>Helper function to set a codeable value based on a code and the set of allowed codes.</summary>
+    // <param name="field">the field name to set.</param>
+    // <param name="code">the code to set the field to.</param>
+    // <param name="options">the list of valid options and related display Strings and code systems</param>
+    public void SetCodeValue(String fieldName, String code, String[][] options)
+    {
+        // If String is empty don't bother to set the value
+        if (code == null || code.equals(""))
+        {
+            return;
+        }
+        // Iterate over the allowed options and see if the code supplies is one of them
+        for (int i = 0; i < options[0].length; i++)
+        {
+            if (options[i][0].equals(code))
+            {
+                // Found it, so call the supplied setter with the appropriate dictionary built based on the code
+                // using the supplied options and return
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("code", code);
+                map.put("display", options[i][1]);
+                map.put("system", options[i][2]);
+                //typeof(DeathRecord).GetProperty(fieldName).SetValue(this, map);
+                Field field = null;
+                try {
+                    field = this.getClass().getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    field.set(this, map);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
+        }
+        // If we got here we didn't find the code, so it's not a valid option
+        throw new IllegalArgumentException(new StringBuffer("Code '").append(code).append("' is not an allowed value for field ").append(fieldName).toString());
+    }
+    
 /// <summary>Entity Axis Cause Of Death
 /// <para>Note that record axis codes have an unusual and obscure handling of a Pregnancy flag, for more information see
 /// http://build.fhir.org/ig/HL7/vrdr/branches/master/StructureDefinition-vrdr-record-axis-cause-of-death.html#usage></para>
