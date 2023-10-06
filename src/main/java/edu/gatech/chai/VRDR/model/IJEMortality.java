@@ -58,9 +58,26 @@ public class IJEMortality
     /// <summary>Field _alias.</summary>
     private String _alias;
 
-    public static class IJEField
+    //public static List<IJEField> ijeFields = new ArrayList<>();
+
+    public static void setIJEFields(List metaIJEFields)
     {
-        IJEField(int Field, int Location, int Length, String Contents, String Name, int Priority){};
+        metaIJEFields = metaIJEFields;
+    }
+
+    public static List<MetaIJEField> getIJEFields()
+    {
+        return metaIJEFields;
+    }
+
+    public static void addMetaIJEField(MetaIJEField metaIJEField)
+    {
+        metaIJEFields.add(metaIJEField);
+    }
+
+    public static class MetaIJEField
+    {
+        MetaIJEField(int Field, int Location, int Length, String Contents, String Name, int Priority){};
         int Field;
         int Location;
 
@@ -194,6 +211,10 @@ public class IJEMortality
     /// <summary>Validation errors encountered while converting a record</summary>
     private List<String> validationErrors = new ArrayList<String>();
 
+
+
+
+
     /// <summary>Constructor that takes a <c>DeathRecord</c>.</summary>
     public IJEMortality(DeathCertificateDocument record, boolean validate)// = true)
     {
@@ -219,6 +240,50 @@ public class IJEMortality
     }
 
     /// <summary>Constructor that takes an IJE String and builds a corresponding internal <c>DeathRecord</c>.</summary>
+//    public IJEMortality(String ije, boolean validate)// = true) : this()
+//    {
+//        if (ije == null)
+//        {
+//            throw new IllegalArgumentException("IJE String cannot be null.");
+//        }
+//        if (ije.length() < 5000)
+//        {
+//            ije = StringUtils.rightPad(ije, 5000, " ");
+//        }
+//        // Loop over every property (these are the fields); Order by priority
+//        //List<PropertyInfo> properties = typeof(IJEMortality).GetProperties().ToList().OrderBy(p -> p.GetCustomAttribute<MetaIJEField>().Priority).ToList();
+//        List<Field> fields = Arrays.stream(this.getClass().getDeclaredFields()).sorted(Comparator.comparingInt(f -> f.getAnnotation(MetaIJEField.class).priority())).collect(Collectors.toList());
+//
+//        for(Field field:fields)
+//        {
+//            // Grab the field attributes
+//            //MetaIJEField info = field.GetCustomAttribute<MetaIJEField>();
+//            MetaIJEField info = field.getAnnotation(MetaIJEField.class);
+//            // Grab the field value
+//            //String field = ije.substring(info.getLocation() - 1, info.getLength());
+//            String fieldValue = ije.substring(info.getLocation() - 1, info.getLength());
+//            // Set the value on this IJEMortality (and the embedded record)
+//            //field.set(this, field);
+//            field.setAccessible(true);
+//            try {
+//                field.set(this, fieldValue);
+//            } catch (IllegalAccessException e) {
+//                validationErrors.add(e.getMessage());
+//            }
+//        }
+//        if (validate && validationErrors.size() > 0)
+//        {
+//            String errorString = new StringBuffer().append(validationErrors.size()).append(" validation errors:\n").append( validationErrors).toString();
+//            try
+//            {
+//                throw new Exception(errorString);
+//            } catch (Exception e)
+//            {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
+
     public IJEMortality(String ije, boolean validate)// = true) : this()
     {
         if (ije == null)
@@ -230,16 +295,26 @@ public class IJEMortality
             ije = StringUtils.rightPad(ije, 5000, " ");
         }
         // Loop over every property (these are the fields); Order by priority
-        //List<PropertyInfo> properties = typeof(IJEMortality).GetProperties().ToList().OrderBy(p -> p.GetCustomAttribute<IJEField>().Priority).ToList();
-        List<Field> properties = Arrays.stream(IJEMortality.class.getFields()).sorted(Comparator.comparing(Field.::).toList()..OrderBy(p -> p.GetCustomAttribute<IJEField>().Priority).ToList();
-        for(PropertyInfo property:properties)
+        ///List<Field> ijeFields = List.of(IJEMortality.class.getDeclaredFields());
+        List<MetaIJEField> sortedMetaIJEFields = metaIJEFields.stream().sorted(Comparator.comparingInt(f -> f.getPriority())).collect(Collectors.toList());
+
+        for(MetaIJEField metaIJEField:sortedMetaIJEFields)
         {
-            // Grab the field attributes
-            IJEField info = property.GetCustomAttribute<IJEField>();
             // Grab the field value
-            String field = ije.substring(info.getLocation() - 1, info.getLength());
+            String fieldValue = ije.substring(metaIJEField.getLocation() - 1, metaIJEField.getLength());
             // Set the value on this IJEMortality (and the embedded record)
-            property.set(this, field);
+            Field ijeField = null;
+            try {
+                ijeField = IJEMortality.class.getField(mapIJEFields.get(metaIJEField.Name));
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+            ijeField.setAccessible(true);
+            try {
+                ijeField.set(this, fieldValue);
+            } catch (IllegalAccessException e) {
+                validationErrors.add(e.getMessage());
+            }
         }
         if (validate && validationErrors.size() > 0)
         {
@@ -270,74 +345,36 @@ public class IJEMortality
         StringBuilder ije = new StringBuilder(new String(" ".toCharArray(), 0, 5000));
 
         // Loop over every property (these are the fields)
-        for(Field property:IJEMortality.class.getFields())
+        List<MetaIJEField> sortedMetaIJEFields = metaIJEFields.stream().sorted(Comparator.comparingInt(f -> f.getPriority())).collect(Collectors.toList());
+
+        for(MetaIJEField metaIJEField:sortedMetaIJEFields)
         {
             // Grab the field value
-            String field = null;//, null).toString();
+            String fieldValue = null;//, null).toString();
+            Field ijeField = null;
             try
             {
-                field = property.get(this).toString();
-            } catch (IllegalAccessException e)
+                ijeField = IJEMortality.class.getField(metaIJEField.Name);
+                fieldValue = ijeField.get(this).toString();
+            }
+            catch (NoSuchFieldException | IllegalAccessException e)
             {
                 throw new RuntimeException(e);
             }
             // Grab the field attributes
-            IJEField info = property.GetCustomAttribute<IJEField>();
+            //MetaIJEField info = field.GetCustomAttribute<MetaIJEField>();
             // Be mindful about lengths
-            if (field.length() > info.getLength())
+            if (fieldValue.length() > metaIJEField.getLength())
             {
-                field = field.substring(0, info.getLength());
+                fieldValue = fieldValue.substring(0, metaIJEField.getLength());
             }
             // Insert the field value into the record
-            ije.remove(info.getLocation() - 1, field.length());
-            ije.Insert(info.getLocation() - 1, field);
+            ije.delete(metaIJEField.getLocation() - 1, fieldValue.length());
+            ije.insert(metaIJEField.getLocation() - 1, fieldValue);
         }
         return ije.toString();
     }
 
-    public String toString()
-    {
-        //IJEMortality ijeEMortality = new IJEMortality();
-        //Field[] fields = ijeEMortality.getClass().getDeclaredFields()
-        // Start with empty IJE Mortality record
-        StringBuilder ije = new StringBuilder(new String(" ".toCharArray(), 0, 5000));
-        Stream.of(IJEMortality.class.getDeclaredMethods())
-                .filter(method -> method.getName().startsWith("get"))
-                .map(getterMethod -> {
-                    try
-                    {
-                        return getterMethod.invoke(this);
-                    }
-                    catch (IllegalAccessException e)
-                    {
-
-                        throw new RuntimeException(e);
-                    }
-                    catch (InvocationTargetException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .forEach(fieldValue -> {
-                    System.out.println(fieldValue);
-                    Method fieldGetter = null;
-                    try
-                    {
-                        fieldGetter = IJEField.class.getMethod("getmeta"+fieldValue.toString());
-                        String metaFieldValue = fieldGetter.invoke(this).toString();
-                        if (fieldValue.toString().length() > metaFieldValue.length())
-                        {
-                            fieldValue = fieldValue.toString().substring(0, metaFieldValue.length());
-                        }
-                        ije.Remove(info.getLocation() - 1, field.length());
-                        ije.Insert(info.getLocation() - 1, field);
-                        ije=ije.replace(this.IJEField.get, int last, String st)
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                });
-    }
 
     /// <summary>Returns the corresponding <c>DeathRecord</c> for this IJE String.</summary>
     public DeathCertificateDocument ToDeathRecord()
@@ -365,13 +402,13 @@ public class IJEMortality
     }
 
     /// <summary>Grabs the IJEInfo for a specific IJE field name.</summary>
-    private IJEField FieldInfo(String ijeFieldName)
+    private MetaIJEField FieldInfo(String ijeFieldName)
     {
-        //return typeof(IJEMortality).getField(ijeFieldName).GetCustomAttribute<IJEField>();
+        //return typeof(IJEMortality).getField(ijeFieldName).GetCustomAttribute<MetaIJEField>();
         Method fieldGetter = null;
         try
         {
-            fieldGetter = IJEField.class.getMethod("getmeta"+ijeFieldName);
+            fieldGetter = MetaIJEField.class.getMethod("getmeta"+ijeFieldName);
         }
         catch (NoSuchMethodException e)
         {
@@ -379,7 +416,7 @@ public class IJEMortality
         }
         try
         {
-            return (IJEField)fieldGetter.invoke(this);
+            return (MetaIJEField)fieldGetter.invoke(this);
         } catch (IllegalAccessException | InvocationTargetException e)
         {
             throw new RuntimeException(e);
@@ -387,7 +424,7 @@ public class IJEMortality
     }
 
     /// <summary>Helps decompose a DateTime into individual parts (year, month, day, time).</summary>
-    private String DateTimeStringHelper(IJEField info, String value, String type, OffsetDateTime date, boolean dateOnly, boolean withTimezoneOffset)
+    private String DateTimeStringHelper(MetaIJEField info, String value, String type, OffsetDateTime date, boolean dateOnly, boolean withTimezoneOffset)
     {
         if (type.equals("yyyy"))
         {
@@ -435,21 +472,21 @@ public class IJEMortality
                 return "";
             }
             int hour = Integer.parseInt(Truncate(value, info.getLength()).substring(0, 2));
-                // Treat 99 as blank
-                if (hour != 99)
-                {
-                   // date = new OffsetDateTime(date.Year, date.Month, date.Day, hour, date.Minute, date.Second, date.Millisecond, TimeSpan.Zero);
-                    LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), hour, date.getMinute(), date.getSecond());
-                    date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
-                }
+            // Treat 99 as blank
+            if (hour != 99)
+            {
+                // date = new OffsetDateTime(date.Year, date.Month, date.Day, hour, date.Minute, date.Second, date.Millisecond, TimeSpan.Zero);
+                LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), hour, date.getMinute(), date.getSecond());
+                date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
+            }
 
             int minute = Integer.parseInt(Truncate(value, info.getLength()).substring(2, 2));
-                // Treat 99 as blank
-                if (minute != 99)
-                {
-                    LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), date.getHour(), minute, date.getSecond());
-                    date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
-                }
+            // Treat 99 as blank
+            if (minute != 99)
+            {
+                LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), date.getHour(), minute, date.getSecond());
+                date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
+            }
         }
         else if (type.equals("MMddyyyy"))
         {
@@ -458,28 +495,28 @@ public class IJEMortality
                 return "";
             }
             int month = Integer.parseInt(Truncate(value, info.getLength()).substring(0, 2));
-                // Treat 99 as blank
-                if (month != 99)
-                {
-                    LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), month, date.getDayOfMonth(), date.getHour(), date.getMinute(), date.getSecond());
-                    date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
-                }
+            // Treat 99 as blank
+            if (month != 99)
+            {
+                LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), month, date.getDayOfMonth(), date.getHour(), date.getMinute(), date.getSecond());
+                date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
+            }
 
             int day = Integer.parseInt(Truncate(value, info.getLength()).substring(2, 2));
-                // Treat 99 as blank
-                if (day != 99)
-                {
-                    LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), day, date.getHour(), date.getMinute(), date.getSecond());
-                    date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
-                }
+            // Treat 99 as blank
+            if (day != 99)
+            {
+                LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), day, date.getHour(), date.getMinute(), date.getSecond());
+                date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
+            }
 
             int year = Integer.parseInt(Truncate(value, info.getLength()).substring(4, 4));
-                // Treat 9999 as blank
-                if (year != 9999)
-                {
-                    LocalDateTime localDateTime = LocalDateTime.of(year, date.getMonthValue(), date.getDayOfMonth(), date.getHour(), date.getMinute(), date.getSecond());
-                    date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
-                }
+            // Treat 9999 as blank
+            if (year != 9999)
+            {
+                LocalDateTime localDateTime = LocalDateTime.of(year, date.getMonthValue(), date.getDayOfMonth(), date.getHour(), date.getMinute(), date.getSecond());
+                date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
+            }
         }
         if (dateOnly)
         {
@@ -498,7 +535,7 @@ public class IJEMortality
     /// <summary>Get a value on the DeathCertificateDocument whose type is some part of a DateTime.</summary>
     private String DateTime_Get(String ijeFieldName, String dateTimeType, String fhirFieldName)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
 
         String current = null;
         try
@@ -527,7 +564,7 @@ public class IJEMortality
     /// <summary>Set a value on the DeathCertificateDocument whose type is some part of a DateTime.</summary>
     private void DateTime_Set(String ijeFieldName, String dateTimeType, String fhirFieldName, String value, boolean dateOnly = false, boolean withTimezoneOffset = false)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         String current = null;
         try
         {
@@ -540,8 +577,8 @@ public class IJEMortality
         OffsetDateTime date = OffsetDateTime.parse(current);
         if (current != null && date != null)
         {
-           // date = date.ToUniversalTime();
-          // date = new OffsetDateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, TimeSpan.Zero);
+            // date = date.ToUniversalTime();
+            // date = new OffsetDateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, TimeSpan.Zero);
             LocalDateTime localDateTime = LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getMonthValue(), date.getHour(), date.getMinute(), date.getSecond());
             date = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
             try
@@ -572,7 +609,7 @@ public class IJEMortality
     /// FHIR side to represent'unknown' and blank on the IJE side and null on the FHIR side to represent unspecified</summary>
     private String NumericAllowingUnknown_Get(String ijeFieldName, String fhirFieldName)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         Integer value = null;
         try
         {
@@ -596,7 +633,7 @@ public class IJEMortality
     /// FHIR side to represent'unknown' and blank on the IJE side and null on the FHIR side to represent unspecified</summary>
     private void NumericAllowingUnknown_Set(String ijeFieldName, String fhirFieldName, String value)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         if (value.equals(StringUtils.repeat(" ", info.getLength())))
         {
             try
@@ -635,7 +672,7 @@ public class IJEMortality
     /// <summary>Get a value on the DeathCertificateDocument that is a time with the option of being set to all 9s on the IJE side and null on the FHIR side to represent null</summary>
     private String TimeAllowingUnknown_Get(String ijeFieldName, String fhirFieldName)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         String timeString = null;
         try
         {
@@ -670,7 +707,7 @@ public class IJEMortality
     /// <summary>Set a value on the DeathCertificateDocument that is a time with the option of being set to all 9s on the IJE side and null on the FHIR side to represent null</summary>
     private void TimeAllowingUnknown_Set(String ijeFieldName, String fhirFieldName, String value)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         if (value.equals(StringUtils.repeat(" ", info.getLength())))
         {
             try
@@ -698,7 +735,7 @@ public class IJEMortality
             OffsetDateTime parsedTime = OffsetDateTime.parse(value, DateTimeFormatter.ofPattern("HHmm"));
             if (parsedTime != null)
             {
-               // TimeSpan timeSpan = new TimeSpan(0, parsedTime.Hour, parsedTime.Minute, 0);
+                // TimeSpan timeSpan = new TimeSpan(0, parsedTime.Hour, parsedTime.Minute, 0);
                 Map map = getHourMinSecFromParsedTime(parsedTime);
                 try
                 {
@@ -719,7 +756,7 @@ public class IJEMortality
     /// <summary>Get a value on the DeathCertificateDocument whose IJE type is a right justified, zero filled String.</summary>
     private String RightJustifiedZeroed_Get(String ijeFieldName, String fhirFieldName)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         String current = null;
         try
         {
@@ -742,7 +779,7 @@ public class IJEMortality
     /// <summary>Set a value on the DeathCertificateDocument whose IJE type is a right justified, zero filled String.</summary>
     private void RightJustifiedZeroed_Set(String ijeFieldName, String fhirFieldName, String value)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         try
         {
             DeathCertificateDocument.class.getField(fhirFieldName).set(this.record, value.replaceFirst("0", ""));//TrimStart('0'));
@@ -756,7 +793,7 @@ public class IJEMortality
     /// <summary>Get a value on the DeathCertificateDocument whose IJE type is a left justified String.</summary>
     private String LeftJustified_Get(String ijeFieldName, String fhirFieldName)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         String current = null;
         try
         {
@@ -785,7 +822,7 @@ public class IJEMortality
     {
         if (!isNullOrWhiteSpace(value))
         {
-            IJEField info = FieldInfo(ijeFieldName);
+            MetaIJEField info = FieldInfo(ijeFieldName);
             //Method method = Arrays.stream(DeathCertificateDocument.class.getMethods()).filter(m->m.getName().equals("set"+StringUtils.capitalize(ijeFieldName))).findFirst().get();//getField(fhirFieldName).(this.record, value.trim());
             try
             {
@@ -803,7 +840,7 @@ public class IJEMortality
     /// <summary>Get a value on the DeathCertificateDocument whose property is a Map type.</summary>
     private String Map_Get(String ijeFieldName, String fhirFieldName, String key)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
         try
         {
@@ -831,7 +868,7 @@ public class IJEMortality
     /// <summary>Get a value on the DeathCertificateDocument whose property is a Map type, with NO truncating.</summary>
     private String Map_Get_Full(String ijeFieldName, String fhirFieldName, String key)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
         try
         {
@@ -863,7 +900,7 @@ public class IJEMortality
     /// <summary>Set a value on the DeathCertificateDocument whose property is a Map type.</summary>
     private void Map_Set(String ijeFieldName, String fhirFieldName, String key, String value)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
         try
         {
@@ -899,7 +936,7 @@ public class IJEMortality
     /// <summary>Get a value on the DeathCertificateDocument whose property is a geographic type (and is contained in a map).</summary>
     private String Map_Geo_Get(String ijeFieldName, String fhirFieldName, String keyPrefix, String geoType, boolean isCoded)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = this.record == null ? null : (Map<String, String>)DeathCertificateDocument.class.getField(fhirFieldName).GetValue(this.record);
         String key = keyPrefix + char.toUpperCase(geoType[0]) + geoType.substring(1);
         if (map == null || !map.containsKey(key))
@@ -947,7 +984,7 @@ public class IJEMortality
     /// <summary>Set a value on the DeathCertificateDocument whose property is a geographic type (and is contained in a map).</summary>
     private void Map_Geo_Set(String ijeFieldName, String fhirFieldName, String keyPrefix, String geoType, boolean isCoded, String value)
     {
-        IJEField info = FieldInfo(ijeFieldName);
+        MetaIJEField info = FieldInfo(ijeFieldName);
         Map<String, String> map = null;
         try
         {
@@ -1008,13 +1045,13 @@ public class IJEMortality
     /// <summary>Checks if the given race exists in the record.</summary>
     private String Get_Race(String name)
     {
-        Tuple<String, String>[] raceStatus = record.Race.ToArray();
-        Tuple<String, String> raceTuple = Array.Find(raceStatus, element -> element.getItem1().equals(name));
-        List raceStatus = record.getRace();
+        Tuple[] raceStatus = record.getRace();
+        Tuple raceTuple = Arrays.stream(raceStatus).filter(element -> element.children().get(0).equals(name)).findFirst().get();
+
 
         if (raceTuple != null)
         {
-            return (raceTuple.getItem2()).trim();
+            return raceTuple.children().get(1).toString().trim();
         }
         return "";
     }
@@ -1022,9 +1059,13 @@ public class IJEMortality
     /// <summary>Adds the given race to the record.</summary>
     private void Set_Race(String name, String value)
     {
-        List<Tuple<String, String>> raceStatus = Arrays.asList(record.getRace());
-        raceStatus.add(Tuple.Create(name, value));
-        record.setRace(raceStatus.get(0).toString());
+        List<Tuple> raceStatus = Arrays.asList(record.getRace());
+        //raceStatus.add(Tuple.Create(name, value));
+
+        Tuple race = new Tuple();
+        race.addChild(name).addChild(value);
+        raceStatus.add(race);
+        record.setRace((Tuple[]) raceStatus.toArray());
     }
 
     // /// <summary>Gets a "Yes", "No", or "Unknown" value.</summary>
@@ -1161,7 +1202,7 @@ public class IJEMortality
 
         if (code.length() >= 4)    // codes of length 4 or 5 need to have a decimal inserted
         {
-           // code = nchsicd10code.insert(3, ".");
+            // code = nchsicd10code.insert(3, ".");
             code = new StringBuilder(nchsicd10code).insert(3, ".").toString();
         }
 
@@ -1212,7 +1253,522 @@ public class IJEMortality
     /////////////////////////////////////////////////////////////////////////////////
 
     /// <summary>Date of Death--Year</summary>
-    IJEField metaDOD_YR = new IJEField(1, 1, 4, "Date of Death--Year", "DOD_YR", 1);
+    static MetaIJEField metaDOD_YR = new MetaIJEField(1, 1, 4, "Date of Death--Year", "DOD_YR", 1);
+
+
+    private final static List<MetaIJEField> metaIJEFields = new ArrayList<>()
+    {{
+        add(metaDOD_YR);
+        add(metaDSTATE);
+        add(metaFILENO);
+        add(metaVOID);
+        add(metaAUXNO);
+        add(metaMFILED);
+        add(metaGNAME);
+        add(metaMNAME);
+        add(metaLNAME);
+        add(metaSUFF);
+        add(metaALIAS);
+        add(metaFLNAME);
+        add(metaSEX);
+        add(metaSEX_BYPASS);
+        add(metaSSN);
+        add(metaAGETYPE);
+        add(metaAGE);
+        add(metaAGE_BYPASS);
+        add(metaDOB_YR);
+        add(metaDOB_MO);
+        add(metaDOB_DY);
+        add(metaBPLACE_CNT);
+        add(metaBPLACE_ST);
+        add(metaCOUNTYC);
+        add(metaSTATEC);
+        add(metaCOUNTRYC);
+        add(metaLIMITS);
+        add(metaMARITAL);
+        add(metaMARITAL_BYPASS);
+        add(metaDPLACE);
+        add(metaCOD);
+        add(metaDISP);
+        add(metaDOD_MO);
+        add(metaDOD_DY);
+        add(metaTOD);
+        add(metaDEDUC);
+        add(metaDEDUC_BYPASS);
+        add(metaDETHNIC2);
+        add(metaDETHNIC3);
+        add(metaDETHNIC4);
+        add(metaDETHNIC5);
+        add(metaRACE1);
+        add(metaRACE2);
+        add(metaRACE3);
+        add(metaRACE4);
+        add(metaRACE5);
+        add(metaRACE6);
+        add(metaRACE7);
+        add(metaRACE8);
+        add(metaRACE9);
+        add(metaRACE10);
+        add(metaRACE11);
+        add(metaRACE12);
+        add(metaRACE13);
+        add(metaRACE14);
+        add(metaRACE15);
+        add(metaRACE16);
+        add(metaRACE17);
+        add(metaRACE18);
+        add(metaRACE19);
+        add(metaRACE20);
+        add(metaRACE21);
+        add(metaRACE22);
+        add(metaRACE23);
+        add(metaRACE1E);
+        add(metaRACE2E);
+        add(metaRACE3E);
+        add(metaRACE4E);
+        add(metaRACE5E);
+        add(metaRACE6E);
+        add(metaRACE7E);
+        add(metaRACE8E);
+        add(metaRACE16C);
+        add(metaRACE17C);
+        add(metaRACE18C);
+        add(metaRACE19C);
+        add(metaRACE20C);
+        add(metaRACE21C);
+        add(metaRACE22C);
+        add(metaRACE23C);
+        add(metaRACE_MVR);
+        add(metaOCCUP);
+        add(metaOCCUPC);
+        add(metaINDUST);
+        add(metaINDUSTC);
+        add(metaBCNO);
+        add(metaIDOB_YR);
+        add(metaBSTATE);
+        add(metaR_YR);
+        add(metaR_MO);
+        add(metaR_DY);
+        add(metaOCCUPC4);
+        add(metaINDUSTC);
+        add(metaDOR_YR);
+        add(metaDOR_MO);
+        add(metaDOR_DY);
+        add(metaFILLER2);
+        add(metaMANNER);
+        add(metaINT_REJ);
+        add(metaSYS_REJ);
+        add(metaINJPL);
+        add(metaMAN_UC);
+        add(metaACME_UC);
+        add(metaEAC);
+        add(metaTRX_FLG);
+        add(metaRAC);
+        add(metaAUTOP);
+        add(metaAUTOPF);
+        add(metaTOBAC);
+        add(metaPREG);
+        add(metaPREG_BYPASS);
+        add(metaDOI_MO);
+        add(metaDOI_DY);
+        add(metaDOI_YR);
+        add(metaTOI_HR);
+        add(metaWORKINJ);
+        add(metaCERTL);
+        add(metaINACT);
+        add(metaAUXNO2);
+        add(metaSTATESP);
+        add(metaSUR_MO);
+        add(metaSUR_DY);
+        add(metaSUR_YR);
+        add(metaTOI_UNIT);
+        add(metaBLANK1);
+        add(metaARMEDF);
+        add(metaDINSTI);
+        add(metaADDRESS_D);
+        add(metaSTNUM_D);
+        add(metaPREDIR_D);
+        add(metaSTNAME_D);
+        add(metaSTDESIG_D);
+        add(metaPOSTDIR_D);
+        add(metaCITYTEXT_D);
+        add(metaSTATETEXT_D);
+        add(metaZIP9_D);
+        add(metaCOUNTYTEXT_D);
+        add(metaCITYCODE_D);
+        add(metaLONG_D);
+        add(metaLAT_D);
+        add(metaSPOUSELV);
+        add(metaSPOUSEF);
+        add(metaSPOUSEL);
+        add(metaCITYTEXT_R);
+        add(metaZIP9_R);
+        add(metaCOUNTYTEXT_R);
+        add(metaSTATETEXT_R);
+        add(metaCOUNTRYTEXT_R);
+        add(metaADDRESS_R);
+        add(metaRESSTATE);
+        add(metaRESCON);
+        add(metaSTNUM_R);
+        add(metaPREDIR_R);
+        add(metaSTNAME_R);
+        add(metaPOSTDIR_R);
+        add(metaUNITNUM_R);
+        add(metaDETHNICE);
+        add(metaNCHSBRIDGE);
+        add(metaHISPOLDC);
+        add(metaRACEOLDC);
+        add(metaHISPSTSP);
+        add(metaRACESTSP);
+        add(metaDMIDDLE);
+        add(metaDDADF);
+        add(metaDDADMID);
+        add(metaDMOMF);
+        add(metaDMOMMID);
+        add(metaDMOMMDN);
+        add(metaREFERRED);
+        add(metaPOILITRL);
+        add(metaHOWINJ);
+        add(metaTRANSPRT);
+        add(metaCOUNTYTEXT_I);
+        add(metaCOUNTYCODE_I);
+        add(metaCITYTEXT_I);
+        add(metaCITYCODE_I);
+        add(metaSTATECODE_I);
+        add(metaLONG_I );
+        add(metaLAT_I);
+        add(metaOLDEDUC);
+        add(metaCOD1A);
+        add(metaINTERVAL1A);
+        add(metaCOD1B);
+        add(metaINTERVAL1B);
+        add(metaCOD1C);
+        add(metaINTERVAL1C);
+        add(metaCOD1D);
+        add(metaINTERVAL1D);
+        add(metaOTHERCONDITION);
+        add(metaDMAIDEN);
+        add(metaDBPLACECITYCODE);
+        add(metaDBPLACECITY);
+        add(metaINFORMRELATE);
+        add(metaSPOUSEMIDNAME);
+        add(metaSPOUSESUFFIX);
+        add(metaFATHERSUFFIX);
+        add(metaMOTHERSSUFFIX);
+        add(metaDISPSTATECD);
+        add(metaDISPSTATE);
+        add(metaDISPCITYCODE);
+        add(metaDISPCITY);
+        add(metaFUNFACNAME);
+        add(metaFUNFACSTNUM);
+        add(metaFUNFACPREDIR);
+        add(metaFUNFACSTRNAME);
+        add(metaFUNFACSTRDESIG);
+        add(metaFUNPOSTDIR);
+        add(metaFUNUNITNUM);
+        add(metaFUNFACADDRESS);
+        add(metaFUNCITYTEXT);
+        add(metaFUNSTATECD);
+        add(metaFUNSTATE);
+        add(metaFUNZIP);
+        add(metaPPDATESIGNED);
+        add(metaPPTIME);
+        add(metaCERTFIRST);
+        add(metaCERTMIDDLE);
+        add(metaCERTLAST);
+        add(metaCERTSUFFIX);
+        add(metaCERTSTNUM);
+        add(metaCERTPREDIR);
+        add(metaCERTSTRNAME);
+        add(metaCERTSTRDESIG);
+        add(metaCERTPOSTDIR);
+        add(metaCERTUNITNUM);
+        add(metaCERTADDRESS);
+        add(metaCERTCITYTEXT);
+        add(metaCERTSTATECD);
+        add(metaCERTSTATE);
+        add(metaCERTZIP);
+        add(metaCERTDATE);
+        add(metaFILEDATE);
+        add(metaSTINJURY);
+        add(metaSTATEBTH);
+        add(metaDTHCOUNTRYCD);
+        add(metaDTHCOUNTRY);
+        add(metaSSADTHCODE);
+        add(metaSSAFOREIGN);
+        add(metaSSAVERIFY);
+        add(metaSSADATEVER);
+        add(metaSSADATETRANS);
+        add(metaDETHNIC5C);
+        add(metaPLACE1_1);
+        add(metaPLACE1_2);
+        add(metaPLACE1_3);
+        add(metaPLACE1_4);
+        add(metaPLACE1_5);
+        add(metaPLACE1_6);
+        add(metaPLACE8_1);
+        add(metaPLACE8_2);
+        add(metaPLACE8_3);
+        add(metaPLACE20);
+    }};
+
+    private final Map<String, String> mapIJEFields = new HashMap<>()
+    {{
+        put(metaDOD_YR.Name, getDOD_YR());
+        put(metaDSTATE.Name, getDSTATE());
+        put(metaFILENO.Name, getFILENO());
+        put(metaVOID.Name, getVOID());
+        put(metaAUXNO.Name, getAUXNO());
+        put(metaMFILED.Name, getMFILED());
+        put(metaGNAME.Name, getGNAME());
+        put(metaMNAME.Name, getMNAME());
+        put(metaLNAME.Name, getLNAME());
+        put(metaSUFF.Name, getSUFF());
+        put(metaALIAS.Name, getALIAS());
+        put(metaFLNAME.Name, getFLNAME());
+        put(metaSEX.Name, getSEX());
+        put(metaSEX_BYPASS.Name, getSEX_BYPASS());
+        put(metaSSN.Name, getSSN());
+        put(metaAGETYPE.Name, getAGETYPE());
+        put(metaAGE.Name, getAGE());
+        put(metaAGE_BYPASS.Name, getAGE_BYPASS());
+        put(metaDOB_YR.Name, getDOB_YR());
+        put(metaDOB_MO.Name, getDOB_MO());
+        put(metaDOB_DY.Name, getDOB_DY());
+        put(metaBPLACE_CNT.Name, getBPLACE_CNT());
+        put(metaBPLACE_ST.Name, getBPLACE_ST());
+        put(metaCOUNTYC.Name, getCOUNTYC());
+        put(metaSTATEC.Name, getSTATEC());
+        put(metaCOUNTRYC.Name, getCOUNTRYC());
+        put(metaLIMITS.Name, getLIMITS());
+        put(metaMARITAL.Name, getMARITAL());
+        put(metaMARITAL_BYPASS.Name, getMARITAL_BYPASS());
+        put(metaDPLACE.Name, getDPLACE());
+        put(metaCOD.Name, getCOD());
+        put(metaDISP.Name, getDISP());
+        put(metaDOD_MO.Name, getDOD_MO());
+        put(metaDOD_DY.Name, getDOD_DY());
+        put(metaTOD.Name, getTOD());
+        put(metaDEDUC.Name, getDEDUC());
+        put(metaDEDUC_BYPASS.Name, getDEDUC_BYPASS());
+        put(metaDETHNIC2.Name, getDETHNIC2());
+        put(metaDETHNIC3.Name, getDETHNIC3());
+        put(metaDETHNIC4.Name, getDETHNIC4());
+        put(metaDETHNIC5.Name, getDETHNIC5());
+        put(metaRACE1.Name, getRACE1());
+        put(metaRACE2.Name, getRACE2());
+        put(metaRACE3.Name, getRACE3());
+        put(metaRACE4.Name, getRACE4());
+        put(metaRACE5.Name, getRACE5());
+        put(metaRACE6.Name, getRACE6());
+        put(metaRACE7.Name, getRACE7());
+        put(metaRACE8.Name, getRACE8());
+        put(metaRACE9.Name, getRACE9());
+        put(metaRACE10.Name, getRACE10());
+        put(metaRACE11.Name, getRACE11());
+        put(metaRACE12.Name, getRACE12());
+        put(metaRACE13.Name, getRACE13());
+        put(metaRACE14.Name, getRACE14());
+        put(metaRACE15.Name, getRACE15());
+        put(metaRACE16.Name, getRACE16());
+        put(metaRACE17.Name, getRACE17());
+        put(metaRACE18.Name, getRACE18());
+        put(metaRACE19.Name, getRACE19());
+        put(metaRACE20.Name, getRACE20());
+        put(metaRACE21.Name, getRACE21());
+        put(metaRACE22.Name, getRACE22());
+        put(metaRACE23.Name, getRACE23());
+        put(metaRACE1E.Name, getRACE1E());
+        put(metaRACE2E.Name, getRACE2E());
+        put(metaRACE3E.Name, getRACE3E());
+        put(metaRACE4E.Name, getRACE4E());
+        put(metaRACE5E.Name, getRACE5E());
+        put(metaRACE6E.Name, getRACE6E());
+        put(metaRACE7E.Name, getRACE7E());
+        put(metaRACE8E.Name, getRACE8E());
+        put(metaRACE16C.Name, getRACE16C());
+        put(metaRACE17C.Name, getRACE17C());
+        put(metaRACE18C.Name, getRACE18C());
+        put(metaRACE19C.Name, getRACE19C());
+        put(metaRACE20C.Name, getRACE20C());
+        put(metaRACE21C.Name, getRACE21C());
+        put(metaRACE22C.Name, getRACE22C());
+        put(metaRACE23C.Name, getRACE23C());
+        put(metaRACE_MVR.Name, getRACE_MVR());
+        put(metaOCCUP.Name, getOCCUP());
+        put(metaOCCUPC.Name, getOCCUPC());
+        put(metaINDUST.Name, getINDUST());
+        put(metaINDUSTC.Name, getINDUSTC());
+        put(metaBCNO.Name, getBCNO());
+        put(metaIDOB_YR.Name, getIDOB_YR());
+        put(metaBSTATE.Name, getBSTATE());
+        put(metaR_YR.Name, getR_YR());
+        put(metaR_MO.Name, getR_MO());
+        put(metaR_DY.Name, getR_DY());
+        put(metaOCCUPC4.Name, getOCCUPC4());
+        put(metaINDUSTC.Name, getINDUSTC());
+        put(metaDOR_YR.Name, getDOR_YR());
+        put(metaDOR_MO.Name, getDOR_MO());
+        put(metaDOR_DY.Name, getDOR_DY());
+        put(metaFILLER2.Name, getFILLER2());
+        put(metaMANNER.Name, getMANNER());
+        put(metaINT_REJ.Name, getINT_REJ());
+        put(metaSYS_REJ.Name, getSYS_REJ());
+        put(metaINJPL.Name, getINJPL());
+        put(metaMAN_UC.Name, getMAN_UC());
+        put(metaACME_UC.Name, getACME_UC());
+        put(metaEAC.Name, getEAC());
+        put(metaTRX_FLG.Name, getTRX_FLG());
+        put(metaRAC.Name, getRAC());
+        put(metaAUTOP.Name, getAUTOP());
+        put(metaAUTOPF.Name, getAUTOPF());
+        put(metaTOBAC.Name, getTOBAC());
+        put(metaPREG.Name, getPREG());
+        put(metaPREG_BYPASS.Name, getPREG_BYPASS());
+        put(metaDOI_MO.Name, getDOI_MO());
+        put(metaDOI_DY.Name, getDOI_DY());
+        put(metaDOI_YR.Name, getDOI_YR());
+        put(metaTOI_HR.Name, getTOI_HR());
+        put(metaWORKINJ.Name, getWORKINJ());
+        put(metaCERTL.Name, getCERTL());
+        put(metaINACT.Name, getINACT());
+        put(metaAUXNO2.Name, getAUXNO2());
+        put(metaSTATESP.Name, getSTATESP());
+        put(metaSUR_MO.Name, getSUR_MO());
+        put(metaSUR_DY.Name, getSUR_DY());
+        put(metaSUR_YR.Name, getSUR_YR());
+        put(metaTOI_UNIT.Name, getTOI_UNIT());
+        put(metaBLANK1.Name, getBLANK1());
+        put(metaARMEDF.Name, getARMEDF());
+        put(metaDINSTI.Name, getDINSTI());
+        put(metaADDRESS_D.Name, getADDRESS_D());
+        put(metaSTNUM_D.Name, getSTNUM_D());
+        put(metaPREDIR_D.Name, getPREDIR_D());
+        put(metaSTNAME_D.Name, getSTNAME_D());
+        put(metaSTDESIG_D.Name, getSTDESIG_D());
+        put(metaPOSTDIR_D.Name, getPOSTDIR_D());
+        put(metaCITYTEXT_D.Name, getCITYTEXT_D());
+        put(metaSTATETEXT_D.Name, getSTATETEXT_D());
+        put(metaZIP9_D.Name, getZIP9_D());
+        put(metaCOUNTYTEXT_D.Name, getCOUNTYTEXT_D());
+        put(metaCITYCODE_D.Name, getCITYCODE_D());
+        put(metaLONG_D.Name, getLONG_D());
+        put(metaLAT_D.Name, getLAT_D());
+        put(metaSPOUSELV.Name, getSPOUSELV());
+        put(metaSPOUSEF.Name, getSPOUSEF());
+        put(metaSPOUSEL.Name, getSPOUSEL());
+        put(metaCITYTEXT_R.Name, getCITYTEXT_R());
+        put(metaZIP9_R.Name, getZIP9_R());
+        put(metaCOUNTYTEXT_R.Name, getCOUNTYTEXT_R());
+        put(metaSTATETEXT_R.Name, getSTATETEXT_R());
+        put(metaCOUNTRYTEXT_R.Name, getCOUNTRYTEXT_R());
+        put(metaADDRESS_R.Name, getADDRESS_R());
+        put(metaRESSTATE.Name, getRESSTATE());
+        put(metaRESCON.Name, getRESCON());
+        put(metaSTNUM_R.Name, getSTNUM_R());
+        put(metaPREDIR_R.Name, getPREDIR_R());
+        put(metaSTNAME_R.Name, getSTNAME_R());
+        put(metaPOSTDIR_R.Name, getPOSTDIR_R());
+        put(metaUNITNUM_R.Name, getUNITNUM_R());
+        put(metaDETHNICE.Name, getDETHNICE());
+        put(metaNCHSBRIDGE.Name, getNCHSBRIDGE());
+        put(metaHISPOLDC.Name, getHISPOLDC());
+        put(metaRACEOLDC.Name, getRACEOLDC());
+        put(metaHISPSTSP.Name, getHISPSTSP());
+        put(metaRACESTSP.Name, getRACESTSP());
+        put(metaDMIDDLE.Name, getDMIDDLE());
+        put(metaDDADF.Name, getDDADF());
+        put(metaDDADMID.Name, getDDADMID());
+        put(metaDMOMF.Name, getDMOMF());
+        put(metaDMOMMID.Name, getDMOMMID());
+        put(metaDMOMMDN.Name, getDMOMMDN());
+        put(metaREFERRED.Name, getREFERRED());
+        put(metaPOILITRL.Name, getPOILITRL());
+        put(metaHOWINJ.Name, getHOWINJ());
+        put(metaTRANSPRT.Name, getTRANSPRT());
+        put(metaCOUNTYTEXT_I.Name, getCOUNTYTEXT_I());
+        put(metaCOUNTYCODE_I.Name, getCOUNTYCODE_I());
+        put(metaCITYTEXT_I.Name, getCITYTEXT_I());
+        put(metaCITYCODE_I.Name, getCITYCODE_I());
+        put(metaSTATECODE_I.Name, getSTATECODE_I());
+        put(metaLONG_I.Name, getLONG_I());
+        put(metaLAT_I.Name, getLAT_I());
+        put(metaOLDEDUC.Name, getOLDEDUC());
+        put(metaCOD1A.Name, getCOD1A());
+        put(metaINTERVAL1A.Name, getINTERVAL1A());
+        put(metaCOD1B.Name, getCOD1B());
+        put(metaINTERVAL1B.Name, getINTERVAL1B());
+        put(metaCOD1C.Name, getCOD1C());
+        put(metaINTERVAL1C.Name, getINTERVAL1C());
+        put(metaCOD1D.Name, getCOD1D());
+        put(metaINTERVAL1D.Name, getINTERVAL1D());
+        put(metaOTHERCONDITION.Name, getOTHERCONDITION());
+        put(metaDMAIDEN.Name, getDMAIDEN());
+        put(metaDBPLACECITYCODE.Name, getDBPLACECITYCODE());
+        put(metaDBPLACECITY.Name, getDBPLACECITY());
+        put(metaINFORMRELATE.Name, getINFORMRELATE());
+        put(metaSPOUSEMIDNAME.Name, getSPOUSEMIDNAME());
+        put(metaSPOUSESUFFIX.Name, getSPOUSESUFFIX());
+        put(metaFATHERSUFFIX.Name, getFATHERSUFFIX());
+        put(metaMOTHERSSUFFIX.Name, getMOTHERSSUFFIX());
+        put(metaDISPSTATECD.Name, getDISPSTATECD());
+        put(metaDISPSTATE.Name, getDISPSTATE());
+        put(metaDISPCITYCODE.Name, getDISPCITYCODE());
+        put(metaDISPCITY.Name, getDISPCITY());
+        put(metaFUNFACNAME.Name, getFUNFACNAME());
+        put(metaFUNFACSTNUM.Name, getFUNFACSTNUM());
+        put(metaFUNFACPREDIR.Name, getFUNFACPREDIR());
+        put(metaFUNFACSTRNAME.Name, getFUNFACSTRNAME());
+        put(metaFUNFACSTRDESIG.Name, getFUNFACSTRDESIG());
+        put(metaFUNPOSTDIR.Name, getFUNPOSTDIR());
+        put(metaFUNUNITNUM.Name, getFUNUNITNUM());
+        put(metaFUNFACADDRESS.Name, getFUNFACADDRESS());
+        put(metaFUNCITYTEXT.Name, getFUNCITYTEXT());
+        put(metaFUNSTATECD.Name, getFUNSTATECD());
+        put(metaFUNSTATE.Name, getFUNSTATE());
+        put(metaFUNZIP.Name, getFUNZIP());
+        put(metaPPDATESIGNED.Name, getPPDATESIGNED());
+        put(metaPPTIME.Name, getPPTIME());
+        put(metaCERTFIRST.Name, getCERTFIRST());
+        put(metaCERTMIDDLE.Name, getCERTMIDDLE());
+        put(metaCERTLAST.Name, getCERTLAST());
+        put(metaCERTSUFFIX.Name, getCERTSUFFIX());
+        put(metaCERTSTNUM.Name, getCERTSTNUM());
+        put(metaCERTPREDIR.Name, getCERTPREDIR());
+        put(metaCERTSTRNAME.Name, getCERTSTRNAME());
+        put(metaCERTSTRDESIG.Name, getCERTSTRDESIG());
+        put(metaCERTPOSTDIR.Name, getCERTPOSTDIR());
+        put(metaCERTUNITNUM.Name, getCERTUNITNUM());
+        put(metaCERTADDRESS.Name, getCERTADDRESS());
+        put(metaCERTCITYTEXT.Name, getCERTCITYTEXT());
+        put(metaCERTSTATECD.Name, getCERTSTATECD());
+        put(metaCERTSTATE.Name, getCERTSTATE());
+        put(metaCERTZIP.Name, getCERTZIP());
+        put(metaCERTDATE.Name, getCERTDATE());
+        put(metaFILEDATE.Name, getFILEDATE());
+        put(metaSTINJURY.Name, getSTINJURY());
+        put(metaSTATEBTH.Name, getSTATEBTH());
+        put(metaDTHCOUNTRYCD.Name, getDTHCOUNTRYCD());
+        put(metaDTHCOUNTRY.Name, getDTHCOUNTRY());
+        put(metaSSADTHCODE.Name, getSSADTHCODE());
+        put(metaSSAFOREIGN.Name, getSSAFOREIGN());
+        put(metaSSAVERIFY.Name, getSSAVERIFY());
+        put(metaSSADATEVER.Name, getSSADATEVER());
+        put(metaSSADATETRANS.Name, getSSADATETRANS());
+        put(metaDETHNIC5C.Name, getDETHNIC5C());
+        put(metaPLACE1_1.Name, getPLACE1_1());
+        put(metaPLACE1_2.Name, getPLACE1_2());
+        put(metaPLACE1_3.Name, getPLACE1_3());
+        put(metaPLACE1_4.Name, getPLACE1_4());
+        put(metaPLACE1_5.Name, getPLACE1_5());
+        put(metaPLACE1_6.Name, getPLACE1_6());
+        put(metaPLACE8_1.Name, getPLACE8_1());
+        put(metaPLACE8_2.Name, getPLACE8_2());
+        put(metaPLACE8_3.Name, getPLACE8_3());
+        put(metaPLACE20.Name, getPLACE20());
+    }};
+
+
     public String getDOD_YR()
     {
         return NumericAllowingUnknown_Get("DOD_YR", "DeathYear");
@@ -1223,13 +1779,13 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Death - code</summary>
-    IJEField metaDSTATE = new IJEField(2, 5, 2, "State, U.S. Territory or Canadian Province of Death - code", "DSTATE", 1);
+    static MetaIJEField metaDSTATE = new MetaIJEField(2, 5, 2, "State, U.S. Territory or Canadian Province of Death - code", "DSTATE", 1);
     public String getDSTATE()
     {
         String value = LeftJustified_Get("DSTATE", "DeathLocationJurisdiction");
         if (isNullOrWhiteSpace(value))
         {
-        validationErrors.add("Error: FHIR field DeathLocationJurisdiction is blank, which is invalid for IJE field DSTATE.");
+            validationErrors.add("Error: FHIR field DeathLocationJurisdiction is blank, which is invalid for IJE field DSTATE.");
         }
         else if (dataLookup.JurisdictionNameToJurisdictionCode(value) == null)
         {
@@ -1248,7 +1804,7 @@ public class IJEMortality
     }
 
     /// <summary>Certificate Number</summary>
-    IJEField metaFILENO = new IJEField(3, 7, 6, "Certificate Number", "FILENO", 1);
+    static MetaIJEField metaFILENO = new MetaIJEField(3, 7, 6, "Certificate Number", "FILENO", 1);
     private String FILENO;
     public String getFILENO()
     {
@@ -1272,7 +1828,7 @@ public class IJEMortality
     }
 
     /// <summary>Void flag</summary>
-    IJEField metaVOID = new IJEField(4, 13, 1, "Void flag", "VOID", 1);
+    static MetaIJEField metaVOID = new MetaIJEField(4, 13, 1, "Void flag", "VOID", 1);
     //private String VOID;
     public String getVOID()
     {
@@ -1291,7 +1847,7 @@ public class IJEMortality
     }
 
     /// <summary>Auxiliary State file number</summary>
-    IJEField metaAUXNO = new IJEField(5, 14, 12, "Auxiliary State file number", "AUXNO", 1);
+    static MetaIJEField metaAUXNO = new MetaIJEField(5, 14, 12, "Auxiliary State file number", "AUXNO", 1);
     private String AUXNO;
     public String getAUXNO()
     {
@@ -1311,7 +1867,7 @@ public class IJEMortality
     }
 
     /// <summary>Source flag: paper/electronic</summary>
-    IJEField metaMFILED = new IJEField(6, 26, 1, "Source flag: paper/electronic", "MFILED", 1);
+    static MetaIJEField metaMFILED = new MetaIJEField(6, 26, 1, "Source flag: paper/electronic", "MFILED", 1);
     private String GNAME;
     public String getMFILED()
     {
@@ -1323,7 +1879,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Given</summary>
-    IJEField metaGNAME = new IJEField(7, 27, 50, "Decedent's Legal Name--Given", "GNAME", 1);
+    static MetaIJEField metaGNAME = new MetaIJEField(7, 27, 50, "Decedent's Legal Name--Given", "GNAME", 1);
     //private String GNAME;
     public String getGNAME()
     {
@@ -1343,7 +1899,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Middle</summary>
-    IJEField metaMNAME = new IJEField(8, 77, 1, "Decedent's Legal Name--Middle", "MNAME", 2);
+    static MetaIJEField metaMNAME = new MetaIJEField(8, 77, 1, "Decedent's Legal Name--Middle", "MNAME", 2);
     private String MNAME;
     public String getMNAME()
     {
@@ -1375,7 +1931,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Last</summary>
-    IJEField metaLNAME = new IJEField(9, 78, 50, "Decedent's Legal Name--Last", "LNAME", 1);
+    static MetaIJEField metaLNAME = new MetaIJEField(9, 78, 50, "Decedent's Legal Name--Last", "LNAME", 1);
     private String LNAME;
     public String getLNAME()
     {
@@ -1401,7 +1957,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Suffix</summary>
-    IJEField metaSUFF = new IJEField(10, 128, 10, "Decedent's Legal Name--Suffix", "SUFF", 1);
+    static MetaIJEField metaSUFF = new MetaIJEField(10, 128, 10, "Decedent's Legal Name--Suffix", "SUFF", 1);
     private String SUFF;
     public String getSUFF()
     {
@@ -1413,7 +1969,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Legal Name--Alias</summary>
-    IJEField metaALIAS = new IJEField(11, 138, 1, "Decedent's Legal Name--Alias", "ALIAS", 1);
+    static MetaIJEField metaALIAS = new MetaIJEField(11, 138, 1, "Decedent's Legal Name--Alias", "ALIAS", 1);
     //private String ALIAS;
     public String getALIAS()
     {
@@ -1432,7 +1988,7 @@ public class IJEMortality
     }
 
     /// <summary>Father's Surname</summary>
-    IJEField metaFLNAME = new IJEField(12, 139, 50, "Father's Surname", "FLNAME", 1);
+    static MetaIJEField metaFLNAME = new MetaIJEField(12, 139, 50, "Father's Surname", "FLNAME", 1);
     private String FLNAME;
     public String getFLNAME()
     {
@@ -1444,7 +2000,7 @@ public class IJEMortality
     }
 
     /// <summary>Sex</summary>
-    IJEField metaSEX = new IJEField(13, 189, 1, "Sex", "SEX", 1);
+    static MetaIJEField metaSEX = new MetaIJEField(13, 189, 1, "Sex", "SEX", 1);
     private String SEX;
     public String getSEX()
     {
@@ -1456,7 +2012,7 @@ public class IJEMortality
     }
 
     /// <summary>Sex--Edit Flag</summary>
-    IJEField metaSEX_BYPASS = new IJEField(14, 190, 1, "Sex--Edit Flag", "SEX_BYPASS", 1);
+    static MetaIJEField metaSEX_BYPASS = new MetaIJEField(14, 190, 1, "Sex--Edit Flag", "SEX_BYPASS", 1);
     private String SEX_BYPASS;
     public String getSEX_BYPASS()
     {
@@ -1468,7 +2024,7 @@ public class IJEMortality
     }
 
     /// <summary>Social Security Number</summary>
-    IJEField metaSSN = new IJEField(15, 191, 9, "Social Security Number", "SSN", 1);
+    static MetaIJEField metaSSN = new MetaIJEField(15, 191, 9, "Social Security Number", "SSN", 1);
     private String SSN;
     public String getSSN()
     {
@@ -1513,7 +2069,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Age--Type</summary>
-    IJEField metaAGETYPE = new IJEField(16, 200, 1, "Decedent's Age--Type", "AGETYPE", 1);
+    static MetaIJEField metaAGETYPE = new MetaIJEField(16, 200, 1, "Decedent's Age--Type", "AGETYPE", 1);
     private String AGETYPE;
     public String getAGETYPE()
     {
@@ -1566,14 +2122,14 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Age--Units</summary>
-    IJEField metaAGE = new IJEField(17, 201, 3, "Decedent's Age--Units", "AGE", 2);
+    static MetaIJEField metaAGE = new MetaIJEField(17, 201, 3, "Decedent's Age--Units", "AGE", 2);
 
     private String AGE;
     public String getAGE()
     {
         if ((record.getDecedentAge().get(0) != null) && !this.AGETYPE.equals("9"))
         {
-            // IJEField info = FieldInfo("AGE");
+            // MetaIJEField info = FieldInfo("AGE");
             return  StringUtils.leftPad(Truncate(record.getDecedentAge().get(0), AGE), metaAGE.getLength(), '0');
         }
         else
@@ -1587,7 +2143,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Age--Edit Flag</summary>
-    IJEField metaAGE_BYPASS = new IJEField(18, 204, 1, "Decedent's Age--Edit Flag", "AGE_BYPASS", 1);
+    static MetaIJEField metaAGE_BYPASS = new MetaIJEField(18, 204, 1, "Decedent's Age--Edit Flag", "AGE_BYPASS", 1);
     private String AGE_BYPASS;
     public String getAGE_BYPASS()
     {
@@ -1599,7 +2155,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Birth--Year</summary>
-    IJEField metaDOB_YR = new IJEField(19, 205, 4, "Date of Birth--Year", "DOB_YR", 1);
+    static MetaIJEField metaDOB_YR = new MetaIJEField(19, 205, 4, "Date of Birth--Year", "DOB_YR", 1);
     private String DOB_YR;
     public String getDOB_YR()
     {
@@ -1611,7 +2167,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Birth--Month</summary>
-    IJEField metaDOB_MO = new IJEField(20, 209, 2, "Date of Birth--Month", "DOB_MO", 1);
+    static MetaIJEField metaDOB_MO = new MetaIJEField(20, 209, 2, "Date of Birth--Month", "DOB_MO", 1);
     private String DOB_MO;
     public String getDOB_MO()
     {
@@ -1623,7 +2179,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Birth--Day</summary>
-    IJEField metaDOB_DY = new IJEField(21, 211, 2, "Date of Birth--Day", "DOB_DY", 1);
+    static MetaIJEField metaDOB_DY = new MetaIJEField(21, 211, 2, "Date of Birth--Day", "DOB_DY", 1);
     private String DOB_DY;
     public String getDOB_DY()
     {
@@ -1635,7 +2191,7 @@ public class IJEMortality
     }
 
     /// <summary>Birthplace--Country</summary>
-    IJEField metaBPLACE_CNT = new IJEField(22, 213, 2, "Birthplace--Country", "BPLACE_CNT", 1);
+    static MetaIJEField metaBPLACE_CNT = new MetaIJEField(22, 213, 2, "Birthplace--Country", "BPLACE_CNT", 1);
     private String BPLACE_CNT;
     public String getBPLACE_CNT()
     {
@@ -1650,7 +2206,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Birth - code</summary>
-    IJEField metaBPLACE_ST = new IJEField(23, 215, 2, "State, U.S. Territory or Canadian Province of Birth - code", "BPLACE_ST", 1);
+    static MetaIJEField metaBPLACE_ST = new MetaIJEField(23, 215, 2, "State, U.S. Territory or Canadian Province of Birth - code", "BPLACE_ST", 1);
     private String BPLACE_ST;
     public String getBPLACE_ST()
     {
@@ -1665,7 +2221,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence--City</summary>
-    IJEField metaCITYC = new IJEField(24, 217, 5, "Decedent's Residence--City", "CITYC", 3);
+    MetaIJEField metaCITYC = new MetaIJEField(24, 217, 5, "Decedent's Residence--City", "CITYC", 3);
     private String CITYC;
     public String getCITYC()
     {
@@ -1680,7 +2236,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence--County</summary>
-    IJEField metaCOUNTYC = new IJEField(25, 222, 3, "Decedent's Residence--County", "COUNTYC", 2);
+    static MetaIJEField metaCOUNTYC = new MetaIJEField(25, 222, 3, "Decedent's Residence--County", "COUNTYC", 2);
     private String COUNTYC;
     public String getCOUNTYC()
     {
@@ -1695,7 +2251,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Decedent's residence - code</summary>
-    IJEField metaSTATEC = new IJEField(26, 225, 2, "State, U.S. Territory or Canadian Province of Decedent's residence - code", "STATEC", 1);
+    static MetaIJEField metaSTATEC = new MetaIJEField(26, 225, 2, "State, U.S. Territory or Canadian Province of Decedent's residence - code", "STATEC", 1);
     private String STATEC;
     public String getSTATEC()
     {
@@ -1710,7 +2266,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence--Country</summary>
-    IJEField metaCOUNTRYC = new IJEField(27, 227, 2, "Decedent's Residence--Country", "COUNTRYC", 1);
+    static MetaIJEField metaCOUNTRYC = new MetaIJEField(27, 227, 2, "Decedent's Residence--Country", "COUNTRYC", 1);
     private String COUNTRYC;
     public String getCOUNTRYC()
     {
@@ -1725,7 +2281,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence--Inside City Limits</summary>
-    IJEField metaLIMITS = new IJEField(28, 229, 1, "Decedent's Residence--Inside City Limits", "LIMITS", 10);
+    static MetaIJEField metaLIMITS = new MetaIJEField(28, 229, 1, "Decedent's Residence--Inside City Limits", "LIMITS", 10);
     private String LIMITS;
     public String getLIMITS()
     {
@@ -1740,7 +2296,7 @@ public class IJEMortality
     }
 
     /// <summary>Marital Status</summary>
-    IJEField metaMARITAL = new IJEField(29, 230, 1, "Marital Status", "MARITAL", 1);
+    static MetaIJEField metaMARITAL = new MetaIJEField(29, 230, 1, "Marital Status", "MARITAL", 1);
     private String MARITAL;
     public String getMARITAL()
     {
@@ -1755,7 +2311,7 @@ public class IJEMortality
     }
 
     /// <summary>Marital Status--Edit Flag</summary>
-    IJEField metaMARITAL_BYPASS = new IJEField(30, 231, 1, "Marital Status--Edit Flag", "MARITAL_BYPASS", 1);
+    static MetaIJEField metaMARITAL_BYPASS = new MetaIJEField(30, 231, 1, "Marital Status--Edit Flag", "MARITAL_BYPASS", 1);
     private String MARITAL_BYPASS;
     public String getMARITAL_BYPASS()
     {
@@ -1770,7 +2326,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of Death</summary>
-    IJEField metaDPLACE = new IJEField(31, 232, 1, "Place of Death", "DPLACE", 1);
+    static MetaIJEField metaDPLACE = new MetaIJEField(31, 232, 1, "Place of Death", "DPLACE", 1);
     private String DPLACE;
     public String getDPLACE()
     {
@@ -1785,7 +2341,7 @@ public class IJEMortality
     }
 
     /// <summary>County of Death Occurrence</summary>
-    IJEField metaCOD = new IJEField(32, 233, 3, "County of Death Occurrence", "COD", 2);
+    static MetaIJEField metaCOD = new MetaIJEField(32, 233, 3, "County of Death Occurrence", "COD", 2);
     private String COD;
     public String getCOD()
     {
@@ -1800,7 +2356,7 @@ public class IJEMortality
     }
 
     /// <summary>Method of Disposition</summary>
-    IJEField metaDISP = new IJEField(33, 236, 1, "Method of Disposition", "DISP", 1);
+    static MetaIJEField metaDISP = new MetaIJEField(33, 236, 1, "Method of Disposition", "DISP", 1);
     private String DISP;
     public String getDISP()
     {
@@ -1815,7 +2371,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Death--Month</summary>
-    IJEField metaDOD_MO = new IJEField(34, 237, 2, "Date of Death--Month", "DOD_MO", 1);
+    static MetaIJEField metaDOD_MO = new MetaIJEField(34, 237, 2, "Date of Death--Month", "DOD_MO", 1);
     private String DOD_MO;
     public String getDOD_MO()
     {
@@ -1830,7 +2386,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Death--Day</summary>
-    IJEField metaDOD_DY = new IJEField(35, 239, 2, "Date of Death--Day", "DOD_DY", 1);
+    static MetaIJEField metaDOD_DY = new MetaIJEField(35, 239, 2, "Date of Death--Day", "DOD_DY", 1);
     private String DOD_DY;
     public String getDOD_DY()
     {
@@ -1845,7 +2401,7 @@ public class IJEMortality
     }
 
     /// <summary>Time of Death</summary>
-    IJEField metaTOD = new IJEField(36, 241, 4, "Time of Death", "TOD", 1);
+    static MetaIJEField metaTOD = new MetaIJEField(36, 241, 4, "Time of Death", "TOD", 1);
     private String TOD;
     public String getTOD()
     {
@@ -1860,7 +2416,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Education</summary>
-    IJEField metaDEDUC = new IJEField(37, 245, 1, "Decedent's Education", "DEDUC", 1);
+    static MetaIJEField metaDEDUC = new MetaIJEField(37, 245, 1, "Decedent's Education", "DEDUC", 1);
     private String DEDUC;
     public String getDEDUC()
     {
@@ -1875,7 +2431,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Education--Edit Flag</summary>
-    IJEField metaDEDUC_BYPASS = new IJEField(38, 246, 1, "Decedent's Education--Edit Flag", "DEDUC_BYPASS", 1);
+    static MetaIJEField metaDEDUC_BYPASS = new MetaIJEField(38, 246, 1, "Decedent's Education--Edit Flag", "DEDUC_BYPASS", 1);
     private String DEDUC_BYPASS;
     public String getDEDUC_BYPASS()
     {
@@ -1895,7 +2451,7 @@ public class IJEMortality
     // If at least one DETHNIC field is H, the json data should show Hispanic or Latino ex. NNHN will return NNHN
     // If at least one DETHNIC field is N and no fields are H, the json data should show Non-Hispanic or Latino ex. UUNU will return NNNN
     /// <summary>Decedent of Hispanic Origin?--Mexican</summary>
-    IJEField metaDETHNIC1 = new IJEField(39, 247, 1, "Decedent of Hispanic Origin?--Mexican", "DETHNIC1", 1);
+    MetaIJEField metaDETHNIC1 = new MetaIJEField(39, 247, 1, "Decedent of Hispanic Origin?--Mexican", "DETHNIC1", 1);
     private String DETHNIC1;
     public String getDETHNIC1()
     {
@@ -1923,7 +2479,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent of Hispanic Origin?--Puerto Rican</summary>
-    IJEField metaDETHNIC2 = new IJEField(40, 248, 1, "Decedent of Hispanic Origin?--Puerto Rican", "DETHNIC2", 1);
+    static MetaIJEField metaDETHNIC2 = new MetaIJEField(40, 248, 1, "Decedent of Hispanic Origin?--Puerto Rican", "DETHNIC2", 1);
     private String DETHNIC2;
     public String getDETHNIC2()
     {
@@ -1951,7 +2507,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent of Hispanic Origin?--Cuban</summary>
-    IJEField metaDETHNIC3 = new IJEField(41, 249, 1, "Decedent of Hispanic Origin?--Cuban", "DETHNIC3", 1);
+    static MetaIJEField metaDETHNIC3 = new MetaIJEField(41, 249, 1, "Decedent of Hispanic Origin?--Cuban", "DETHNIC3", 1);
     private String DETHNIC3;
     public String getDETHNIC3()
     {
@@ -1979,7 +2535,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent of Hispanic Origin?--Other</summary>
-    IJEField metaDETHNIC4 = new IJEField(42, 250, 1, "Decedent of Hispanic Origin?--Other", "DETHNIC4", 1);
+    static MetaIJEField metaDETHNIC4 = new MetaIJEField(42, 250, 1, "Decedent of Hispanic Origin?--Other", "DETHNIC4", 1);
     private String DETHNIC4;
     public String getDETHNIC4()
     {
@@ -2007,7 +2563,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent of Hispanic Origin?--Other, Literal</summary>
-    IJEField metaDETHNIC5 = new IJEField(43, 251, 20, "Decedent of Hispanic Origin?--Other, Literal", "DETHNIC5", 1);
+    static MetaIJEField metaDETHNIC5 = new MetaIJEField(43, 251, 20, "Decedent of Hispanic Origin?--Other, Literal", "DETHNIC5", 1);
     private String DETHNIC5;
     public String getDETHNIC5()
     {
@@ -2030,7 +2586,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--White</summary>
-    IJEField metaRACE1 = new IJEField(44, 271, 1, "Decedent's Race--White", "RACE1", 1);
+    static MetaIJEField metaRACE1 = new MetaIJEField(44, 271, 1, "Decedent's Race--White", "RACE1", 1);
     private String RACE1;
     public String getRACE1()
     {
@@ -2044,7 +2600,7 @@ public class IJEMortality
         }
     }
     /// <summary>Decedent's Race--Black or African American</summary>
-    IJEField metaRACE2 = new IJEField(45, 272, 1, "Decedent's Race--Black or African American", "RACE2", 1);
+    static MetaIJEField metaRACE2 = new MetaIJEField(45, 272, 1, "Decedent's Race--Black or African American", "RACE2", 1);
     private String RACE2;
     public String getRACE2()
     {
@@ -2059,7 +2615,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--American Indian or Alaska Native</summary>
-    IJEField metaRACE3 = new IJEField(46, 273, 1, "Decedent's Race--American Indian or Alaska Native", "RACE3", 1);
+    static MetaIJEField metaRACE3 = new MetaIJEField(46, 273, 1, "Decedent's Race--American Indian or Alaska Native", "RACE3", 1);
     private String RACE3;
     public String getRACE3()
     {
@@ -2074,7 +2630,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Asian Indian</summary>
-    IJEField metaRACE4 = new IJEField(47, 274, 1, "Decedent's Race--Asian Indian", "RACE4", 1);
+    static MetaIJEField metaRACE4 = new MetaIJEField(47, 274, 1, "Decedent's Race--Asian Indian", "RACE4", 1);
     private String RACE4;
     public String getRACE4()
     {
@@ -2089,7 +2645,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Chinese</summary>
-    IJEField metaRACE5 = new IJEField(48, 275, 1, "Decedent's Race--Chinese", "RACE5", 1);
+    static MetaIJEField metaRACE5 = new MetaIJEField(48, 275, 1, "Decedent's Race--Chinese", "RACE5", 1);
     private String RACE5;
     public String getRACE5()
     {
@@ -2104,7 +2660,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Filipino</summary>
-    IJEField metaRACE6 = new IJEField(49, 276, 1, "Decedent's Race--Filipino", "RACE6", 1);
+    static MetaIJEField metaRACE6 = new MetaIJEField(49, 276, 1, "Decedent's Race--Filipino", "RACE6", 1);
     private String RACE6;
     public String getRACE6()
     {
@@ -2119,7 +2675,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Japanese</summary>
-    IJEField metaRACE7 = new IJEField(50, 277, 1, "Decedent's Race--Japanese", "RACE7", 1);
+    static MetaIJEField metaRACE7 = new MetaIJEField(50, 277, 1, "Decedent's Race--Japanese", "RACE7", 1);
     private String RACE7;
     public String getRACE7()
     {
@@ -2134,7 +2690,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Korean</summary>
-    IJEField metaRACE8 = new IJEField(51, 278, 1, "Decedent's Race--Korean", "RACE8", 1);
+    static MetaIJEField metaRACE8 = new MetaIJEField(51, 278, 1, "Decedent's Race--Korean", "RACE8", 1);
     private String RACE8;
     public String getRACE8()
     {
@@ -2149,7 +2705,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Vietnamese</summary>
-    IJEField metaRACE9 = new IJEField(52, 279, 1, "Decedent's Race--Vietnamese", "RACE9", 1);
+    static MetaIJEField metaRACE9 = new MetaIJEField(52, 279, 1, "Decedent's Race--Vietnamese", "RACE9", 1);
     private String RACE9;
     public String getRACE9()
     {
@@ -2164,7 +2720,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Other Asian</summary>
-    IJEField metaRACE10 = new IJEField(53, 280, 1, "Decedent's Race--Other Asian", "RACE10", 1);
+    static MetaIJEField metaRACE10 = new MetaIJEField(53, 280, 1, "Decedent's Race--Other Asian", "RACE10", 1);
     private String RACE10;
     public String getRACE10()
     {
@@ -2179,7 +2735,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Native Hawaiian</summary>
-    IJEField metaRACE11 = new IJEField(54, 281, 1, "Decedent's Race--Native Hawaiian", "RACE11", 1);
+    static MetaIJEField metaRACE11 = new MetaIJEField(54, 281, 1, "Decedent's Race--Native Hawaiian", "RACE11", 1);
     private String RACE11;
     public String getRACE11()
     {
@@ -2194,7 +2750,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Guamanian or Chamorro</summary>
-    IJEField metaRACE12 = new IJEField(55, 282, 1, "Decedent's Race--Guamanian or Chamorro", "RACE12", 1);
+    static MetaIJEField metaRACE12 = new MetaIJEField(55, 282, 1, "Decedent's Race--Guamanian or Chamorro", "RACE12", 1);
     private String RACE12;
     public String getRACE12()
     {
@@ -2209,7 +2765,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Samoan</summary>
-    IJEField metaRACE13 = new IJEField(56, 283, 1, "Decedent's Race--Samoan", "RACE13", 1);
+    static MetaIJEField metaRACE13 = new MetaIJEField(56, 283, 1, "Decedent's Race--Samoan", "RACE13", 1);
     private String RACE13;
     public String getRACE13()
     {
@@ -2224,7 +2780,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Other Pacific Islander</summary>
-    IJEField metaRACE14 = new IJEField(57, 284, 1, "Decedent's Race--Other Pacific Islander", "RACE14", 1);
+    static MetaIJEField metaRACE14 = new MetaIJEField(57, 284, 1, "Decedent's Race--Other Pacific Islander", "RACE14", 1);
     private String RACE14;
     public String getRACE14()
     {
@@ -2239,7 +2795,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Other</summary>
-    IJEField metaRACE15 = new IJEField(58, 285, 1, "Decedent's Race--Other", "RACE15", 1);
+    static MetaIJEField metaRACE15 = new MetaIJEField(58, 285, 1, "Decedent's Race--Other", "RACE15", 1);
     private String RACE15;
     public String getRACE15()
     {
@@ -2254,7 +2810,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--First American Indian or Alaska Native Literal</summary>
-    IJEField metaRACE16 = new IJEField(59, 286, 30, "Decedent's Race--First American Indian or Alaska Native Literal", "RACE16", 1);
+    static MetaIJEField metaRACE16 = new MetaIJEField(59, 286, 30, "Decedent's Race--First American Indian or Alaska Native Literal", "RACE16", 1);
     private String RACE16;
     public String getRACE16()
     {
@@ -2269,7 +2825,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Second American Indian or Alaska Native Literal</summary>
-    IJEField metaRACE17 = new IJEField(60, 316, 30, "Decedent's Race--Second American Indian or Alaska Native Literal", "RACE17", 1);
+    static MetaIJEField metaRACE17 = new MetaIJEField(60, 316, 30, "Decedent's Race--Second American Indian or Alaska Native Literal", "RACE17", 1);
     private String RACE17;
     public String getRACE17()
     {
@@ -2284,7 +2840,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--First Other Asian Literal</summary>
-    IJEField metaRACE18 = new IJEField(61, 346, 30, "Decedent's Race--First Other Asian Literal", "RACE18", 1);
+    static MetaIJEField metaRACE18 = new MetaIJEField(61, 346, 30, "Decedent's Race--First Other Asian Literal", "RACE18", 1);
     private String RACE18;
     public String getRACE18()
     {
@@ -2299,7 +2855,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Second Other Asian Literal</summary>
-    IJEField metaRACE19 = new IJEField(62, 376, 30, "Decedent's Race--Second Other Asian Literal", "RACE19", 1);
+    static MetaIJEField metaRACE19 = new MetaIJEField(62, 376, 30, "Decedent's Race--Second Other Asian Literal", "RACE19", 1);
     private String RACE19;
     public String getRACE19()
     {
@@ -2314,7 +2870,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--First Other Pacific Islander Literal</summary>
-    IJEField metaRACE20 = new IJEField(63, 406, 30, "Decedent's Race--First Other Pacific Islander Literal", "RACE20", 1);
+    static MetaIJEField metaRACE20 = new MetaIJEField(63, 406, 30, "Decedent's Race--First Other Pacific Islander Literal", "RACE20", 1);
     private String RACE20;
     public String getRACE20()
     {
@@ -2329,7 +2885,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Second Other Pacific Islander Literal</summary>
-    IJEField metaRACE21 = new IJEField(64, 436, 30, "Decedent's Race--Second Other Pacific Islander Literal", "RACE21", 1);
+    static MetaIJEField metaRACE21 = new MetaIJEField(64, 436, 30, "Decedent's Race--Second Other Pacific Islander Literal", "RACE21", 1);
     private String RACE21;
     public String getRACE21()
     {
@@ -2344,7 +2900,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--First Other Literal</summary>
-    IJEField metaRACE22 = new IJEField(65, 466, 30, "Decedent's Race--First Other Literal", "RACE22", 1);
+    static MetaIJEField metaRACE22 = new MetaIJEField(65, 466, 30, "Decedent's Race--First Other Literal", "RACE22", 1);
     private String RACE22;
     public String getRACE22()
     {
@@ -2359,7 +2915,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Second Other Literal</summary>
-    IJEField metaRACE23 = new IJEField(66, 496, 30, "Decedent's Race--Second Other Literal", "RACE23", 1);
+    static MetaIJEField metaRACE23 = new MetaIJEField(66, 496, 30, "Decedent's Race--Second Other Literal", "RACE23", 1);
     private String RACE23;
     public String getRACE23()
     {
@@ -2374,7 +2930,7 @@ public class IJEMortality
     }
 
     /// <summary>First Edited Code</summary>
-    IJEField metaRACE1E = new IJEField(67, 526, 3, "First Edited Code", "RACE1E", 1);
+    static MetaIJEField metaRACE1E = new MetaIJEField(67, 526, 3, "First Edited Code", "RACE1E", 1);
     private String RACE1E;
     public String getRACE1E()
     {
@@ -2386,7 +2942,7 @@ public class IJEMortality
     }
 
     /// <summary>Second Edited Code</summary>
-    IJEField metaRACE2E = new IJEField(68, 529, 3, "Second Edited Code", "RACE2E", 1);
+    static MetaIJEField metaRACE2E = new MetaIJEField(68, 529, 3, "Second Edited Code", "RACE2E", 1);
     private String RACE2E;
     public String getRACE2E()
     {
@@ -2398,7 +2954,7 @@ public class IJEMortality
     }
 
     /// <summary>Third Edited Code</summary>
-    IJEField metaRACE3E = new IJEField(69, 532, 3, "Third Edited Code", "RACE3E", 1);
+    static MetaIJEField metaRACE3E = new MetaIJEField(69, 532, 3, "Third Edited Code", "RACE3E", 1);
     private String RACE3E;
     public String getRACE3E()
     {
@@ -2410,7 +2966,7 @@ public class IJEMortality
     }
 
     /// <summary>Fourth Edited Code</summary>
-    IJEField metaRACE4E = new IJEField(70, 535, 3, "Fourth Edited Code", "RACE4E", 1);
+    static MetaIJEField metaRACE4E = new MetaIJEField(70, 535, 3, "Fourth Edited Code", "RACE4E", 1);
     private String RACE4E;
     public String getRACE4E()
     {
@@ -2422,7 +2978,7 @@ public class IJEMortality
     }
 
     /// <summary>Fifth Edited Code</summary>
-    IJEField metaRACE5E = new IJEField(71, 538, 3, "Fifth Edited Code", "RACE5E", 1);
+    static MetaIJEField metaRACE5E = new MetaIJEField(71, 538, 3, "Fifth Edited Code", "RACE5E", 1);
     private String RACE5E;
     public String getRACE5E()
     {
@@ -2434,7 +2990,7 @@ public class IJEMortality
     }
 
     /// <summary>Sixth Edited Code</summary>
-    IJEField metaRACE6E = new IJEField(72, 541, 3, "Sixth Edited Code", "RACE6E", 1);
+    static MetaIJEField metaRACE6E = new MetaIJEField(72, 541, 3, "Sixth Edited Code", "RACE6E", 1);
     private String RACE6E;
     public String getRACE6E()
     {
@@ -2446,7 +3002,7 @@ public class IJEMortality
     }
 
     /// <summary>Seventh Edited Code</summary>
-    IJEField metaRACE7E = new IJEField(73, 544, 3, "Seventh Edited Code", "RACE7E", 1);
+    static MetaIJEField metaRACE7E = new MetaIJEField(73, 544, 3, "Seventh Edited Code", "RACE7E", 1);
     private String RACE7E;
     public String getRACE7E()
     {
@@ -2458,7 +3014,7 @@ public class IJEMortality
     }
 
     /// <summary>Eighth Edited Code</summary>
-    IJEField metaRACE8E = new IJEField(74, 547, 3, "Eighth Edited Code", "RACE8E", 1);
+    static MetaIJEField metaRACE8E = new MetaIJEField(74, 547, 3, "Eighth Edited Code", "RACE8E", 1);
     private String RACE8E;
     public String getRACE8E()
     {
@@ -2470,7 +3026,7 @@ public class IJEMortality
     }
 
     /// <summary>First American Indian Code</summary>
-    IJEField metaRACE16C = new IJEField(75, 550, 3, "First American Indian Code", "RACE16C", 1);
+    static MetaIJEField metaRACE16C = new MetaIJEField(75, 550, 3, "First American Indian Code", "RACE16C", 1);
     private String RACE16C;
     public String getRACE16C()
     {
@@ -2482,7 +3038,7 @@ public class IJEMortality
     }
 
     /// <summary>Second American Indian Code</summary>
-    IJEField metaRACE17C = new IJEField(76, 553, 3, "Second American Indian Code", "RACE17C", 1);
+    static MetaIJEField metaRACE17C = new MetaIJEField(76, 553, 3, "Second American Indian Code", "RACE17C", 1);
     private String RACE17C;
     public String getRACE17C()
     {
@@ -2494,7 +3050,7 @@ public class IJEMortality
     }
 
     /// <summary>First Other Asian Code</summary>
-    IJEField metaRACE18C = new IJEField(77, 556, 3, "First Other Asian Code", "RACE18C", 1);
+    static MetaIJEField metaRACE18C = new MetaIJEField(77, 556, 3, "First Other Asian Code", "RACE18C", 1);
     private String RACE18C;
     public String getRACE18C()
     {
@@ -2506,7 +3062,7 @@ public class IJEMortality
     }
 
     /// <summary>Second Other Asian Code</summary>
-    IJEField metaRACE19C = new IJEField(78, 559, 3, "Second Other Asian Code", "RACE19C", 1);
+    static MetaIJEField metaRACE19C = new MetaIJEField(78, 559, 3, "Second Other Asian Code", "RACE19C", 1);
     private String RACE19C;
     public String getRACE19C()
     {
@@ -2518,7 +3074,7 @@ public class IJEMortality
     }
 
     /// <summary>First Other Pacific Islander Code</summary>
-    IJEField metaRACE20C = new IJEField(79, 562, 3, "First Other Pacific Islander Code", "RACE20C", 1);
+    static MetaIJEField metaRACE20C = new MetaIJEField(79, 562, 3, "First Other Pacific Islander Code", "RACE20C", 1);
     private String RACE20C;
     public String getRACE20C()
     {
@@ -2530,7 +3086,7 @@ public class IJEMortality
     }
 
     /// <summary>Second Other Pacific Islander Code</summary>
-    IJEField metaRACE21C = new IJEField(80, 565, 3, "Second Other Pacific Islander Code", "RACE21C", 1);
+    static MetaIJEField metaRACE21C = new MetaIJEField(80, 565, 3, "Second Other Pacific Islander Code", "RACE21C", 1);
     private String RACE21C;
     public String getRACE21C()
     {
@@ -2542,7 +3098,7 @@ public class IJEMortality
     }
 
     /// <summary>First Other Race Code</summary>
-    IJEField metaRACE22C = new IJEField(81, 568, 3, "First Other Race Code", "RACE22C", 1);
+    static MetaIJEField metaRACE22C = new MetaIJEField(81, 568, 3, "First Other Race Code", "RACE22C", 1);
     private String RACE22C;
     public String getRACE22C()
     {
@@ -2554,7 +3110,7 @@ public class IJEMortality
     }
 
     /// <summary>Second Other Race Code</summary>
-    IJEField metaRACE23C = new IJEField(82, 571, 3, "Second Other Race Code", "RACE23C", 1);
+    static MetaIJEField metaRACE23C = new MetaIJEField(82, 571, 3, "Second Other Race Code", "RACE23C", 1);
     private String RACE23C;
     public String getRACE23C()
     {
@@ -2566,7 +3122,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Race--Missing</summary>
-    IJEField metaRACE_MVR = new IJEField(83, 574, 1, "Decedent's Race--Missing", "RACE_MVR", 1);
+    static MetaIJEField metaRACE_MVR = new MetaIJEField(83, 574, 1, "Decedent's Race--Missing", "RACE_MVR", 1);
     private String RACE_MVR;
     public String getRACE_MVR()
     {
@@ -2578,7 +3134,7 @@ public class IJEMortality
     }
 
     /// <summary>Occupation -- Literal (OPTIONAL)</summary>
-    IJEField metaOCCUP = new IJEField(84, 575, 40, "Occupation -- Literal (OPTIONAL)", "OCCUP", 1);
+    static MetaIJEField metaOCCUP = new MetaIJEField(84, 575, 40, "Occupation -- Literal (OPTIONAL)", "OCCUP", 1);
     private String OCCUP;
     public String getOCCUP()
     {
@@ -2590,7 +3146,7 @@ public class IJEMortality
     }
 
     /// <summary>Occupation -- Code</summary>
-    IJEField metaOCCUPC = new IJEField(85, 615, 3, "Occupation -- Code", "OCCUPC", 1);
+    static MetaIJEField metaOCCUPC = new MetaIJEField(85, 615, 3, "Occupation -- Code", "OCCUPC", 1);
     private String OCCUPC;
     public String getOCCUPC()
     {
@@ -2603,7 +3159,7 @@ public class IJEMortality
     }
 
     /// <summary>Industry -- Literal (OPTIONAL)</summary>
-    IJEField metaINDUST = new IJEField(86, 618, 40, "Industry -- Literal (OPTIONAL)", "INDUST", 1);
+    static MetaIJEField metaINDUST = new MetaIJEField(86, 618, 40, "Industry -- Literal (OPTIONAL)", "INDUST", 1);
     private String INDUST;
     public String getINDUST()
     {
@@ -2615,7 +3171,7 @@ public class IJEMortality
     }
 
     /// <summary>Industry -- Code</summary>
-    IJEField metaINDUSTC = new IJEField(87, 658, 3, "Industry -- Code", "INDUSTC", 1);
+    static MetaIJEField metaINDUSTC = new MetaIJEField(87, 658, 3, "Industry -- Code", "INDUSTC", 1);
 //    public String getINDUSTC()
 //    {
 //        // NOTE: This is a placeholder, the IJE field INDUSTC is not currently implemented in FHIR
@@ -2627,7 +3183,7 @@ public class IJEMortality
 //    }
 
     /// <summary>Infant Death/Birth Linking - birth certificate number</summary>
-    IJEField metaBCNO = new IJEField(88, 661, 6, "Infant Death/Birth Linking - birth certificate number", "BCNO", 1);
+    static MetaIJEField metaBCNO = new MetaIJEField(88, 661, 6, "Infant Death/Birth Linking - birth certificate number", "BCNO", 1);
     private String BCNO;
     public String getBCNO()
     {
@@ -2646,7 +3202,7 @@ public class IJEMortality
     }
 
     /// <summary>Infant Death/Birth Linking - year of birth</summary>
-    IJEField metaIDOB_YR = new IJEField(89, 667, 4, "Infant Death/Birth Linking - year of birth", "IDOB_YR", 1);
+    static MetaIJEField metaIDOB_YR = new MetaIJEField(89, 667, 4, "Infant Death/Birth Linking - year of birth", "IDOB_YR", 1);
     public String getIDOB_YR()
     {
         return LeftJustified_Get("IDOB_YR", "BirthRecordYear");
@@ -2661,7 +3217,7 @@ public class IJEMortality
     }
 
     /// <summary>Infant Death/Birth Linking - Birth state</summary>
-    IJEField metaBSTATE = new IJEField(90, 671, 2, "Infant Death/Birth Linking - State, U.S. Territory or Canadian Province of Birth - code", "BSTATE", 1);
+    static MetaIJEField metaBSTATE = new MetaIJEField(90, 671, 2, "Infant Death/Birth Linking - State, U.S. Territory or Canadian Province of Birth - code", "BSTATE", 1);
     private String BSTATE;
     public String getBSTATE()
     {
@@ -2676,7 +3232,7 @@ public class IJEMortality
     }
 
     /// <summary>Receipt date -- Year</summary>
-    IJEField metaR_YR = new IJEField(91, 673, 4, "Receipt date -- Year", "R_YR", 1);
+    static MetaIJEField metaR_YR = new MetaIJEField(91, 673, 4, "Receipt date -- Year", "R_YR", 1);
     private String R_YR;
     public String getR_YR()
     {
@@ -2688,7 +3244,7 @@ public class IJEMortality
     }
 
     /// <summary>Receipt date -- Month</summary>
-    IJEField metaR_MO = new IJEField(92, 677, 2, "Receipt date -- Month", "R_MO", 1);
+    static MetaIJEField metaR_MO = new MetaIJEField(92, 677, 2, "Receipt date -- Month", "R_MO", 1);
     private String R_MO;
     public String getR_MO()
     {
@@ -2700,7 +3256,7 @@ public class IJEMortality
     }
 
     /// <summary>Receipt date -- Day</summary>
-    IJEField metaR_DY = new IJEField(93, 679, 2, "Receipt date -- Day", "R_DY", 1);
+    static MetaIJEField metaR_DY = new MetaIJEField(93, 679, 2, "Receipt date -- Day", "R_DY", 1);
     private String R_DY;
     public String getR_DY()
     {
@@ -2712,7 +3268,7 @@ public class IJEMortality
     }
 
     /// <summary>Occupation -- 4 digit Code (OPTIONAL)</summary>
-    IJEField metaOCCUPC4 = new IJEField(94, 681, 4, "Occupation -- 4 digit Code (OPTIONAL)", "OCCUPC4", 1);
+    static MetaIJEField metaOCCUPC4 = new MetaIJEField(94, 681, 4, "Occupation -- 4 digit Code (OPTIONAL)", "OCCUPC4", 1);
     private String OCCUPC4;
     public String getOCCUPC4()
     {
@@ -2725,7 +3281,7 @@ public class IJEMortality
     }
 
     /// <summary>Industry -- 4 digit Code (OPTIONAL)</summary>
-    IJEField metaINDUSTC = new IJEField(95, 685, 4, "Industry -- 4 digit Code (OPTIONAL)", "INDUSTC4", 1);
+    MetaIJEField metaINDUSTC = new MetaIJEField(95, 685, 4, "Industry -- 4 digit Code (OPTIONAL)", "INDUSTC4", 1);
     private String INDUSTC;
     public String getINDUSTC()
     {
@@ -2738,7 +3294,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Registration--Year</summary>
-    IJEField metaDOR_YR = new IJEField(96, 689, 4, "Date of Registration--Year", "DOR_YR", 1);
+    static MetaIJEField metaDOR_YR = new MetaIJEField(96, 689, 4, "Date of Registration--Year", "DOR_YR", 1);
     private String DOR_YR;
     public String getDOR_YR()
     {
@@ -2753,7 +3309,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Registration--Month</summary>
-    IJEField metaDOR_MO = new IJEField(97, 693, 2, "Date of Registration--Month", "DOR_MO", 1);
+    static MetaIJEField metaDOR_MO = new MetaIJEField(97, 693, 2, "Date of Registration--Month", "DOR_MO", 1);
     private String DOR_MO;
     public String getDOR_MO()
     {
@@ -2768,7 +3324,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of Registration--Day</summary>
-    IJEField metaDOR_DY = new IJEField(98, 695, 2, "Date of Registration--Day", "DOR_DY", 1);
+    static MetaIJEField metaDOR_DY = new MetaIJEField(98, 695, 2, "Date of Registration--Day", "DOR_DY", 1);
     private String DOR_DY;
     public String getDOR_DY()
     {
@@ -2783,7 +3339,7 @@ public class IJEMortality
     }
 
     /// <summary>FILLER 2 for expansion</summary>
-    IJEField metaFILLER2 = new IJEField(99, 697, 4, "FILLER 2 for expansion", "FILLER2", 1);
+    static MetaIJEField metaFILLER2 = new MetaIJEField(99, 697, 4, "FILLER 2 for expansion", "FILLER2", 1);
     private String FILLER2;
     public String getFILLER2()
     {
@@ -2796,7 +3352,7 @@ public class IJEMortality
     }
 
     /// <summary>Manner of Death</summary>
-    IJEField metaMANNER = new IJEField(100, 701, 1, "Manner of Death", "MANNER", 1);
+    static MetaIJEField metaMANNER = new MetaIJEField(100, 701, 1, "Manner of Death", "MANNER", 1);
     private String MANNER;
     public String getMANNER()
     {
@@ -2808,7 +3364,7 @@ public class IJEMortality
     }
 
     /// <summary>Intentional Reject</summary>
-    IJEField metaINT_REJ = new IJEField(101, 702, 1, "Intentional Reject", "INT_REJ", 1);
+    static MetaIJEField metaINT_REJ = new MetaIJEField(101, 702, 1, "Intentional Reject", "INT_REJ", 1);
     private String INT_REJ;
     public String getINT_REJ()
     {
@@ -2820,7 +3376,7 @@ public class IJEMortality
     }
 
     /// <summary>Acme System Reject Codes</summary>
-    IJEField metaSYS_REJ = new IJEField(102, 703, 1, "Acme System Reject Codes", "SYS_REJ", 1);
+    static MetaIJEField metaSYS_REJ = new MetaIJEField(102, 703, 1, "Acme System Reject Codes", "SYS_REJ", 1);
     private String SYS_REJ;
     public String getSYS_REJ()
     {
@@ -2832,7 +3388,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of Injury (computer generated)</summary>
-    IJEField metaINJPL = new IJEField(103, 704, 1, "Place of Injury (computer generated)", "INJPL", 1);
+    static MetaIJEField metaINJPL = new MetaIJEField(103, 704, 1, "Place of Injury (computer generated)", "INJPL", 1);
     private String INJPL;
     public String getINJPL()
     {
@@ -2844,7 +3400,7 @@ public class IJEMortality
     }
 
     /// <summary>Manual Underlying Cause</summary>
-    IJEField metaMAN_UC = new IJEField(104, 705, 5, "Manual Underlying Cause", "MAN_UC", 1);
+    static MetaIJEField metaMAN_UC = new MetaIJEField(104, 705, 5, "Manual Underlying Cause", "MAN_UC", 1);
     private String MAN_UC;
     public String getMAN_UC()
     {
@@ -2856,7 +3412,7 @@ public class IJEMortality
     }
 
     /// <summary>ACME Underlying Cause</summary>
-    IJEField metaACME_UC = new IJEField(105, 710, 5, "ACME Underlying Cause", "ACME_UC", 1);
+    static MetaIJEField metaACME_UC = new MetaIJEField(105, 710, 5, "ACME Underlying Cause", "ACME_UC", 1);
     private String ACME_UC;
     public String getACME_UC()
     {
@@ -2874,7 +3430,7 @@ public class IJEMortality
     // 4 char “ICD code” in NCHS format, without the ‘.’
     // 1 char reserved”.  (not represented in the FHIR specification)
     // 1 char ‘e code indicator’
-    IJEField metaEAC = new IJEField(106, 715, 160, "Entity-axis codes", "EAC", 1);
+    static MetaIJEField metaEAC = new MetaIJEField(106, 715, 160, "Entity-axis codes", "EAC", 1);
     private String EAC;
     public String getEAC()
     {
@@ -2916,7 +3472,7 @@ public class IJEMortality
     }
 
     /// <summary>Transax conversion flag: Computer Generated</summary>
-    IJEField metaTRX_FLG = new IJEField(107, 875, 1, "Transax conversion flag: Computer Generated", "TRX_FLG", 1);
+    static MetaIJEField metaTRX_FLG = new MetaIJEField(107, 875, 1, "Transax conversion flag: Computer Generated", "TRX_FLG", 1);
     private String TRX_FLG;
     public String getTRX_FLG()
     {
@@ -2931,7 +3487,7 @@ public class IJEMortality
     // 20 codes, each taking up 5 characters:
     // 4 char “ICD code” in NCHS format, without the ‘.’
     // 1 char WouldBeUnderlyingCauseOfDeathWithoutPregnancy, only significant if position=2”
-    IJEField metaRAC = new IJEField(108, 876, 100, "Record-axis codes", "RAC", 1);
+    static MetaIJEField metaRAC = new MetaIJEField(108, 876, 100, "Record-axis codes", "RAC", 1);
     private String RAC;
     public String getRAC()
     {
@@ -2946,6 +3502,20 @@ public class IJEMortality
         String fmtRac = StringUtils.rightPad(Truncate(racStr, 100), 100, " ");
         return fmtRac;
     }
+
+    public String getRAC() {
+        StringBuilder racStr = new StringBuilder();
+        for (RecordAxisCauseOfDeath entry : recordAxisCauseOfDeath) {
+            String icdCode = truncate(actualICD10toNCHSICD10(entry.getCode()), 4);
+            icdCode = String.format("%1$-" + 4 + "s", icdCode);
+            String preg = entry.isPregnancy() ? "1" : " ";
+            racStr.append(icdCode).append(preg);
+        }
+        String fmtRac = truncate(racStr.toString(), 100);
+        fmtRac = String.format("%1$-" + 100 + "s", fmtRac);
+        return fmtRac;
+    }
+
     public void setRAC(String value)
     {
         List rac = new ArrayList<>();
@@ -2972,7 +3542,7 @@ public class IJEMortality
     }
 
     /// <summary>Was Autopsy performed</summary>
-    IJEField metaAUTOP = new IJEField(109, 976, 1, "Was Autopsy performed", "AUTOP", 1);
+    static MetaIJEField metaAUTOP = new MetaIJEField(109, 976, 1, "Was Autopsy performed", "AUTOP", 1);
     private String AUTOP;
     public String getAUTOP()
     {
@@ -2984,7 +3554,7 @@ public class IJEMortality
     }
 
     /// <summary>Were Autopsy Findings Available to Complete the Cause of Death?</summary>
-    IJEField metaAUTOPF = new IJEField(110, 977, 1, "Were Autopsy Findings Available to Complete the Cause of Death?", "AUTOPF", 1);
+    static MetaIJEField metaAUTOPF = new MetaIJEField(110, 977, 1, "Were Autopsy Findings Available to Complete the Cause of Death?", "AUTOPF", 1);
     private String AUTOPF;
     public String getAUTOPF()
     {
@@ -2996,7 +3566,7 @@ public class IJEMortality
     }
 
     /// <summary>Did Tobacco Use Contribute to Death?</summary>
-    IJEField metaTOBAC = new IJEField(111, 978, 1, "Did Tobacco Use Contribute to Death?", "TOBAC", 1);
+    static MetaIJEField metaTOBAC = new MetaIJEField(111, 978, 1, "Did Tobacco Use Contribute to Death?", "TOBAC", 1);
     private String TOBAC;
     public String getTOBAC()
     {
@@ -3008,7 +3578,7 @@ public class IJEMortality
     }
 
     /// <summary>Pregnancy</summary>
-    IJEField metaPREG = new IJEField(112, 979, 1, "Pregnancy", "PREG", 1);
+    static MetaIJEField metaPREG = new MetaIJEField(112, 979, 1, "Pregnancy", "PREG", 1);
     private String PREG;
     public String getPREG()
     {
@@ -3020,7 +3590,7 @@ public class IJEMortality
     }
 
     /// <summary>If Female--Edit Flag: From EDR only</summary>
-    IJEField metaPREG_BYPASS = new IJEField(113, 980, 1, "If Female--Edit Flag: From EDR only", "PREG_BYPASS", 1);
+    static MetaIJEField metaPREG_BYPASS = new MetaIJEField(113, 980, 1, "If Female--Edit Flag: From EDR only", "PREG_BYPASS", 1);
     private String PREG_BYPASS;
     public String getPREG_BYPASS()
     {
@@ -3032,7 +3602,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of injury--month</summary>
-    IJEField metaDOI_MO = new IJEField(114, 981, 2, "Date of injury--month", "DOI_MO", 1);
+    static MetaIJEField metaDOI_MO = new MetaIJEField(114, 981, 2, "Date of injury--month", "DOI_MO", 1);
     private String DOI_MO;
     public String getDOI_MO()
     {
@@ -3044,7 +3614,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of injury--day</summary>
-    IJEField metaDOI_DY = new IJEField(115, 983, 2, "Date of injury--day", "DOI_DY", 1);
+    static MetaIJEField metaDOI_DY = new MetaIJEField(115, 983, 2, "Date of injury--day", "DOI_DY", 1);
     private String DOI_DY;
     public String getDOI_DY()
     {
@@ -3056,7 +3626,7 @@ public class IJEMortality
     }
 
     /// <summary>Date of injury--year</summary>
-    IJEField metaDOI_YR = new IJEField(116, 985, 4, "Date of injury--year", "DOI_YR", 1);
+    static MetaIJEField metaDOI_YR = new MetaIJEField(116, 985, 4, "Date of injury--year", "DOI_YR", 1);
     private String DOI_YR;
     public String getDOI_YR()
     {
@@ -3068,7 +3638,7 @@ public class IJEMortality
     }
 
     /// <summary>Time of injury</summary>
-    IJEField metaTOI_HR = new IJEField(117, 989, 4, "Time of injury", "TOI_HR", 1);
+    static MetaIJEField metaTOI_HR = new MetaIJEField(117, 989, 4, "Time of injury", "TOI_HR", 1);
     private String TOI_HR;
     public String getTOI_HR()
     {
@@ -3080,7 +3650,7 @@ public class IJEMortality
     }
 
     /// <summary>Time of injury</summary>
-    IJEField metaWORKINJ = new IJEField(118, 993, 1, "Injury at work", "WORKINJ", 1);
+    static MetaIJEField metaWORKINJ = new MetaIJEField(118, 993, 1, "Injury at work", "WORKINJ", 1);
     private String WORKINJ;
     public String getWORKINJ()
     {
@@ -3092,7 +3662,7 @@ public class IJEMortality
     }
 
     /// <summary>Title of Certifier</summary>
-    IJEField metaCERTL = new IJEField(119, 994, 30, "Title of Certifier", "CERTL", 1);
+    static MetaIJEField metaCERTL = new MetaIJEField(119, 994, 30, "Title of Certifier", "CERTL", 1);
     private String CERTL;
     public String getCERTL()
     {
@@ -3119,7 +3689,7 @@ public class IJEMortality
     }
 
     /// <summary>Activity at time of death (computer generated)</summary>
-    IJEField metaINACT = new IJEField(120, 1024, 1, "Activity at time of death (computer generated)", "INACT", 1);
+    static MetaIJEField metaINACT = new MetaIJEField(120, 1024, 1, "Activity at time of death (computer generated)", "INACT", 1);
     private String INACT;
     public String getINACT()
     {
@@ -3131,7 +3701,7 @@ public class IJEMortality
     }
 
     /// <summary>Auxiliary State file number</summary>
-    IJEField metaAUXNO2 = new IJEField(121, 1025, 12, "Auxiliary State file number", "AUXNO2", 1);
+    static MetaIJEField metaAUXNO2 = new MetaIJEField(121, 1025, 12, "Auxiliary State file number", "AUXNO2", 1);
     private String AUXNO2;
     public String getAUXNO2()
     {
@@ -3151,7 +3721,7 @@ public class IJEMortality
     }
 
     /// <summary>State Specific Data</summary>
-    IJEField metaSTATESP = new IJEField(122, 1037, 30, "State Specific Data", "STATESP", 1);
+    static MetaIJEField metaSTATESP = new MetaIJEField(122, 1037, 30, "State Specific Data", "STATESP", 1);
     private String STATESP;
     public String getSTATESP()
     {
@@ -3166,7 +3736,7 @@ public class IJEMortality
     }
 
     /// <summary>Surgery Date--month</summary>
-    IJEField metaSUR_MO = new IJEField(123, 1067, 2, "Surgery Date--month", "SUR_MO", 1);
+    static MetaIJEField metaSUR_MO = new MetaIJEField(123, 1067, 2, "Surgery Date--month", "SUR_MO", 1);
     private String SUR_MO;
     public String getSUR_MO()
     {
@@ -3181,7 +3751,7 @@ public class IJEMortality
     }
 
     /// <summary>Surgery Date--day</summary>
-    IJEField metaSUR_DY = new IJEField(124, 1069, 2, "Surgery Date--day", "SUR_DY", 1);
+    static MetaIJEField metaSUR_DY = new MetaIJEField(124, 1069, 2, "Surgery Date--day", "SUR_DY", 1);
     private String SUR_DY;
     public String getSUR_DY()
     {
@@ -3196,7 +3766,7 @@ public class IJEMortality
     }
 
     /// <summary>Surgery Date--year</summary>
-    IJEField metaSUR_YR = new IJEField(125, 1071, 4, "Surgery Date--year", "SUR_YR", 1);
+    static MetaIJEField metaSUR_YR = new MetaIJEField(125, 1071, 4, "Surgery Date--year", "SUR_YR", 1);
     private String SUR_YR;
     public String getSUR_YR()
     {
@@ -3211,7 +3781,7 @@ public class IJEMortality
     }
 
     /// <summary>Time of Injury Unit</summary>
-    IJEField metaTOI_UNIT = new IJEField(126, 1075, 1, "Time of Injury Unit", "TOI_UNIT", 1);
+    static MetaIJEField metaTOI_UNIT = new MetaIJEField(126, 1075, 1, "Time of Injury Unit", "TOI_UNIT", 1);
     private String TOI_UNIT;
     public String getTOI_UNIT()
     {
@@ -3236,7 +3806,7 @@ public class IJEMortality
     }
 
     /// <summary>For possible future change in transax</summary>
-    IJEField metaBLANK1 = new IJEField(127, 1076, 5, "For possible future change in transax", "BLANK1", 1);
+    static MetaIJEField metaBLANK1 = new MetaIJEField(127, 1076, 5, "For possible future change in transax", "BLANK1", 1);
     private String BLANK1;
     public String getBLANK1()
     {
@@ -3249,7 +3819,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent ever served in Armed Forces?</summary>
-    IJEField metaARMEDF = new IJEField(128, 1081, 1, "Decedent ever served in Armed Forces?", "ARMEDF", 1);
+    static MetaIJEField metaARMEDF = new MetaIJEField(128, 1081, 1, "Decedent ever served in Armed Forces?", "ARMEDF", 1);
     private String ARMEDF;
     public String getARMEDF()
     {
@@ -3264,7 +3834,7 @@ public class IJEMortality
     }
 
     /// <summary>Death Institution name</summary>
-    IJEField metaDINSTI = new IJEField(129, 1082, 30, "Death Institution name", "DINSTI", 1);
+    static MetaIJEField metaDINSTI = new MetaIJEField(129, 1082, 30, "Death Institution name", "DINSTI", 1);
     private String DINSTI;
     public String getDINSTI()
     {
@@ -3279,7 +3849,7 @@ public class IJEMortality
     }
 
     /// <summary>Long String address for place of death</summary>
-    IJEField metaADDRESS_D = new IJEField(130, 1112, 50, "Long String address for place of death", "ADDRESS_D", 1);
+    static MetaIJEField metaADDRESS_D = new MetaIJEField(130, 1112, 50, "Long String address for place of death", "ADDRESS_D", 1);
     private String ADDRESS_D;
     public String getADDRESS_D()
     {
@@ -3294,7 +3864,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. Street number</summary>
-    IJEField metaSTNUM_D = new IJEField(131, 1162, 10, "Place of death. Street number", "STNUM_D", 1);
+    static MetaIJEField metaSTNUM_D = new MetaIJEField(131, 1162, 10, "Place of death. Street number", "STNUM_D", 1);
     private String STNUM_D;
     public String getSTNUM_D()
     {
@@ -3330,7 +3900,7 @@ public class IJEMortality
 //    }
 
     /// <summary>Place of death. Pre Directional</summary>
-    IJEField metaPREDIR_D = new IJEField(132, 1172, 10, "Place of death. Pre Directional", "PREDIR_D", 1);
+    static MetaIJEField metaPREDIR_D = new MetaIJEField(132, 1172, 10, "Place of death. Pre Directional", "PREDIR_D", 1);
     public String getPREDIR_D()
     {
         return Map_Geo_Get("PREDIR_D", "DeathLocationAddress", "address", "predir", true);
@@ -3345,7 +3915,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. Street name</summary>
-    IJEField metaSTNAME_D = new IJEField(133, 1182, 50, "Place of death. Street name", "STNAME_D", 1);
+    static MetaIJEField metaSTNAME_D = new MetaIJEField(133, 1182, 50, "Place of death. Street name", "STNAME_D", 1);
     public String getSTNAME_D()
     {
         return Map_Geo_Get("STNAME_D", "DeathLocationAddress", "address", "stname", true);
@@ -3360,7 +3930,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. Street designator</summary>
-    IJEField metaSTDESIG_D = new IJEField(134, 1232, 10, "Place of death. Street designator", "STDESIG_D", 1);
+    static MetaIJEField metaSTDESIG_D = new MetaIJEField(134, 1232, 10, "Place of death. Street designator", "STDESIG_D", 1);
     private String STDESIG_D;
     public String getSTDESIG_D()
     {
@@ -3375,7 +3945,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. Post Directional</summary>
-    IJEField metaPOSTDIR_D = new IJEField(135, 1242, 10, "Place of death. Post Directional", "POSTDIR_D", 1);
+    static MetaIJEField metaPOSTDIR_D = new MetaIJEField(135, 1242, 10, "Place of death. Post Directional", "POSTDIR_D", 1);
     private String POSTDIR_D;
     public String getPOSTDIR_D()
     {
@@ -3390,7 +3960,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. City or Town name</summary>
-    IJEField metaCITYTEXT_D = new IJEField(136, 1252, 28, "Place of death. City or Town name", "CITYTEXT_D", 1);
+    static MetaIJEField metaCITYTEXT_D = new MetaIJEField(136, 1252, 28, "Place of death. City or Town name", "CITYTEXT_D", 1);
     private String CITYTEXT_D;
     public String getCITYTEXT_D()
     {
@@ -3405,7 +3975,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. State name literal</summary>
-    IJEField metaSTATETEXT_D = new IJEField(137, 1280, 28, "Place of death. State name literal", "STATETEXT_D", 1);
+    static MetaIJEField metaSTATETEXT_D = new MetaIJEField(137, 1280, 28, "Place of death. State name literal", "STATETEXT_D", 1);
     private String STATETEXT_D;
     public String getSTATETEXT_D()
     {
@@ -3424,7 +3994,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. Zip code</summary>
-    IJEField metaZIP9_D = new IJEField(138, 1308, 9, "Place of death. Zip code", "ZIP9_D", 1);
+    static MetaIJEField metaZIP9_D = new MetaIJEField(138, 1308, 9, "Place of death. Zip code", "ZIP9_D", 1);
     private String ZIP9_D;
     public String getZIP9_D()
     {
@@ -3439,7 +4009,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. County of Death</summary>
-    IJEField metaCOUNTYTEXT_D = new IJEField(139, 1317, 28, "Place of death. County of Death", "COUNTYTEXT_D", 2);
+    static MetaIJEField metaCOUNTYTEXT_D = new MetaIJEField(139, 1317, 28, "Place of death. County of Death", "COUNTYTEXT_D", 2);
     private String COUNTYTEXT_D;
     public String getCOUNTYTEXT_D()
     {
@@ -3454,7 +4024,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. City FIPS code</summary>
-    IJEField metaCITYCODE_D = new IJEField(140, 1345, 5, "Place of death. City FIPS code", "CITYCODE_D", 1);
+    static MetaIJEField metaCITYCODE_D = new MetaIJEField(140, 1345, 5, "Place of death. City FIPS code", "CITYCODE_D", 1);
     private String CITYCODE_D;
     public String getCITYCODE_D()
     {
@@ -3469,7 +4039,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. Longitude</summary>
-    IJEField metaLONG_D = new IJEField(141, 1350, 17, "Place of death. Longitude", "LONG_D", 1);
+    static MetaIJEField metaLONG_D = new MetaIJEField(141, 1350, 17, "Place of death. Longitude", "LONG_D", 1);
     private String LONG_D;
     public String getLONG_D()
     {
@@ -3484,7 +4054,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of Death. Latitude</summary>
-    IJEField metaLAT_D = new IJEField(142, 1367, 17, "Place of Death. Latitude", "LAT_D", 1);
+    static MetaIJEField metaLAT_D = new MetaIJEField(142, 1367, 17, "Place of Death. Latitude", "LAT_D", 1);
     private String LAT_D;
     public String getLAT_D()
     {
@@ -3499,7 +4069,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's spouse living at decedent's DOD?</summary>
-    IJEField metaSPOUSELV = new IJEField(143, 1384, 1, "Decedent's spouse living at decedent's DOD?", "SPOUSELV", 1);
+    static MetaIJEField metaSPOUSELV = new MetaIJEField(143, 1384, 1, "Decedent's spouse living at decedent's DOD?", "SPOUSELV", 1);
     private String SPOUSELV;
     public String getSPOUSELV()
     {
@@ -3514,7 +4084,7 @@ public class IJEMortality
     }
 
     /// <summary>Spouse's First Name</summary>
-    IJEField metaSPOUSEF = new IJEField(144, 1385, 50, "Spouse's First Name", "SPOUSEF", 1);
+    static MetaIJEField metaSPOUSEF = new MetaIJEField(144, 1385, 50, "Spouse's First Name", "SPOUSEF", 1);
     private String SPOUSEF;
     public String getSPOUSEF()
     {
@@ -3534,7 +4104,7 @@ public class IJEMortality
     }
 
     /// <summary>Husband's Surname/Wife's Maiden Last Name</summary>
-    IJEField metaSPOUSEL = new IJEField(145, 1435, 50, "Husband's Surname/Wife's Maiden Last Name", "SPOUSEL", 1);
+    static MetaIJEField metaSPOUSEL = new MetaIJEField(145, 1435, 50, "Husband's Surname/Wife's Maiden Last Name", "SPOUSEL", 1);
     private String SPOUSEL;
     public String getSPOUSEL()
     {
@@ -3549,7 +4119,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence - City or Town name</summary>
-    IJEField metaCITYTEXT_R = new IJEField(152, 1560, 28, "Decedent's Residence - City or Town name", "CITYTEXT_R", 3);
+    static MetaIJEField metaCITYTEXT_R = new MetaIJEField(152, 1560, 28, "Decedent's Residence - City or Town name", "CITYTEXT_R", 3);
     private String CITYTEXT_R;
     public String getCITYTEXT_R()
     {
@@ -3564,7 +4134,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence - ZIP code</summary>
-    IJEField metaZIP9_R = new IJEField(153, 1588, 9, "Decedent's Residence - ZIP code", "ZIP9_R", 1);
+    static MetaIJEField metaZIP9_R = new MetaIJEField(153, 1588, 9, "Decedent's Residence - ZIP code", "ZIP9_R", 1);
     private String ZIP9_R;
     public String getZIP9_R()
     {
@@ -3579,7 +4149,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence - County</summary>
-    IJEField metaCOUNTYTEXT_R = new IJEField(154, 1597, 28, "Decedent's Residence - County", "COUNTYTEXT_R", 1);
+    static MetaIJEField metaCOUNTYTEXT_R = new MetaIJEField(154, 1597, 28, "Decedent's Residence - County", "COUNTYTEXT_R", 1);
     private String COUNTYTEXT_R;
     public String getCOUNTYTEXT_R()
     {
@@ -3594,7 +4164,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence - State name</summary>
-    IJEField metaSTATETEXT_R = new IJEField(155, 1625, 28, "Decedent's Residence - State name", "STATETEXT_R", 1);
+    static MetaIJEField metaSTATETEXT_R = new MetaIJEField(155, 1625, 28, "Decedent's Residence - State name", "STATETEXT_R", 1);
     private String STATETEXT_R;
     public String getSTATETEXT_R()
     {
@@ -3614,7 +4184,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Residence - COUNTRY name</summary>
-    IJEField metaCOUNTRYTEXT_R = new IJEField(156, 1653, 28, "Decedent's Residence - COUNTRY name", "COUNTRYTEXT_R", 1);
+    static MetaIJEField metaCOUNTRYTEXT_R = new MetaIJEField(156, 1653, 28, "Decedent's Residence - COUNTRY name", "COUNTRYTEXT_R", 1);
     private String COUNTRYTEXT_R;
     public String getCOUNTRYTEXT_R()
     {
@@ -3634,7 +4204,7 @@ public class IJEMortality
     }
 
     /// <summary>Long String address for decedent's place of residence same as above but allows states to choose the way they capture information.</summary>
-    IJEField metaADDRESS_R = new IJEField(157, 1681, 50, "Long String address for decedent's place of residence same as above but allows states to choose the way they capture information.", "ADDRESS_R", 1);
+    static MetaIJEField metaADDRESS_R = new MetaIJEField(157, 1681, 50, "Long String address for decedent's place of residence same as above but allows states to choose the way they capture information.", "ADDRESS_R", 1);
     private String ADDRESS_R;
     public String getADDRESS_R()
     {
@@ -3649,7 +4219,7 @@ public class IJEMortality
     }
 
     /// <summary>Old NCHS residence state code</summary>
-    IJEField metaRESSTATE = new IJEField(158, 1731, 2, "Old NCHS residence state code", "RESSTATE", 1);
+    static MetaIJEField metaRESSTATE = new MetaIJEField(158, 1731, 2, "Old NCHS residence state code", "RESSTATE", 1);
     private String RESSTATE;
     public String getRESSTATE()
     {
@@ -3662,7 +4232,7 @@ public class IJEMortality
     }
 
     /// <summary>Old NCHS residence city/county combo code</summary>
-    IJEField metaRESCON = new IJEField(159, 1733, 3, "Old NCHS residence city/county combo code", "RESCON", 1);
+    static MetaIJEField metaRESCON = new MetaIJEField(159, 1733, 3, "Old NCHS residence city/county combo code", "RESCON", 1);
     private String RESCON;
     public String getRESCON()
     {
@@ -3675,7 +4245,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of death. City FIPS code</summary>
-    IJEField metaSTNUM_R = new IJEField(145, 1485, 10, "Place of death. Decedent's Residence - Street number", "STNUM_R", 1);
+    static MetaIJEField metaSTNUM_R = new MetaIJEField(145, 1485, 10, "Place of death. Decedent's Residence - Street number", "STNUM_R", 1);
     private String STNUM_R;
     public String getSTNUM_R()
     {
@@ -3690,7 +4260,7 @@ public class IJEMortality
     }
 
     /// <summary>Pre directional </summary>
-    IJEField metaPREDIR_R = new IJEField(146, 1495, 10, "Place of death. Decedent's Residence - Pre Directional", "PREDIR_R", 2);
+    static MetaIJEField metaPREDIR_R = new MetaIJEField(146, 1495, 10, "Place of death. Decedent's Residence - Pre Directional", "PREDIR_R", 2);
     private String PREDIR_R;
     public String getPREDIR_R()
     {
@@ -3706,7 +4276,7 @@ public class IJEMortality
     }
 
     /// <summary>Street name</summary>
-    IJEField metaSTNAME_R = new IJEField(147, 1505, 28, "Place of death. Decedent's Residence - Street Name", "STNAME_R", 3);
+    static MetaIJEField metaSTNAME_R = new MetaIJEField(147, 1505, 28, "Place of death. Decedent's Residence - Street Name", "STNAME_R", 3);
     private String STNAME_R;
     public String getSTNAME_R()
     {
@@ -3721,7 +4291,7 @@ public class IJEMortality
     }
 
     /// <summary>Street designator</summary>
-    IJEField metaSTDESIG_R = new IJEField(148, 1533, 10, "Place of death. Decedent's Residence - Street Designator", "STDESIG_R", 4);
+    MetaIJEField metaSTDESIG_R = new MetaIJEField(148, 1533, 10, "Place of death. Decedent's Residence - Street Designator", "STDESIG_R", 4);
     private String STDESIG_R;
     public String getSTDESIG_R()
     {
@@ -3737,7 +4307,7 @@ public class IJEMortality
     }
 
     /// <summary>Post Directional</summary>
-    IJEField metaPOSTDIR_R = new IJEField(149, 1543, 10, "Place of death. Decedent's Residence - Post directional", "POSTDIR_R", 5);
+    static MetaIJEField metaPOSTDIR_R = new MetaIJEField(149, 1543, 10, "Place of death. Decedent's Residence - Post directional", "POSTDIR_R", 5);
     private String POSTDIR_R;
     public String getPOSTDIR_R()
     {
@@ -3753,7 +4323,7 @@ public class IJEMortality
     }
 
     /// <summary>Unit number</summary>
-    IJEField metaUNITNUM_R = new IJEField(150, 1553, 7, "Place of death. Decedent's Residence - Unit number", "UNITNUM_R", 6);
+    static MetaIJEField metaUNITNUM_R = new MetaIJEField(150, 1553, 7, "Place of death. Decedent's Residence - Unit number", "UNITNUM_R", 6);
     private String UNITNUM_R;
     public String getUNITNUM_R()
     {
@@ -3768,7 +4338,7 @@ public class IJEMortality
     }
 
     /// <summary>Hispanic</summary>
-    IJEField metaDETHNICE = new IJEField(160, 1736, 3, "Hispanic", "DETHNICE", 1);
+    static MetaIJEField metaDETHNICE = new MetaIJEField(160, 1736, 3, "Hispanic", "DETHNICE", 1);
     private String DETHNICE;
     public String getDETHNICE()
     {
@@ -3783,7 +4353,7 @@ public class IJEMortality
     }
 
     /// <summary>Bridged Race</summary>
-    IJEField metaNCHSBRIDGE = new IJEField(161, 1739, 2, "Bridged Race", "NCHSBRIDGE", 1);
+    static MetaIJEField metaNCHSBRIDGE = new MetaIJEField(161, 1739, 2, "Bridged Race", "NCHSBRIDGE", 1);
     private String NCHSBRIDGE;
     public String getNCHSBRIDGE()
     {
@@ -3796,7 +4366,7 @@ public class IJEMortality
     }
 
     /// <summary>Hispanic - old NCHS single ethnicity codes</summary>
-    IJEField metaHISPOLDC = new IJEField(162, 1741, 1, "Hispanic - old NCHS single ethnicity codes", "HISPOLDC", 1);
+    static MetaIJEField metaHISPOLDC = new MetaIJEField(162, 1741, 1, "Hispanic - old NCHS single ethnicity codes", "HISPOLDC", 1);
     private String HISPOLDC;
     public String getHISPOLDC()
     {
@@ -3810,7 +4380,7 @@ public class IJEMortality
     }
 
     /// <summary>Race - old NCHS single race codes</summary>
-    IJEField metaRACEOLDC = new IJEField(163, 1742, 1, "Race - old NCHS single race codes", "RACEOLDC", 1);
+    static MetaIJEField metaRACEOLDC = new MetaIJEField(163, 1742, 1, "Race - old NCHS single race codes", "RACEOLDC", 1);
     private String RACEOLDC;
     public String getRACEOLDC()
     {
@@ -3823,7 +4393,7 @@ public class IJEMortality
     }
 
     /// <summary>Hispanic Origin - Specify</summary>
-    IJEField metaHISPSTSP = new IJEField(164, 1743, 15, "Hispanic Origin - Specify", "HISPSTSP", 1);
+    static MetaIJEField metaHISPSTSP = new MetaIJEField(164, 1743, 15, "Hispanic Origin - Specify", "HISPSTSP", 1);
     private String HISPSTSP;
     public String getHISPSTSP()
     {
@@ -3836,7 +4406,7 @@ public class IJEMortality
     }
 
     /// <summary>Race - Specify</summary>
-    IJEField metaRACESTSP = new IJEField(165, 1758, 50, "Race - Specify", "RACESTSP", 1);
+    static MetaIJEField metaRACESTSP = new MetaIJEField(165, 1758, 50, "Race - Specify", "RACESTSP", 1);
     private String RACESTSP;
     public String getRACESTSP()
     {
@@ -3849,7 +4419,7 @@ public class IJEMortality
     }
 
     /// <summary>Middle Name of Decedent</summary>
-    IJEField metaDMIDDLE = new IJEField(166, 1808, 50, "Middle Name of Decedent", "DMIDDLE", 3);
+    static MetaIJEField metaDMIDDLE = new MetaIJEField(166, 1808, 50, "Middle Name of Decedent", "DMIDDLE", 3);
     private String DMIDDLE;
     public String getDMIDDLE()
     {
@@ -3878,7 +4448,7 @@ public class IJEMortality
     }
 
     /// <summary>Father's First Name</summary>
-    IJEField metaDDADF = new IJEField(167, 1858, 50, "Father's First Name", "DDADF", 1);
+    static MetaIJEField metaDDADF = new MetaIJEField(167, 1858, 50, "Father's First Name", "DDADF", 1);
     private String DDADF;
     public String getDDADF()
     {
@@ -3898,7 +4468,7 @@ public class IJEMortality
     }
 
     /// <summary>Father's Middle Name</summary>
-    IJEField metaDDADMID = new IJEField(168, 1908, 50, "Father's Middle Name", "DDADMID", 2);
+    static MetaIJEField metaDDADMID = new MetaIJEField(168, 1908, 50, "Father's Middle Name", "DDADMID", 2);
     private String DDADMID;
     public String getDDADMID()
     {
@@ -3927,7 +4497,7 @@ public class IJEMortality
     }
 
     /// <summary>Mother's First Name</summary>
-    IJEField metaDMOMF = new IJEField(169, 1958, 50, "Mother's First Name", "DMOMF", 1);
+    static MetaIJEField metaDMOMF = new MetaIJEField(169, 1958, 50, "Mother's First Name", "DMOMF", 1);
     private String DMOMF;
     public String getDMOMF()
     {
@@ -3947,7 +4517,7 @@ public class IJEMortality
     }
 
     /// <summary>Mother's Middle Name</summary>
-    IJEField metaDMOMMID = new IJEField(170, 2008, 50, "Mother's Middle Name", "DMOMMID", 2);
+    static MetaIJEField metaDMOMMID = new MetaIJEField(170, 2008, 50, "Mother's Middle Name", "DMOMMID", 2);
     private String DMOMMID;
     public String getDMOMMID()
     {
@@ -3976,7 +4546,7 @@ public class IJEMortality
     }
 
     /// <summary>Mother's Maiden Surname</summary>
-    IJEField metaDMOMMDN = new IJEField(171, 2058, 50, "Mother's Maiden Surname", "DMOMMDN", 1);
+    static MetaIJEField metaDMOMMDN = new MetaIJEField(171, 2058, 50, "Mother's Maiden Surname", "DMOMMDN", 1);
     private String DMOMMDN;
     public String getDMOMMDN()
     {
@@ -3991,7 +4561,7 @@ public class IJEMortality
     }
 
     /// <summary>Was case Referred to Medical Examiner/Coroner?</summary>
-    IJEField metaREFERRED = new IJEField(172, 2108, 1, "Was case Referred to Medical Examiner/Coroner?", "REFERRED", 1);
+    static MetaIJEField metaREFERRED = new MetaIJEField(172, 2108, 1, "Was case Referred to Medical Examiner/Coroner?", "REFERRED", 1);
     private String REFERRED;
     public String getREFERRED()
     {
@@ -4006,7 +4576,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of Injury- literal</summary>
-    IJEField metaPOILITRL = new IJEField(173, 2109, 50, "Place of Injury- literal", "POILITRL", 1);
+    static MetaIJEField metaPOILITRL = new MetaIJEField(173, 2109, 50, "Place of Injury- literal", "POILITRL", 1);
     private String POILITRL;
     public String getPOILITRL()
     {
@@ -4021,9 +4591,9 @@ public class IJEMortality
     }
 
     /// <summary>Describe How Injury Occurred</summary>
-    IJEField metaHOWINJ = new IJEField(174, 2159, 250, "Describe How Injury Occurred", "HOWINJ", 1);
+    static MetaIJEField metaHOWINJ = new MetaIJEField(174, 2159, 250, "Describe How Injury Occurred", "HOWINJ", 1);
     private String HOWINJ;
-    public String getgetHOWINJ()
+    public String getHOWINJ()
     {
         return LeftJustified_Get("HOWINJ", "InjuryDescription");
     }
@@ -4036,7 +4606,7 @@ public class IJEMortality
     }
 
     /// <summary>If Transportation Accident, Specify</summary>
-    IJEField metaTRANSPRT = new IJEField(175, 2409, 30, "If Transportation Accident, Specify", "TRANSPRT", 1);
+    static MetaIJEField metaTRANSPRT = new MetaIJEField(175, 2409, 30, "If Transportation Accident, Specify", "TRANSPRT", 1);
     private String TRANSPRT;
     public String getTRANSPRT()
     {
@@ -4066,7 +4636,7 @@ public class IJEMortality
     }
 
     /// <summary>County of Injury - literal</summary>
-    IJEField metaCOUNTYTEXT_I = new IJEField(176, 2439, 28, "County of Injury - literal", "COUNTYTEXT_I", 1);
+    static MetaIJEField metaCOUNTYTEXT_I = new MetaIJEField(176, 2439, 28, "County of Injury - literal", "COUNTYTEXT_I", 1);
     private String COUNTYTEXT_I;
     public String getCOUNTYTEXT_I()
     {
@@ -4081,7 +4651,7 @@ public class IJEMortality
     }
 
     /// <summary>County of Injury code</summary>
-    IJEField metaCOUNTYCODE_I = new IJEField(177, 2467, 3, "County of Injury code", "COUNTYCODE_I", 2);
+    static MetaIJEField metaCOUNTYCODE_I = new MetaIJEField(177, 2467, 3, "County of Injury code", "COUNTYCODE_I", 2);
     private String COUNtYCODE_I;
     public String getCOUNTYCODE_I()
     {
@@ -4096,7 +4666,7 @@ public class IJEMortality
     }
 
     /// <summary>Town/city of Injury - literal</summary>
-    IJEField metaCITYTEXT_I = new IJEField(178, 2470, 28, "Town/city of Injury - literal", "CITYTEXT_I", 3);
+    static MetaIJEField metaCITYTEXT_I = new MetaIJEField(178, 2470, 28, "Town/city of Injury - literal", "CITYTEXT_I", 3);
     private String CITYTEXT_I;
     public String getCITYTEXT_I()
     {
@@ -4111,7 +4681,7 @@ public class IJEMortality
     }
 
     /// <summary>Town/city of Injury code</summary>
-    IJEField metaCITYCODE_I = new IJEField(179, 2498, 5, "Town/city of Injury code", "CITYCODE_I", 3);
+    static MetaIJEField metaCITYCODE_I = new MetaIJEField(179, 2498, 5, "Town/city of Injury code", "CITYCODE_I", 3);
     private String CITYCODE_I;
     public String getCITYCODE_I()
     {
@@ -4126,7 +4696,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Injury - code</summary>
-    IJEField metaSTATECODE_I = new IJEField(180, 2503, 2, "State, U.S. Territory or Canadian Province of Injury - code", "STATECODE_I", 1);
+    static MetaIJEField metaSTATECODE_I = new MetaIJEField(180, 2503, 2, "State, U.S. Territory or Canadian Province of Injury - code", "STATECODE_I", 1);
     private String STATECODE_I;
     public String getSTATECODE_I()
     {
@@ -4141,7 +4711,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of injury. Longitude</summary>
-    IJEField metaLONG_I = new IJEField(181, 2505, 17, "Place of injury. Longitude", "LONG_I", 1);
+    static MetaIJEField metaLONG_I = new MetaIJEField(181, 2505, 17, "Place of injury. Longitude", "LONG_I", 1);
     private String LONG_I;
     public String getLONG_I()
     {
@@ -4156,7 +4726,7 @@ public class IJEMortality
     }
 
     /// <summary>Place of injury. Latitude</summary>
-    IJEField metaLAT_I = new IJEField(182, 2522, 17, "Place of injury. Latitude", "LAT_I", 1);
+    static MetaIJEField metaLAT_I = new MetaIJEField(182, 2522, 17, "Place of injury. Latitude", "LAT_I", 1);
     private String LAT_I;
     public String getLAT_I()
     {
@@ -4171,7 +4741,7 @@ public class IJEMortality
     }
 
     /// <summary>Old NCHS education code if collected - receiving state will recode as they prefer</summary>
-    IJEField metaOLDEDUC = new IJEField(183, 2539, 2, "Old NCHS education code if collected - receiving state will recode as they prefer", "OLDEDUC", 1);
+    static MetaIJEField metaOLDEDUC = new MetaIJEField(183, 2539, 2, "Old NCHS education code if collected - receiving state will recode as they prefer", "OLDEDUC", 1);
     private String OLDEDUC;
     public String getOLDEDUC()
     {
@@ -4184,7 +4754,7 @@ public class IJEMortality
     }
 
     /// <summary>Replacement Record -- suggested codes</summary>
-    IJEField metaREPLACE = new IJEField(184, 2541, 1, "Replacement Record -- suggested codes", "REPLACE", 1);
+    MetaIJEField metaREPLACE = new MetaIJEField(184, 2541, 1, "Replacement Record -- suggested codes", "REPLACE", 1);
     private String REPLACE;
     public String getREPLACE()
     {
@@ -4199,7 +4769,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Line a</summary>
-    IJEField metaCOD1A = new IJEField(185, 2542, 120, "Cause of Death Part I Line a", "COD1A", 1);
+    static MetaIJEField metaCOD1A = new MetaIJEField(185, 2542, 120, "Cause of Death Part I Line a", "COD1A", 1);
     private String COD1A;
     public String getCOD1A()
     {
@@ -4218,7 +4788,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Interval, Line a</summary>
-    IJEField metaINTERVAL1A = new IJEField(186, 2662, 20, "Cause of Death Part I Interval, Line a", "INTERVAL1A", 2);
+    static MetaIJEField metaINTERVAL1A = new MetaIJEField(186, 2662, 20, "Cause of Death Part I Interval, Line a", "INTERVAL1A", 2);
     private String INTERVAL1A;
     public String getINTERVAL1A()
     {
@@ -4237,7 +4807,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Line b</summary>
-    IJEField metaCOD1B = new IJEField(187, 2682, 120, "Cause of Death Part I Line b", "COD1B", 3);
+    static MetaIJEField metaCOD1B = new MetaIJEField(187, 2682, 120, "Cause of Death Part I Line b", "COD1B", 3);
     private String COD1B;
     public String getCOD1B()
     {
@@ -4256,7 +4826,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Interval, Line b</summary>
-    IJEField metaINTERVAL1B = new IJEField(188, 2802, 20, "Cause of Death Part I Interval, Line b", "INTERVAL1B", 4);
+    static MetaIJEField metaINTERVAL1B = new MetaIJEField(188, 2802, 20, "Cause of Death Part I Interval, Line b", "INTERVAL1B", 4);
     private String INTERVAL1B;
     public String getINTERVAL1B()
     {
@@ -4275,7 +4845,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Line c</summary>
-    IJEField metaCOD1C = new IJEField(189, 2822, 120, "Cause of Death Part I Line c", "COD1C", 5);
+    static MetaIJEField metaCOD1C = new MetaIJEField(189, 2822, 120, "Cause of Death Part I Line c", "COD1C", 5);
     private String COD1C;
     public String getCOD1C()
     {
@@ -4294,7 +4864,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Interval, Line c</summary>
-    IJEField metaINTERVAL1C = new IJEField(190, 2942, 20, "Cause of Death Part I Interval, Line c", "INTERVAL1C", 6);
+    static MetaIJEField metaINTERVAL1C = new MetaIJEField(190, 2942, 20, "Cause of Death Part I Interval, Line c", "INTERVAL1C", 6);
     private String INTERVAL1C;
     public String getINTERVAL1C()
     {
@@ -4314,7 +4884,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Line d</summary>
-    IJEField metaCOD1D = new IJEField(191, 2962, 120, "Cause of Death Part I Line d", "COD1D", 7);
+    static MetaIJEField metaCOD1D = new MetaIJEField(191, 2962, 120, "Cause of Death Part I Line d", "COD1D", 7);
     private String COD1D;
     public String getCOD1D()
     {
@@ -4333,7 +4903,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part I Interval, Line d</summary>
-    IJEField metaINTERVAL1D = new IJEField(192, 3082, 20, "Cause of Death Part I Interval, Line d", "INTERVAL1D", 8);
+    static MetaIJEField metaINTERVAL1D = new MetaIJEField(192, 3082, 20, "Cause of Death Part I Interval, Line d", "INTERVAL1D", 8);
     private String INTERVAL1D;
     public String getINTERVAL1D()
     {
@@ -4352,7 +4922,7 @@ public class IJEMortality
     }
 
     /// <summary>Cause of Death Part II</summary>
-    IJEField metaOTHERCONDITION = new IJEField(193, 3102, 240, "Cause of Death Part II", "OTHERCONDITION", 1);
+    static MetaIJEField metaOTHERCONDITION = new MetaIJEField(193, 3102, 240, "Cause of Death Part II", "OTHERCONDITION", 1);
     private String OTHERCONDITION;
     public String getOTHERCONDITION()
     {
@@ -4371,7 +4941,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Maiden Name</summary>
-    IJEField metaDMAIDEN = new IJEField(194, 3342, 50, "Decedent's Maiden Name", "DMAIDEN", 1);
+    static MetaIJEField metaDMAIDEN = new MetaIJEField(194, 3342, 50, "Decedent's Maiden Name", "DMAIDEN", 1);
     private String DMAIDEN;
     public String getDMAIDEN()
     {
@@ -4383,7 +4953,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Birth Place City - Code</summary>
-    IJEField metaDBPLACECITYCODE = new IJEField(194, 3392, 5, "Decedent's Birth Place City - Code", "DBPLACECITYCODE", 3);
+    static MetaIJEField metaDBPLACECITYCODE = new MetaIJEField(194, 3392, 5, "Decedent's Birth Place City - Code", "DBPLACECITYCODE", 3);
     private String DBPLACECITYCODE;
     public String getDBPLACECITYCODE()
     {
@@ -4398,7 +4968,7 @@ public class IJEMortality
     }
 
     /// <summary>Decedent's Birth Place City - Literal</summary>
-    IJEField metaDBPLACECITY = new IJEField(196, 3397, 28, "Decedent's Birth Place City - Literal", "DBPLACECITY", 3);
+    static MetaIJEField metaDBPLACECITY = new MetaIJEField(196, 3397, 28, "Decedent's Birth Place City - Literal", "DBPLACECITY", 3);
     private String DBPLACECITY;
     public String getDBPLACECITY()
     {
@@ -4413,7 +4983,7 @@ public class IJEMortality
     }
 
     /// <summary>Informant's Relationship</summary>
-    IJEField metaINFORMRELATE = new IJEField(200, 3505, 30, "Informant's Relationship", "INFORMRELATE", 3);
+    static MetaIJEField metaINFORMRELATE = new MetaIJEField(200, 3505, 30, "Informant's Relationship", "INFORMRELATE", 3);
     public String getINFORMRELATE()
     {
         return Map_Get("INFORMRELATE", "ContactRelationship", "text");
@@ -4427,7 +4997,7 @@ public class IJEMortality
     }
 
     /// <summary>Spouse's Middle Name</summary>
-    IJEField metaSPOUSEMIDNAME = new IJEField(197, 3425, 50, "Spouse's Middle Name", "SPOUSEMIDNAME", 2);
+    static MetaIJEField metaSPOUSEMIDNAME = new MetaIJEField(197, 3425, 50, "Spouse's Middle Name", "SPOUSEMIDNAME", 2);
     private String SPOUSEMIDNAME;
     public String getSPOUSEMIDNAME()
     {
@@ -4456,7 +5026,7 @@ public class IJEMortality
     }
 
     /// <summary>Spouse's Suffix</summary>
-    IJEField metaSPOUSESUFFIX = new IJEField(198, 3475, 10, "Spouse's Suffix", "SPOUSESUFFIX", 1);
+    static MetaIJEField metaSPOUSESUFFIX = new MetaIJEField(198, 3475, 10, "Spouse's Suffix", "SPOUSESUFFIX", 1);
     private String SPOUSESUFFIX;
     public String getSPOUSESUFFIX()
     {
@@ -4471,7 +5041,7 @@ public class IJEMortality
     }
 
     /// <summary>Father's Suffix</summary>
-    IJEField metaFATHERSUFFIX = new IJEField(199, 3485, 10, "Father's Suffix", "FATHERSUFFIX", 1);
+    static MetaIJEField metaFATHERSUFFIX = new MetaIJEField(199, 3485, 10, "Father's Suffix", "FATHERSUFFIX", 1);
     private String FATHERSUFFIX;
     public String getFATHERSUFFIX()
     {
@@ -4486,7 +5056,7 @@ public class IJEMortality
     }
 
     /// <summary>Mother's Suffix</summary>
-    IJEField metaMOTHERSSUFFIX = new IJEField(200, 3495, 10, "Mother's Suffix", "MOTHERSSUFFIX", 1);
+    static MetaIJEField metaMOTHERSSUFFIX = new MetaIJEField(200, 3495, 10, "Mother's Suffix", "MOTHERSSUFFIX", 1);
     private String MOTHERSUFFIX;
     public String getMOTHERSSUFFIX()
     {
@@ -4502,7 +5072,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Disposition - code</summary>
-    IJEField metaDISPSTATECD = new IJEField(202, 3535, 2, "State, U.S. Territory or Canadian Province of Disposition - code", "DISPSTATECD", 1);
+    static MetaIJEField metaDISPSTATECD = new MetaIJEField(202, 3535, 2, "State, U.S. Territory or Canadian Province of Disposition - code", "DISPSTATECD", 1);
     private String DISPSTATECD;
     public String getDISPSTATECD()
     {
@@ -4517,7 +5087,7 @@ public class IJEMortality
     }
 
     /// <summary>Disposition State or Territory - Literal</summary>
-    IJEField metaDISPSTATE = new IJEField(203, 3537, 28, "Disposition State or Territory - Literal", "DISPSTATE", 1);
+    static MetaIJEField metaDISPSTATE = new MetaIJEField(203, 3537, 28, "Disposition State or Territory - Literal", "DISPSTATE", 1);
     private String DISPSTATE;
     public String getDISPSTATE()
     {
@@ -4531,7 +5101,7 @@ public class IJEMortality
     }
 
     /// <summary>Disposition City - Code</summary>
-    IJEField metaDISPCITYCODE = new IJEField(204, 3565, 5, "Disposition City - Code", "DISPCITYCODE", 1);
+    static MetaIJEField metaDISPCITYCODE = new MetaIJEField(204, 3565, 5, "Disposition City - Code", "DISPCITYCODE", 1);
     private String DISPCITYCODE;
     public String getDISPCITYCODE()
     {
@@ -4546,7 +5116,7 @@ public class IJEMortality
     }
 
     /// <summary>Disposition City - Literal</summary>
-    IJEField metaDISPCITY = new IJEField(205, 3570, 28, "Disposition City - Literal", "DISPCITY", 3);
+    static MetaIJEField metaDISPCITY = new MetaIJEField(205, 3570, 28, "Disposition City - Literal", "DISPCITY", 3);
     private String DISPCITY;
     public String getDISPCITY()
     {
@@ -4561,7 +5131,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility Name</summary>
-    IJEField metaFUNFACNAME = new IJEField(206, 3598, 100, "Funeral Facility Name", "FUNFACNAME", 1);
+    static MetaIJEField metaFUNFACNAME = new MetaIJEField(206, 3598, 100, "Funeral Facility Name", "FUNFACNAME", 1);
     private String FUNFACNAME;
     public String getFUNFACNAME()
     {
@@ -4577,7 +5147,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - Street number</summary>
-    IJEField metaFUNFACSTNUM = new IJEField(207, 3698, 10, "Funeral Facility - Street number", "FUNFACSTNUM", 1);
+    static MetaIJEField metaFUNFACSTNUM = new MetaIJEField(207, 3698, 10, "Funeral Facility - Street number", "FUNFACSTNUM", 1);
     private String FUNFACSTNUM;
     public String getFUNFACSTNUM()
     {
@@ -4592,7 +5162,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - Pre Directional</summary>
-    IJEField metaFUNFACPREDIR = new IJEField(208, 3708, 10, "Funeral Facility - Pre Directional", "FUNFACPREDIR", 1);
+    static MetaIJEField metaFUNFACPREDIR = new MetaIJEField(208, 3708, 10, "Funeral Facility - Pre Directional", "FUNFACPREDIR", 1);
     private String FUNFACPREDIR;
     public String getFUNFACPREDIR()
     {
@@ -4607,7 +5177,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - Street name</summary>
-    IJEField metaFUNFACSTRNAME = new IJEField(209, 3718, 28, "Funeral Facility - Street name", "FUNFACSTRNAME", 1);
+    static MetaIJEField metaFUNFACSTRNAME = new MetaIJEField(209, 3718, 28, "Funeral Facility - Street name", "FUNFACSTRNAME", 1);
     private String FUNFACSTRNAME;
     public String getFUNFACSTRNAME()
     {
@@ -4622,7 +5192,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - Street designator</summary>
-    IJEField metaFUNFACSTRDESIG = new IJEField(210, 3746, 10, "Funeral Facility - Street designator", "FUNFACSTRDESIG", 1);
+    static MetaIJEField metaFUNFACSTRDESIG = new MetaIJEField(210, 3746, 10, "Funeral Facility - Street designator", "FUNFACSTRDESIG", 1);
     private String FUNFACSTRDESIG;
     public String getFUNFACSTRDESIG()
     {
@@ -4637,7 +5207,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - Post Directional</summary>
-    IJEField metaFUNPOSTDIR = new IJEField(211, 3756, 10, "Funeral Facility - Post Directional", "FUNPOSTDIR", 1);
+    static MetaIJEField metaFUNPOSTDIR = new MetaIJEField(211, 3756, 10, "Funeral Facility - Post Directional", "FUNPOSTDIR", 1);
     private String FUNPOSTDIR;
     public String getFUNPOSTDIR()
     {
@@ -4652,7 +5222,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - Unit or apt number</summary>
-    IJEField metaFUNUNITNUM = new IJEField(212, 3766, 7, "Funeral Facility - Unit or apt number", "FUNUNITNUM", 1);
+    static MetaIJEField metaFUNUNITNUM = new MetaIJEField(212, 3766, 7, "Funeral Facility - Unit or apt number", "FUNUNITNUM", 1);
     private String FUNUNITNUM;
     public String getFUNUNITNUM()
     {
@@ -4667,7 +5237,7 @@ public class IJEMortality
     }
 
     /// <summary>Long String address for Funeral Facility same as above but allows states to choose the way they capture information.</summary>
-    IJEField metaFUNFACADDRESS = new IJEField(213, 3773, 50, "Long String address for Funeral Facility same as above but allows states to choose the way they capture information.", "FUNFACADDRESS", 1);
+    static MetaIJEField metaFUNFACADDRESS = new MetaIJEField(213, 3773, 50, "Long String address for Funeral Facility same as above but allows states to choose the way they capture information.", "FUNFACADDRESS", 1);
     private String FUNFACADDRESS;
     public String getFUNFACADDRESS()
     {
@@ -4682,7 +5252,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - City or Town name</summary>
-    IJEField metaFUNCITYTEXT = new IJEField(214, 3823, 28, "Funeral Facility - City or Town name", "FUNCITYTEXT", 3);
+    static MetaIJEField metaFUNCITYTEXT = new MetaIJEField(214, 3823, 28, "Funeral Facility - City or Town name", "FUNCITYTEXT", 3);
     private String FUNCITYTEXT;
     public String getFUNCITYTEXT()
     {
@@ -4697,7 +5267,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Funeral Facility - code</summary>
-    IJEField metaFUNSTATECD = new IJEField(215, 3851, 2, "State, U.S. Territory or Canadian Province of Funeral Facility - code", "FUNSTATECD", 1);
+    static MetaIJEField metaFUNSTATECD = new MetaIJEField(215, 3851, 2, "State, U.S. Territory or Canadian Province of Funeral Facility - code", "FUNSTATECD", 1);
     private String FUNSTATECD;
     public String getFUNSTATECD()
     {
@@ -4712,7 +5282,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Funeral Facility - literal</summary>
-    IJEField metaFUNSTATE = new IJEField(216, 3853, 28, "State, U.S. Territory or Canadian Province of Funeral Facility - literal", "FUNSTATE", 1);
+    static MetaIJEField metaFUNSTATE = new MetaIJEField(216, 3853, 28, "State, U.S. Territory or Canadian Province of Funeral Facility - literal", "FUNSTATE", 1);
     private String FUNSTATE;
     public String getFUNSTATE()
     {
@@ -4731,7 +5301,7 @@ public class IJEMortality
     }
 
     /// <summary>Funeral Facility - ZIP</summary>
-    IJEField metaFUNZIP = new IJEField(217, 3881, 9, "Funeral Facility - ZIP", "FUNZIP", 1);
+    static MetaIJEField metaFUNZIP = new MetaIJEField(217, 3881, 9, "Funeral Facility - ZIP", "FUNZIP", 1);
     private String FUNZIP;
     public String getFUNZIP()
     {
@@ -4746,7 +5316,7 @@ public class IJEMortality
     }
 
     /// <summary>Person Pronouncing Date Signed</summary>
-    IJEField metaPPDATESIGNED = new IJEField(218, 3890, 8, "Person Pronouncing Date Signed", "PPDATESIGNED", 1);
+    static MetaIJEField metaPPDATESIGNED = new MetaIJEField(218, 3890, 8, "Person Pronouncing Date Signed", "PPDATESIGNED", 1);
     private String PPDATESIGNED;
     public String getPPDATESIGNED()
     {
@@ -4776,7 +5346,7 @@ public class IJEMortality
     }
 
     /// <summary>Person Pronouncing Time Pronounced</summary>
-    IJEField metaPPTIME = new IJEField(219, 3898, 4, "Person Pronouncing Time Pronounced", "PPTIME", 1);
+    static MetaIJEField metaPPTIME = new MetaIJEField(219, 3898, 4, "Person Pronouncing Time Pronounced", "PPTIME", 1);
     private String PPTIME;
     public String getPPTIME()
     {
@@ -4805,7 +5375,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier's First Name</summary>
-    IJEField metaCERTFIRST = new IJEField(220, 3902, 50, "Certifier's First Name", "CERTFIRST", 1);
+    static MetaIJEField metaCERTFIRST = new MetaIJEField(220, 3902, 50, "Certifier's First Name", "CERTFIRST", 1);
     private String CERTFIRST;
     public String getCERTFIRST()
     {
@@ -4825,7 +5395,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier's Middle Name </summary>
-    IJEField metaCERTMIDDLE = new IJEField(221, 3952, 50, "Certifier's Middle Name", "CERTMIDDLE", 2);
+    static MetaIJEField metaCERTMIDDLE = new MetaIJEField(221, 3952, 50, "Certifier's Middle Name", "CERTMIDDLE", 2);
     private String CERTMIDDLE;
     public String getCERTMIDDLE()
     {
@@ -4854,7 +5424,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier's Last Name</summary>
-    IJEField metaCERTLAST = new IJEField(222, 4002, 50, "Certifier's Last Name", "CERTLAST", 3);
+    static MetaIJEField metaCERTLAST = new MetaIJEField(222, 4002, 50, "Certifier's Last Name", "CERTLAST", 3);
     private String CERTLAST;
     public String getCERTLAST()
     {
@@ -4869,7 +5439,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier's Suffix Name</summary>
-    IJEField metaCERTSUFFIX = new IJEField(223, 4052, 10, "Certifier's Suffix Name", "CERTSUFFIX", 4);
+    static MetaIJEField metaCERTSUFFIX = new MetaIJEField(223, 4052, 10, "Certifier's Suffix Name", "CERTSUFFIX", 4);
     private String CERTSUFFIX;
     public String getCERTSUFFIX()
     {
@@ -4884,7 +5454,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - Street number</summary>
-    IJEField metaCERTSTNUM = new IJEField(224, 4062, 10, "Certifier - Street number", "CERTSTNUM", 1);
+    static MetaIJEField metaCERTSTNUM = new MetaIJEField(224, 4062, 10, "Certifier - Street number", "CERTSTNUM", 1);
     private String CERTSTNUM;
     public String getCERTSTNUM()
     {
@@ -4899,7 +5469,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - Pre Directional</summary>
-    IJEField metaCERTPREDIR = new IJEField(225, 4072, 10, "Certifier - Pre Directional", "CERTPREDIR", 1);
+    static MetaIJEField metaCERTPREDIR = new MetaIJEField(225, 4072, 10, "Certifier - Pre Directional", "CERTPREDIR", 1);
     private String CERTPREDIR;
     public String getCERTPREDIR()
     {
@@ -4915,7 +5485,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - Street name</summary>
-    IJEField metaCERTSTRNAME = new IJEField(226, 4082, 28, "Certifier - Street name", "CERTSTRNAME", 1);
+    static MetaIJEField metaCERTSTRNAME = new MetaIJEField(226, 4082, 28, "Certifier - Street name", "CERTSTRNAME", 1);
     private String CERTSTRNAME;
     public String getCERTSTRNAME()
     {
@@ -4931,7 +5501,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - Street designator</summary>
-    IJEField metaCERTSTRDESIG = new IJEField(227, 4110, 10, "Certifier - Street designator", "CERTSTRDESIG", 1);
+    static MetaIJEField metaCERTSTRDESIG = new MetaIJEField(227, 4110, 10, "Certifier - Street designator", "CERTSTRDESIG", 1);
     private String CERTSTRDESIG;
     public String getCERTSTRDESIG()
     {
@@ -4947,7 +5517,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - Post Directional</summary>
-    IJEField metaCERTPOSTDIR = new IJEField(228, 4120, 10, "Certifier - Post Directional", "CERTPOSTDIR", 1);
+    static MetaIJEField metaCERTPOSTDIR = new MetaIJEField(228, 4120, 10, "Certifier - Post Directional", "CERTPOSTDIR", 1);
     private String CERTPOSTDIR;
     public String getCERTPOSTDIR()
     {
@@ -4963,7 +5533,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - Unit or apt number</summary>
-    IJEField metaCERTUNITNUM = new IJEField(229, 4130, 7, "Certifier - Unit or apt number", "CERTUNITNUM", 1);
+    static MetaIJEField metaCERTUNITNUM = new MetaIJEField(229, 4130, 7, "Certifier - Unit or apt number", "CERTUNITNUM", 1);
     private String CERTUNITNUM;
     public String getCERTUNITNUM()
     {
@@ -4978,7 +5548,7 @@ public class IJEMortality
     }
 
     /// <summary>Long String address for Certifier same as above but allows states to choose the way they capture information.</summary>
-    IJEField metaCERTADDRESS = new IJEField(230, 4137, 50, "Long String address for Certifier same as above but allows states to choose the way they capture information.", "CERTADDRESS", 1);
+    static MetaIJEField metaCERTADDRESS = new MetaIJEField(230, 4137, 50, "Long String address for Certifier same as above but allows states to choose the way they capture information.", "CERTADDRESS", 1);
     private String CERTADDRESS;
     public String getCERTADDRESS()
     {
@@ -4993,7 +5563,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - City or Town name</summary>
-    IJEField metaCERTCITYTEXT = new IJEField(231, 4187, 28, "Certifier - City or Town name", "CERTCITYTEXT", 2);
+    static MetaIJEField metaCERTCITYTEXT = new MetaIJEField(231, 4187, 28, "Certifier - City or Town name", "CERTCITYTEXT", 2);
     private String CERTCITYTEXT;
     public String getCERTCITYTEXT()
     {
@@ -5016,7 +5586,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Certifier - code</summary>
-    IJEField metaCERTSTATECD = new IJEField(232, 4215, 2, "State, U.S. Territory or Canadian Province of Certifier - code", "CERTSTATECD", 1);
+    static MetaIJEField metaCERTSTATECD = new MetaIJEField(232, 4215, 2, "State, U.S. Territory or Canadian Province of Certifier - code", "CERTSTATECD", 1);
     private String CERTSTATECD;
     public String getCERTSTATECD()
     {
@@ -5031,7 +5601,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Certifier - literal</summary>
-    IJEField metaCERTSTATE = new IJEField(233, 4217, 28, "State, U.S. Territory or Canadian Province of Certifier - literal", "CERTSTATE", 1);
+    static MetaIJEField metaCERTSTATE = new MetaIJEField(233, 4217, 28, "State, U.S. Territory or Canadian Province of Certifier - literal", "CERTSTATE", 1);
     private String CERTSTATE;
     public String getCERTSTATE()
     {
@@ -5050,7 +5620,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier - Zip</summary>
-    IJEField metaCERTZIP = new IJEField(234, 4245, 9, "Certifier - Zip", "CERTZIP", 1);
+    static MetaIJEField metaCERTZIP = new MetaIJEField(234, 4245, 9, "Certifier - Zip", "CERTZIP", 1);
     private String CERTZIP;
     public String getCERTZIP()
     {
@@ -5065,7 +5635,7 @@ public class IJEMortality
     }
 
     /// <summary>Certifier Date Signed</summary>
-    IJEField metaCERTDATE = new IJEField(235, 4254, 8, "Certifier Date Signed", "CERTDATE", 1);
+    static MetaIJEField metaCERTDATE = new MetaIJEField(235, 4254, 8, "Certifier Date Signed", "CERTDATE", 1);
     private String CERTDATE;
     public String getCERTDATE()
     {
@@ -5080,7 +5650,7 @@ public class IJEMortality
     }
 
     /// <summary>Date Filed</summary>
-    IJEField metaFILEDATE = new IJEField(236, 4262, 8, "Date Filed", "FILEDATE", 1);
+    static MetaIJEField metaFILEDATE = new MetaIJEField(236, 4262, 8, "Date Filed", "FILEDATE", 1);
     private String FILEDATE;
     public String getFILEDATE()
     {
@@ -5093,7 +5663,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Injury - literal</summary>
-    IJEField metaSTINJURY = new IJEField(237, 4270, 28, "State, U.S. Territory or Canadian Province of Injury - literal", "STINJURY", 1);
+    static MetaIJEField metaSTINJURY = new MetaIJEField(237, 4270, 28, "State, U.S. Territory or Canadian Province of Injury - literal", "STINJURY", 1);
     private String STINJURY;
     public String getSTINJURY()
     {
@@ -5112,7 +5682,7 @@ public class IJEMortality
     }
 
     /// <summary>State, U.S. Territory or Canadian Province of Birth - literal</summary>
-    IJEField metaSTATEBTH = new IJEField(238, 4298, 28, "State, U.S. Territory or Canadian Province of Birth - literal", "STATEBTH", 1);
+    static MetaIJEField metaSTATEBTH = new MetaIJEField(238, 4298, 28, "State, U.S. Territory or Canadian Province of Birth - literal", "STATEBTH", 1);
     private String STATEBTH;
     public String getSTATEBTH()
     {
@@ -5131,7 +5701,7 @@ public class IJEMortality
     }
 
     /// <summary>Country of Death - Code</summary>
-    IJEField metaDTHCOUNTRYCD = new IJEField(239, 4326, 2, "Country of Death - Code", "DTHCOUNTRYCD", 1);
+    static MetaIJEField metaDTHCOUNTRYCD = new MetaIJEField(239, 4326, 2, "Country of Death - Code", "DTHCOUNTRYCD", 1);
     private String DTHCOUNTRYCD;
     public String getDTHCOUNTRYCD()
     {
@@ -5146,7 +5716,7 @@ public class IJEMortality
     }
 
     /// <summary>Country of Death - Literal</summary>
-    IJEField metaDTHCOUNTRY = new IJEField(240, 4328, 28, "Country of Death - Literal", "DTHCOUNTRY", 1);
+    static MetaIJEField metaDTHCOUNTRY = new MetaIJEField(240, 4328, 28, "Country of Death - Literal", "DTHCOUNTRY", 1);
     private String DTHCOUNTRY;
     public String getDTHCOUNTRY()
     {
@@ -5165,7 +5735,7 @@ public class IJEMortality
     }
 
     /// <summary>SSA State Source of Death</summary>
-    IJEField metaSSADTHCODE = new IJEField(241, 4356, 3, "SSA State Source of Death", "SSADTHCODE", 1);
+    static MetaIJEField metaSSADTHCODE = new MetaIJEField(241, 4356, 3, "SSA State Source of Death", "SSADTHCODE", 1);
     private String SSADTHCODE;
     public String getSSADTHCODE()
     {
@@ -5178,7 +5748,7 @@ public class IJEMortality
     }
 
     /// <summary>SSA Foreign Country Indicator</summary>
-    IJEField metaSSAFOREIGN = new IJEField(242, 4359, 1, "SSA Foreign Country Indicator", "SSAFOREIGN", 1);
+    static MetaIJEField metaSSAFOREIGN = new MetaIJEField(242, 4359, 1, "SSA Foreign Country Indicator", "SSAFOREIGN", 1);
     private String SSAFOREIGN;
     public String getSSAFOREIGN()
     {
@@ -5191,7 +5761,7 @@ public class IJEMortality
     }
 
     /// <summary>SSA EDR Verify Code</summary>
-    IJEField metaSSAVERIFY = new IJEField(243, 4360, 1, "SSA EDR Verify Code", "SSAVERIFY", 1);
+    static MetaIJEField metaSSAVERIFY = new MetaIJEField(243, 4360, 1, "SSA EDR Verify Code", "SSAVERIFY", 1);
     private String SSAVERIFY;
     public String getSSAVERIFY()
     {
@@ -5204,7 +5774,7 @@ public class IJEMortality
     }
 
     /// <summary>SSA Date of SSN Verification</summary>
-    IJEField metaSSADATEVER = new IJEField(244, 4361, 8, "SSA Date of SSN Verification", "SSADATEVER", 1);
+    static MetaIJEField metaSSADATEVER = new MetaIJEField(244, 4361, 8, "SSA Date of SSN Verification", "SSADATEVER", 1);
     private String SSADATEVER;
     public String getSSADATEVER()
     {
@@ -5217,7 +5787,7 @@ public class IJEMortality
     }
 
     /// <summary>SSA Date of State Transmission</summary>
-    IJEField metaSSADATETRANS = new IJEField(245, 4369, 8, "SSA Date of State Transmission", "SSADATETRANS", 1);
+    static MetaIJEField metaSSADATETRANS = new MetaIJEField(245, 4369, 8, "SSA Date of State Transmission", "SSADATETRANS", 1);
     private String SSADATETRANS;
     public String getSSADATETRANS()
     {
@@ -5230,7 +5800,7 @@ public class IJEMortality
     }
 
     /// <summary>Hispanic Code for Literal</summary>
-    IJEField metaDETHNIC5C = new IJEField(247, 4427, 3, "Hispanic Code for Literal", "DETHNIC5C", 1);
+    static MetaIJEField metaDETHNIC5C = new MetaIJEField(247, 4427, 3, "Hispanic Code for Literal", "DETHNIC5C", 1);
     private String DETHNIC5C;
     public String getDETHNIC5C()
     {
@@ -5242,7 +5812,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for One-Byte Field 1</summary>
-    IJEField metaPLACE1_1 = new IJEField(248, 4430, 1, "Blank for One-Byte Field 1", "PLACE1_1", 1);
+    static MetaIJEField metaPLACE1_1 = new MetaIJEField(248, 4430, 1, "Blank for One-Byte Field 1", "PLACE1_1", 1);
     private String PLACE1_1;
     public String getPLACE1_1()
     {
@@ -5254,7 +5824,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for One-Byte Field 2</summary>
-    IJEField metaPLACE1_2 = new IJEField(249, 4431, 1, "Blank for One-Byte Field 2", "PLACE1_2", 1);
+    static MetaIJEField metaPLACE1_2 = new MetaIJEField(249, 4431, 1, "Blank for One-Byte Field 2", "PLACE1_2", 1);
     private String PLACE1_2;
     public String getPLACE1_2()
     {
@@ -5266,7 +5836,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for One-Byte Field 3</summary>
-    IJEField metaPLACE1_3 = new IJEField(250, 4432, 1, "Blank for One-Byte Field 3", "PLACE1_3", 1);
+    static MetaIJEField metaPLACE1_3 = new MetaIJEField(250, 4432, 1, "Blank for One-Byte Field 3", "PLACE1_3", 1);
     private String PLACE1_3;
     public String getPLACE1_3()
     {
@@ -5278,7 +5848,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for One-Byte Field 4</summary>
-    IJEField metaPLACE1_4 = new IJEField(251, 4433, 1, "Blank for One-Byte Field 4", "PLACE1_4", 1);
+    static MetaIJEField metaPLACE1_4 = new MetaIJEField(251, 4433, 1, "Blank for One-Byte Field 4", "PLACE1_4", 1);
     private String PLACE1_4;
     public String getPLACE1_4()
     {
@@ -5290,7 +5860,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for One-Byte Field 5</summary>
-    IJEField metaPLACE1_5 = new IJEField(252, 4434, 1, "Blank for One-Byte Field 5", "PLACE1_5", 1);
+    static MetaIJEField metaPLACE1_5 = new MetaIJEField(252, 4434, 1, "Blank for One-Byte Field 5", "PLACE1_5", 1);
     private String PLACE1_5;
     public String getPLACE1_5()
     {
@@ -5302,7 +5872,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for One-Byte Field 6</summary>
-    IJEField metaPLACE1_6 = new IJEField(253, 4435, 1, "Blank for One-Byte Field 6", "PLACE1_6", 1);
+    static MetaIJEField metaPLACE1_6 = new MetaIJEField(253, 4435, 1, "Blank for One-Byte Field 6", "PLACE1_6", 1);
     private String PLACE1_6;
     public String getPLACE1_6()
     {
@@ -5314,7 +5884,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for Eight-Byte Field 1</summary>
-    IJEField metaPLACE8_1 = new IJEField(254, 4436, 8, "Blank for Eight-Byte Field 1", "PLACE8_1", 1);
+    static MetaIJEField metaPLACE8_1 = new MetaIJEField(254, 4436, 8, "Blank for Eight-Byte Field 1", "PLACE8_1", 1);
     private String PLACE8_1;
     public String getPLACE8_1()
     {
@@ -5326,7 +5896,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for Eight-Byte Field 2</summary>
-    IJEField metaPLACE8_2 = new IJEField(255, 4444, 8, "Blank for Eight-Byte Field 2", "PLACE8_2", 1);
+    static MetaIJEField metaPLACE8_2 = new MetaIJEField(255, 4444, 8, "Blank for Eight-Byte Field 2", "PLACE8_2", 1);
     private String PLACE8_2;
     public String getPLACE8_2()
     {
@@ -5338,7 +5908,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for Eight-Byte Field 3</summary>
-    IJEField metaPLACE8_3 = new IJEField(256, 4452, 8, "Blank for Eight-Byte Field 3", "PLACE8_3", 1);
+    static MetaIJEField metaPLACE8_3 = new MetaIJEField(256, 4452, 8, "Blank for Eight-Byte Field 3", "PLACE8_3", 1);
     private String PLACE8_3;
     public String getPLACE8_3()
     {
@@ -5350,7 +5920,7 @@ public class IJEMortality
     }
 
     /// <summary>Blank for Twenty-Byte Field</summary>
-    IJEField metaPLACE20 = new IJEField(257, 4460, 20, "Blank for Twenty-Byte Field", "PLACE20", 1);
+    static MetaIJEField metaPLACE20 = new MetaIJEField(257, 4460, 20, "Blank for Twenty-Byte Field", "PLACE20", 1);
     private String PLACE20;
     public String getPLACE20()
     {
@@ -5379,32 +5949,32 @@ public class IJEMortality
         List<(int Position, string Code, bool Pregnancy)> rac = new List<(int Position, string Code, bool Pregnancy)>();
         if (DeathCertificateDocument.getRecordAxisCauseOfDeathObsList() != null)
         {
-        for(Observation ob:RecordAxisCauseOfDeathObsList)
-        {
-        Integer position = null;
-        String icd10code = null;
-        boolean pregnancy = false;
-        Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().equals("position")).findFirst().get();
-        if (positionComp != null && positionComp.getValue() != null)
-        {
-        position = ((IntegerType)positionComp.getValue()).getValue();
-        }
-        CodeableConcept valueCC = (CodeableConcept)ob.getValue();
-        if (valueCC != null && valueCC.getCoding() != null && valueCC.getCoding().size() > 0)
-        {
-        icd10code = valueCC.getCoding().get(0).getCode();
-        }
+            for(Observation ob:RecordAxisCauseOfDeathObsList)
+            {
+                Integer position = null;
+                String icd10code = null;
+                boolean pregnancy = false;
+                Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().equals("position")).findFirst().get();
+                if (positionComp != null && positionComp.getValue() != null)
+                {
+                    position = ((IntegerType)positionComp.getValue()).getValue();
+                }
+                CodeableConcept valueCC = (CodeableConcept)ob.getValue();
+                if (valueCC != null && valueCC.getCoding() != null && valueCC.getCoding().size() > 0)
+                {
+                    icd10code = valueCC.getCoding().get(0).getCode();
+                }
 
-        Observation.ObservationComponentComponent pregComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("wouldBeUnderlyingCauseOfDeathWithoutPregnancy")).findFirst().get();
-        if (pregComp != null && pregComp.getValue() != null)
-        {
-        pregnancy = (boolean)((BooleanType)pregComp.getValue()).getValue();
-        }
-        if (position != null && icd10code != null)
-        {
-        rac.add((Position: (int)position, Code: icd10code, Pregnancy: pregnancy));
-        }
-        }
+                Observation.ObservationComponentComponent pregComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("wouldBeUnderlyingCauseOfDeathWithoutPregnancy")).findFirst().get();
+                if (pregComp != null && pregComp.getValue() != null)
+                {
+                    pregnancy = (boolean)((BooleanType)pregComp.getValue()).getValue();
+                }
+                if (position != null && icd10code != null)
+                {
+                    rac.add((Position: (int)position, Code: icd10code, Pregnancy: pregnancy));
+                }
+            }
         }
         return rac.OrderBy(entry -> entry.Position);
     }
