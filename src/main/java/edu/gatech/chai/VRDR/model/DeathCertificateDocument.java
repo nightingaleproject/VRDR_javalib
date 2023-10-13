@@ -10,15 +10,36 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.w3c.dom.NodeList;
+
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.instance.model.api.IPrimitiveType;
+import org.hl7.fhir.instance.model.api.IBaseDatatype;
+import org.hl7.fhir.instance.model.api.ICompositeType;
+import org.hl7.fhir.instance.model.api.IBaseElement;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import edu.gatech.chai.VRDR.context.VRDRFhirContext;
 //import org.hl7.fhir.dstu2016may.model.codesystems.ObservationStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hl7.fhir.instance.model.api.IBase;
+import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Enumerations.*;
 import org.hl7.fhir.r4.model.Composition.CompositionStatus;
-//import org.hl7.fhir.r4.model.Element.
-
+import org.hl7.fhir.r4.model.ICoding.*;
+import org.hl7.fhir.r4.model.Element.*;
+import org.hl7.fhir.r4.model.Type.*;
+import org.hl7.fhir.r4.model.Property.*;
+import org.hl7.fhir.r4.model.Period.*;
+import org.hl7.fhir.r4.elementmodel.*;
+import org.hl7.fhir.r4.elementmodel.Element.*;
+import org.hl7.fhir.r4.elementmodel.Property.*;
+import org.hl7.fhir.r4.model.Extension.*;
 import ca.uhn.fhir.model.api.annotation.*;
 import edu.gatech.chai.VRDR.model.util.CommonUtil;
 import edu.gatech.chai.VRDR.model.util.DeathCertificateDocumentUtil;
@@ -26,7 +47,7 @@ import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Observation;
 import edu.gatech.chai.VRDR.model.util.*;
 import org.hl7.fhir.r4.model.Coding;
-
+import org.hl7.fhir.instance.model.api.IBaseElement;
 import java.util.UUID;
 
 import edu.gatech.chai.VRDR.model.util.*;
@@ -51,8 +72,9 @@ public class DeathCertificateDocument extends Bundle {
     //private MortalityData MortalityData = MortalityData.Instance;
 
     /// <summary>Useful for navigating around the FHIR Bundle using FHIRPaths.</summary>
-    private ITypedElement Navigator;
-
+ private ITypedElement Navigator;
+    //private IBaseElement Navigator;
+    //private IBase Navigator;
     /// <summary>Bundle that contains the death record.</summary>
     private Bundle Bundle;
 
@@ -340,12 +362,12 @@ public class DeathCertificateDocument extends Bundle {
         return castListOfRecords(resources);
     }
 
-    public String gettoJson(VRDRFhirContext ctx)
+    public String toJson(VRDRFhirContext ctx)
     {
         return toJson(ctx, false);
     }
 
-    public String gettoJson(VRDRFhirContext ctx, boolean prettyPrint)
+    public String toJson(VRDRFhirContext ctx, boolean  prettyPrint)
     {
         return ctx.getCtx().newJsonParser().setPrettyPrint(prettyPrint).encodeResourceToString(this);
     }
@@ -377,9 +399,9 @@ public class DeathCertificateDocument extends Bundle {
     /// </example>
     //  [Property("Identifier", Property.Types.String, "Death Certification", "Death Certificate Number.", true, IGURL.DeathCertificate, true, 3)]
     //  [FHIRPath("Bundle", "identifier")]
-    private String Identifier;
+    private String IdentifierDoc;
 
-    public String getIdentifier()
+    public String getIdentifierDoc()
     {
         String result = null;
         if (Bundle != null && Bundle.getIdentifier() != null && Bundle.getIdentifier().getExtension() != null)
@@ -393,7 +415,7 @@ public class DeathCertificateDocument extends Bundle {
         return result;
     }
 
-    public void setIdentifier(String value)
+    public void setIdentifierDoc(String value)
     {
         Bundle.getIdentifier().getExtension().removeIf(ex -> ex.getUrl().equals(URL.ExtensionURL.CertificateNumber));
         if (isNullOrWhiteSpace(value))
@@ -408,9 +430,9 @@ public class DeathCertificateDocument extends Bundle {
     private void UpdateDeathRecordIdentifier()
     {
         Integer certificateNumber = 0;
-        if (Identifier != null)
+        if (IdentifierDoc != null)
         {
-            Integer.parseInt(Identifier);
+            Integer.parseInt(IdentifierDoc);
         }
         Integer deathYear = 0;
         if (getDeathYear() != null)
@@ -426,7 +448,8 @@ public class DeathCertificateDocument extends Bundle {
         {
             jurisdictionId = jurisdictionId.trim().substring(0, 2).toUpperCase();
         }
-        this.DeathRecordIdentifier = deathYear.toString(" D4 ")+ jurisdictionId + certificateNumber.toString(" D6 ");
+        //this.DeathRecordIdentifier = deathYear.toString(" D4 ")+ jurisdictionId + certificateNumber.toString(" D6 ");
+        this.DeathRecordIdentifier = String.format("%04d%s%06d", deathYear, jurisdictionId, certificateNumber);
 
         //this.DeathRecordIdentifier = $ "{deathYear.toString(" D4 ")}{jurisdictionId}{certificateNumber.toString(" D6 ")}";
 
@@ -621,7 +644,7 @@ public class DeathCertificateDocument extends Bundle {
     public void setFilingFormat(Map<String, StringType> value)
     {
         // TODO: Handle case where Composition == null (either create it or throw exception)
-        Composition.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.FilingFormat);
+        Composition.getExtension().removeIf(ext -> ext.getUrl().equals(URL.ExtensionURL.FilingFormat));
         Extension filingFormat = new Extension();
         filingFormat.setUrl(URL.ExtensionURL.FilingFormat);
         filingFormat.setValue(MapToCodeableConcept(value));
@@ -2952,7 +2975,7 @@ public class DeathCertificateDocument extends Bundle {
 
     public Tuple[] getRace()
     {
-        // filter the boolean race values
+        // filter the boolean  race values
         List booleanRaceCodes = NvssRace.GetBooleanRaceCodes();
         booleanRaceCodes.addAll(NvssRace.GetLiteralRaceCodes());//.toList();
         List<String> raceCodes = booleanRaceCodes;
@@ -2968,7 +2991,7 @@ public class DeathCertificateDocument extends Bundle {
             Observation.ObservationComponentComponent component = InputRaceAndEthnicityObs.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals(raceCode)).findFirst().get();
             if (component != null)
             {
-                // convert boolean race codes to Strings
+                // convert boolean  race codes to Strings
                 if (booleanRaceCodes.contains(raceCode))
                 {
                     if (component.getValue() == null)
@@ -2980,10 +3003,10 @@ public class DeathCertificateDocument extends Bundle {
                         continue;
                     }
 
-                    // Todo Find conversion from BooleanType to bool
-                    String raceBoolean = ((BooleanType) component.getValue()).toString();
+                    // Todo Find conversion from boolean Type to bool
+                    String raceboolean  = (component.getValue()).toString();
 
-                    if (Boolean.parseBoolean(raceBoolean))
+                    if (Boolean.parseBoolean(raceboolean))
                     {
                         //var race = Tuple.Create(raceCode, "Y");
                         Tuple race = new Tuple();
@@ -3021,9 +3044,9 @@ public class DeathCertificateDocument extends Bundle {
         {
             CreateInputRaceEthnicityObs();
         }
-        var booleanRaceCodes = NvssRace.GetBooleanRaceCodes();
-        var literalRaceCodes = NvssRace.GetLiteralRaceCodes();
-        for (Tuple element : value)
+        List booleanRaceCodes = NvssRace.GetBooleanRaceCodes();
+        List literalRaceCodes = NvssRace.GetLiteralRaceCodes();
+        for(Tuple element : value)
         {
             InputRaceAndEthnicityObs.getComponent().removeIf(c -> c.getCode().getCoding().get(0).getCode().equals(element));
             Observation.ObservationComponentComponent component = new Observation.ObservationComponentComponent();
@@ -3344,9 +3367,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getMaritalStatusHelper()
     {
-        if (MaritalStatus.containsKey("code") && isNullOrWhiteSpace(String.valueOf(MaritalStatus.get("code"))))
+        if (MaritalStatus.containsKey("code") && isNullOrWhiteSpace(MaritalStatus.get("code").toString()))
         {
-            return String.valueOf(MaritalStatus.get("code"));
+            return MaritalStatus.get("code").toString();
         }
         return null;
     }
@@ -3376,9 +3399,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getMaritalStatusEditFlagHelper()
     {
-        if (MaritalStatusEditFlag.containsKey("code") && isNullOrWhiteSpace(String.valueOf(MaritalStatusEditFlag.get("code"))))
+        if (MaritalStatusEditFlag.containsKey("code") && isNullOrWhiteSpace(MaritalStatusEditFlag.get("code").toString()))
         {
-            return String.valueOf(MaritalStatusEditFlag.get("code"));
+            return MaritalStatusEditFlag.get("code").toString();
         }
         return null;
     }
@@ -3530,7 +3553,8 @@ public class DeathCertificateDocument extends Bundle {
         if (name != null && isNullOrEmpty(value.toString()))
         {
             name.setSuffix(Arrays.asList(suffix));
-        } else if (isNullOrEmpty(String.valueOf(value)))
+        }
+        else if (isNullOrEmpty(value.toString()))
         {
             name = new HumanName();
             name.setUse(HumanName.NameUse.OFFICIAL);
@@ -3784,6 +3808,14 @@ public class DeathCertificateDocument extends Bundle {
         {
             return GetFirstString("Bundle.getEntry().getResource().stream().filter($this is RelatedPerson).stream().filter(relationship.coding.code='SPS').getName().stream().filter(use='maiden').family");
         }
+        //Bundle.getEntry().stream().filter(($this is RelatedPerson).where(relationship.getCoding().getCode().equals("SPS")).name.where(use='maiden').family");
+        Bundle.getEntry().stream().filter(resource -> resource instanceof RelatedPerson).where(resource -> {
+                    RelatedPerson relatedPerson = (RelatedPerson) resource;
+                    return relatedPerson.getRelationship().getCoding().getCode().equals("SPS");
+                })
+                .getName()
+                .where(name -> name.getUse().equals("maiden"))
+                .getFamily();
         return null;
     }
 
@@ -4038,7 +4070,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if (EducationLevelEditFlag.containsKey("code") && isNullOrWhiteSpace(String.valueOf(EducationLevelEditFlag.get("code"))))
         {
-            return String.valueOf(EducationLevelEditFlag.get("code"));
+            return EducationLevelEditFlag.get("code").toString();
         }
         return null;
     }
@@ -4231,7 +4263,7 @@ public class DeathCertificateDocument extends Bundle {
             Map<String, StringType> map = CodeableConceptToMap((CodeableConcept) UsualWork.getValue());
             if (map.containsKey("text"))
             {
-                return String.valueOf(map.get("text"));
+                return map.get("text").toString();
             }
         }
         return null;
@@ -4271,7 +4303,7 @@ public class DeathCertificateDocument extends Bundle {
             if (component != null && component.getValue() != null && component.getValue() instanceof CodeableConcept
                     && CodeableConceptToMap((CodeableConcept) component.getValue()).containsKey("text"))
             {
-                return String.valueOf(CodeableConceptToMap((CodeableConcept) component.getValue()).get("text"));
+                return CodeableConceptToMap((CodeableConcept) component.getValue()).get("text").toString();
             }
         }
         return null;
@@ -4369,9 +4401,9 @@ public class DeathCertificateDocument extends Bundle {
 
     public String getMilitaryServiceHelper()
     {
-        if (MilitaryService.containsKey("code") && isNullOrWhiteSpace(String.valueOf(MilitaryService.get("code"))))
+        if (MilitaryService.containsKey("code") && isNullOrWhiteSpace(MilitaryService.get("code").toString()))
         {
-            return String.valueOf(MilitaryService.get("code"));
+            return MilitaryService.get("code").toString();
         }
         return null;
     }
@@ -4956,15 +4988,15 @@ public class DeathCertificateDocument extends Bundle {
     /// <para>// Setter:</para>
     /// <para>ExampleDeathRecord.AutopsyPerformedIndicatorHelper = "Y"";</para>
     /// <para>// Getter:</para>
-    /// <para>Console.WriteLine($"Autopsy Performed Indicator: {ExampleDeathRecord.AutopsyPerformedIndicatorBoolean}");</para>
+    /// <para>Console.WriteLine($"Autopsy Performed Indicator: {ExampleDeathRecord.AutopsyPerformedIndicatorboolean }");</para>
     /// </example>
     //  [Property("Autopsy Performed Indicator Helper", Property.Types.String, "Death Investigation", "Autopsy Performed Indicator.", false, IGURL.AutopsyPerformedIndicator, true, 29)]
     //  [FHIRPath("Bundle.getEntry().getResource().stream().findAny($this is Observation).stream().findAny(code.coding.code='85699-7')", "")]
     public String getAutopsyPerformedIndicatorHelper()
     {
-        if (AutopsyPerformedIndicator.containsKey("code") && isNullOrWhiteSpace(String.valueOf(AutopsyPerformedIndicator.get("code"))))
+        if (AutopsyPerformedIndicator.containsKey("code") && isNullOrWhiteSpace(AutopsyPerformedIndicator.get("code").toString()))
         {
-            return String.valueOf(AutopsyPerformedIndicator.get("code"));
+            return AutopsyPerformedIndicator.get("code").toString();
         }
         return null;
     }
@@ -8368,8 +8400,16 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Entity Axis Cause of Death</summary>
     private List<Observation> EntityAxisCauseOfDeathObsList;
 
+    public static List<Observation> getRecordAxisCauseOfDeathObsList() {
+        return RecordAxisCauseOfDeathObsList;
+    }
+
+    public void setRecordAxisCauseOfDeathObsList(List<Observation> recordAxisCauseOfDeathObsList) {
+        RecordAxisCauseOfDeathObsList = recordAxisCauseOfDeathObsList;
+    }
+
     /// <summary>Record Axis Cause of Death</summary>
-    private List<Observation> RecordAxisCauseOfDeathObsList;
+    private static List<Observation> RecordAxisCauseOfDeathObsList;
 
     /// <summary>Add a reference to the Death Record Composition.</summary>
     /// <param name="reference">a reference.</param>
@@ -8418,7 +8458,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <summary>Remove a reference from the Death Record Composition.</summary>
     /// <param name="reference">a reference.</param>
     /// <param name="code">a code for the section to modify.</param>
-    private boolean RemoveReferenceFromComposition(String reference,String code)
+    private boolean  RemoveReferenceFromComposition(String reference,String code)
     {
         Composition.SectionComponent section=Composition.getSection().stream().filter(s->s.getCode().getCoding().get(0).getCode().equals(code)).findFirst().get();
         return section.getEntry().removeIf(entry->entry.getReference().equals(reference));// > 0;
@@ -8429,7 +8469,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         // Depending on the type of bundle, some of this information may not be present, so check it in a null-safe way
         String profile=Bundle.getMeta() != null ?Bundle.getMeta().getProfile() != null ? Bundle.getMeta().getProfile().stream().findFirst().get().fhirType():null:null;
-        boolean fullRecord=URL.ProfileURL.DeathCertificateDocument.equals(profile);
+        boolean  fullRecord=URL.ProfileURL.DeathCertificateDocument.equals(profile);
         // Grab Composition
         BundleEntryComponent compositionEntry=Bundle.getEntry().stream().filter(entry->entry.getResource()instanceof Composition).findFirst().get();
         if(compositionEntry!= null)
@@ -8854,7 +8894,7 @@ public class DeathCertificateDocument extends Bundle {
     {
         if(ManualUnderlyingCauseOfDeathObs != null && ManualUnderlyingCauseOfDeathObs.getValue() != null && ManualUnderlyingCauseOfDeathObs.getValue() instanceof CodeableConcept)
         {
-            String codeableConceptValueCode= String.valueOf(CodeableConceptToMap((CodeableConcept)ManualUnderlyingCauseOfDeathObs.getValue()).get("code"));
+            String codeableConceptValueCode= CodeableConceptToMap((CodeableConcept)ManualUnderlyingCauseOfDeathObs.getValue()).get("code").toString();
             if(isNullOrWhiteSpace(codeableConceptValueCode))
             {
                 return null;
@@ -8931,9 +8971,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='11376-1')", "")]
     public String getPlaceOfInjuryHelper()
     {
-        if(PlaceOfInjury.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(PlaceOfInjury.get("code"))))
+        if(PlaceOfInjury.containsKey("code") && !isNullOrWhiteSpace(PlaceOfInjury.get("code").toString()))
         {
-            return String.valueOf(PlaceOfInjury.get("code"));
+            return PlaceOfInjury.get("code").toString();
         }
         return null;
     }
@@ -9008,9 +9048,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstEditedRaceCodeHelper()
     {
-        if(FirstEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstEditedRaceCode.get("code"))))
+        if(FirstEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstEditedRaceCode.get("code").toString()))
         {
-            return String.valueOf(FirstEditedRaceCode.get("code"));
+            return FirstEditedRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9162,9 +9202,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String ThirdEditedRaceCodeHelper()
     {
-        if(ThirdEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(ThirdEditedRaceCode.get("code"))))
+        if(ThirdEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(ThirdEditedRaceCode.get("code").toString()))
         {
-            return String.valueOf(ThirdEditedRaceCode.get("code"));
+            return ThirdEditedRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9239,9 +9279,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFourthEditedRaceCodeHelper()
     {
-        if(FourthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FourthEditedRaceCode.get("code"))))
+        if(FourthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(FourthEditedRaceCode.get("code").toString()))
         {
-            return String.valueOf(FourthEditedRaceCode.get("code"));
+            return FourthEditedRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9471,9 +9511,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSeventhEditedRaceCodeHelper()
     {
-        if(SeventhEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SeventhEditedRaceCode.get("code"))))
+        if(SeventhEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(SeventhEditedRaceCode.get("code").toString()))
         {
-            return String.valueOf(SeventhEditedRaceCode.get("code"));
+            return SeventhEditedRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9549,9 +9589,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getEighthEditedRaceCodeHelper()
     {
-        if(EighthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(EighthEditedRaceCode.get("code"))))
+        if(EighthEditedRaceCode.containsKey("code") && !isNullOrWhiteSpace(EighthEditedRaceCode.get("code").toString()))
         {
-            return String.valueOf(EighthEditedRaceCode.get("code"));
+            return EighthEditedRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9626,9 +9666,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstAmericanIndianRaceCodeHelper()
     {
-        if(FirstAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstAmericanIndianRaceCode.get("code"))))
+        if(FirstAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstAmericanIndianRaceCode.get("code").toString()))
         {
-            return String.valueOf(FirstAmericanIndianRaceCode.get("code"));
+            return FirstAmericanIndianRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9703,9 +9743,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondAmericanIndianRaceCodeHelper()
     {
-        if(SecondAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondAmericanIndianRaceCode.get("code"))))
+        if(SecondAmericanIndianRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondAmericanIndianRaceCode.get("code").toString()))
         {
-            return String.valueOf(SecondAmericanIndianRaceCode.get("code"));
+            return SecondAmericanIndianRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9780,9 +9820,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstOtherAsianRaceCodeHelper()
     {
-        if(FirstOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstOtherAsianRaceCode.get("code"))))
+        if(FirstOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstOtherAsianRaceCode.get("code").toString()))
         {
-            return String.valueOf(FirstOtherAsianRaceCode.get("code"));
+            return FirstOtherAsianRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9858,9 +9898,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondOtherAsianRaceCodeHelper()
     {
-        if(SecondOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondOtherAsianRaceCode.get("code"))))
+        if(SecondOtherAsianRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondOtherAsianRaceCode.get("code").toString()))
         {
-            return String.valueOf(SecondOtherAsianRaceCode.get("code"));
+            return SecondOtherAsianRaceCode.get("code").toString();
         }
         return null;
     }
@@ -9935,9 +9975,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getFirstOtherPacificIslanderRaceCodeHelper()
     {
-        if(FirstOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(FirstOtherPacificIslanderRaceCode.get("code"))))
+        if(FirstOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(FirstOtherPacificIslanderRaceCode.get("code").toString()))
         {
-            return String.valueOf(FirstOtherPacificIslanderRaceCode.get("code"));
+            return FirstOtherPacificIslanderRaceCode.get("code").toString();
         }
         return null;
     }
@@ -10013,9 +10053,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondOtherPacificIslanderRaceCodeHelper()
     {
-        if(SecondOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondOtherPacificIslanderRaceCode.get("code"))))
+        if(SecondOtherPacificIslanderRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondOtherPacificIslanderRaceCode.get("code").toString()))
         {
-            return String.valueOf(SecondOtherPacificIslanderRaceCode.get("code"));
+            return SecondOtherPacificIslanderRaceCode.get("code").toString();
         }
         return null;
     }
@@ -10165,9 +10205,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getSecondOtherRaceCodeHelper()
     {
-        if(SecondOtherRaceCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(SecondOtherRaceCode.get("code"))))
+        if(SecondOtherRaceCode.containsKey("code") && !isNullOrWhiteSpace(SecondOtherRaceCode.get("code").toString()))
         {
-            return String.valueOf(SecondOtherRaceCode.get("code"));
+            return SecondOtherRaceCode.get("code").toString();
         }
         return null;
     }
@@ -10240,9 +10280,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getHispanicCodeHelper()
     {
-        if(HispanicCode.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(HispanicCode.get("code"))))
+        if(HispanicCode.containsKey("code") && !isNullOrWhiteSpace(HispanicCode.get("code").toString()))
         {
-            return String.valueOf(HispanicCode.get("code"));
+            return HispanicCode.get("code").toString();
         }
         return null;
     }
@@ -10318,9 +10358,9 @@ public class DeathCertificateDocument extends Bundle {
     ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code='codedraceandethnicity')", "")]
     public String getHispanicCodeForLiteralHelper()
     {
-        if(HispanicCodeForLiteral.containsKey("code") && !isNullOrWhiteSpace(String.valueOf(HispanicCodeForLiteral.get("code"))))
+        if(HispanicCodeForLiteral.containsKey("code") && !isNullOrWhiteSpace(HispanicCodeForLiteral.get("code").toString()))
         {
-            return String.valueOf(HispanicCodeForLiteral.get("code"));
+            return HispanicCodeForLiteral.get("code").toString();
         }
         return null;
     }
@@ -10394,192 +10434,230 @@ public class DeathCertificateDocument extends Bundle {
     /// <para>// Getter:</para>
     /// <para>Console.WriteLine($"First Entity Axis Code: {ExampleDeathRecord.EntityAxisCauseOfDeath.ElementAt(0).Code}");</para>
     /// </example>
-    ///[Property("Entity Axis Cause of Death", Property.Types.Tuple4Arr, "Coded Content", "", true, IGURL.EntityAxisCauseOfDeath, false, 50)]
-    ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=80356-9)", "")]
-    //public Iterable<(int LineNumber, int Position, String Code, boolean ECode)> getEntityAxisCauseOfDeath()
-    //        {
-    //        List<(int LineNumber, int Position, String Code, boolean ECode)> eac = new List<(int LineNumber, int Position, String Code, boolean ECode)>();
-    //        if (EntityAxisCauseOfDeathObsList != null)
-    //        {
-    //        for(Observation ob:EntityAxisCauseOfDeathObsList)
-    //        {
-    //        Integer lineNumber = null;
-    //        Integer position = null;
-    //        String icd10code = null;
-    //        boolean ecode = false;
-    //        Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("position").stream().filter();
-    //        if (positionComp != null && positionComp.getValue() != null)
-    //        {
-    //        position = ((IntegerType)positionComp.getValue()).getValue();
-    //        }
-    //        Observation.ObservationComponentComponent lineNumComp = ob.getComponent().stream().filter()c -> c.getCode().getCoding().get(0).getCode().equals("lineNumber").stream().filter();
-    //        if (lineNumComp != null && lineNumComp.getValue() != null)
-    //        {
-    //        lineNumber = ((IntegerType)lineNumComp.getValue()).getValue();
-    //        }
-    //        CodeableConcept valueCC = (CodeableConcept)ob.getValue();
-    //        if (valueCC != null && valueCC.getCoding() != null && valueCC.getCoding().size() > 0)
-    //        {
-    //        icd10code = valueCC.getCoding().get(0).getCode().trim();
-    //        }
-    //        Observation.ObservationComponentComponent ecodeComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("eCodeIndicator").stream().filter();
-    //        if (ecodeComp != null && ecodeComp.getValue() != null)
-    //        {
-    //        ecode = (boolean)((BooleanType)ecodeComp.getValue()).getValue();
-    //        }
-    //        if (lineNumber != null && position != null && icd10code != null)
-    //        {
-    //        eac.add((LineNumber: (int)lineNumber, Position: (int)position, Code: icd10code, ECode: ecode));
-    //        }
-    //        }
-    //        }
-    //        return eac.OrderBy(element -> element.getLineNumber()).ThenBy(element -> element.getPosition());
-    //        }
-    //
-    //        public void setEntityAxisCauseOfDeath(String value)
-    //        {
-    //        // clear all existing eac
-    //        Bundle.Entry().removeIf(entry -> entry.Resource is Observation && (((Observation)entry.Resource).Code.Coding.First().Code == "80356-9"));
-    //        if (EntityAxisCauseOfDeathObsList != null)
-    //        {
-    //        EntityAxisCauseOfDeathObsList.Clear();
-    //        }
-    //        else
-    //        {
-    //        EntityAxisCauseOfDeathObsList = new List<Observation>();
-    //        }
-    //        // Rebuild the list of observations
-    //        for((int LineNumber, int Position, String Code, boolean ECode) eac:value)
-    //        {
-    //        if(!isNullOrEmpty(eac.Code))
-    //        {
-    //        Observation ob = new Observation();
-    //        ob.setId(UUID.randomUUID().toString());
-    //        ob.setMeta(new Meta());
-    //        CanonicalType[] entityAxis_profile = { URL.ProfileURL.EntityAxisCauseOfDeath };
-    //        ob.getMeta().setProfile(entityAxis_profile;
-    //        ob.setStatus(Observation.ObservationStatus.FINAL);
-    //        ob.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC, "80356-9", "Cause of death entity axis code [Automated]")));//, null);
-    //        ob.setSubject(new Reference("urn:uuid:" + Decedent.getId()));
-    //        AddReferenceToComposition(ob.getId(), "CodedContent");
-    //
-    //        ob.setEffective(new DateTimeType());
-    //        ob.setValue(new CodeableConcept(new Coding (CodeSystems.ICD10, eac.Code, null)));//, null));
-    //        Observation.ObservationComponentComponent lineNumComp = new Observation.ObservationComponentComponent();
-    //        lineNumComp.setValue(new Integer(eac.LineNumber);
-    //        lineNumComp.setCode(new CodeableConcept(new Coding (CodeSystems.Component, "lineNumber", "lineNumber")));//, null);
-    //        ob.getComponent().add(lineNumComp);
-    //
-    //        Observation.ObservationComponentComponent positionComp = new Observation.ObservationComponentComponent();
-    //        positionComp.setValue(new Integer(eac.Position);
-    //        positionComp.setCode(new CodeableConcept(new Coding(CodeSystems.Component, "position", "Position")));//, null);
-    //        ob.getComponent().add(positionComp);
-    //
-    //        Observation.ObservationComponentComponent eCodeComp = new Observation.ObservationComponentComponent();
-    //        eCodeComp.setValue(new BooleanType(eac.ECode));
-    //        eCodeComp.setCode(new CodeableConcept(new Coding(CodeSystems.Component, "eCodeIndicator", "eCodeIndicator")));//, null);
-    //        ob.getComponent().add(eCodeComp);
-    //
-    //        Bundle.AddResourceEntry(ob, "urn:uuid:" + ob.getId());
-    //        EntityAxisCauseOfDeathObsList.add(ob);
-    //        }
-    //        }
-    //        }
+    //[Property("Entity Axis Cause of Death", Property.Types.Tuple4Arr, "Coded Content", "", true, IGURL.EntityAxisCauseOfDeath, false, 50)]
+    //[FHIRPath("Bundle.entry.resource.where($this is Observation).where(code.coding.code=80356-9)", "")]
+    //public IEnumerable<(int LineNumber, int Position, String Code, boolean ECode)> getEntityAxisCauseOfDeath()
+    private List<Tuple> EntityAxisCauseOfDeath;
+    public List<Tuple> getEntityAxisCauseOfDeath()
+    {
+        List<Tuple> entityList = new ArrayList<>();
+        
+        //List<(int LineNumber, int Position, String Code, boolean  ECode)> eac = new List<(int LineNumber, int Position, String Code, boolean ECode)>();
+        List<Tuple> eac = new ArrayList<>();
+        if (EntityAxisCauseOfDeathObsList != null)
+        {
+            for(Observation ob:EntityAxisCauseOfDeathObsList)
+            {
+                Integer lineNumber = null;
+                Integer position = null;
+                String icd10code = null;
+                boolean ecode = false;
+                Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).equals("position")).findFirst().get();
+                if (positionComp != null && positionComp.getValue() != null)
+                {
+                    position = ((IntegerType)positionComp.getValue()).getValue();
+                }
+                Observation.ObservationComponentComponent lineNumComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).equals("lineNumber")).findFirst().get();
+                if (lineNumComp != null && lineNumComp.getValue() != null)
+                {
+                    lineNumber = ((IntegerType)lineNumComp.getValue()).getValue();
+                }
+                CodeableConcept valueCC = (CodeableConcept)ob.getValue();
+                if (valueCC != null && valueCC.getCoding() != null && valueCC.getCoding().size() > 0)
+                {
+                    icd10code = valueCC.getCoding().get(0).getCode().trim();
+                }
+                Observation.ObservationComponentComponent ecodeComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).equals("eCodeIndicator")).findFirst().get();
+                if (ecodeComp != null && ecodeComp.getValue() != null)
+                {
+                    ecode = ((BooleanType)ecodeComp.getValue()).getValue();//(Fhirboolean )
+                }
+                if (lineNumber != null && position != null && icd10code != null)
+                {
+                    //eac.add((LineNumber: (int)lineNumber, Position: (int)position, Code: icd10code, ECode: ecode));
+                    Tuple tuple = new Tuple();
+                    tuple.addChild(lineNumber.toString());
+                    tuple.addChild(position.toString());
+                    tuple.addChild(icd10code);
+                    tuple.addChild(java.lang.String.valueOf(ecode));
+                    eac.add(tuple);
+                    //eac.add(Map.of("LineNumber", (int)lineNumber, "Position", (int)position, "Code", icd10code, "ECode", ecode));
+                }
+            }
+        }
+        //return eac.OrderBy(element => element.LineNumber).ThenBy(element => element.Position);
+        return eac.stream().sorted(Comparator.comparing(Tuple::getChildByName(lineNumber.toString())).thenComparing(Tuple::position)).collect(Collectors.toList());
+    }
+        
+    public void setEntityAxisCauseOfDeath(List<Tuple> value)
+    {
+        // clear all existing eac
+        Bundle.getEntry().removeIf(entry -> entry.getResource() instanceof Observation && (((Observation)entry.getResource()).getCode().getCoding().get(0).getCode().equals("80356-9")));
+        if (EntityAxisCauseOfDeathObsList != null)
+        {
+            EntityAxisCauseOfDeathObsList.clear();
+        }
+        else
+        {
+            EntityAxisCauseOfDeathObsList = new ArrayList<Observation>();
+        }
+        // Rebuild the list of observations
+        //for((int LineNumber, int Position, String Code, boolean ECode) eac:value)
+        for(Tuple eac:value)
+        {
+            int lineNumber = Integer.parseInt(java.lang.String.valueOf(eac.children().get(0)));
+            int position = Integer.parseInt(java.lang.String.valueOf(eac.children().get(1)));
+            String code = java.lang.String.valueOf(eac.children().get(2));
+            boolean eCode = Boolean.parseBoolean(java.lang.String.valueOf(eac.children().get(3)));
+            if(!isNullOrEmpty(code))
+            {
+                Observation ob = new Observation();
+                ob.setId(UUID.randomUUID().toString());
+                ob.setMeta(new Meta());
+
+                CanonicalType[] recordAxis_profile = { URL.ProfileURL.RecordAxisCauseOfDeath };
+                ob.getMeta().setProfile(Arrays.asList(recordAxis_profile));
+                ob.setStatus(Observation.ObservationStatus.FINAL);
+                ob.setCode(new CodeableConcept(new Coding (CodeSystems.LOINC, "80357-9", "Cause of death entity axis code [Automated]")));//, null);
+                ob.setSubject(new Reference("urn:uuid:" + Decedent.getId()));
+                AddReferenceToComposition(ob.getId(), "CodedContent");
+                ob.setEffective(new DateTimeType());
+                ob.setValue(new CodeableConcept(new Coding (CodeSystems.ICD10, eac.children().get(), null)));//, null);
+                Observation.ObservationComponentComponent lineNumberComp = new Observation.ObservationComponentComponent();
+                lineNumberComp.setValue(new IntegerType(lineNumber));
+                lineNumberComp.setCode(new CodeableConcept(new Coding (CodeSystems.Component, "lineNumber", "lineNumber")));//, null);
+                ob.getComponent().add(lineNumberComp);
+
+
+                Observation.ObservationComponentComponent positionComp = new Observation.ObservationComponentComponent();
+                positionComp.setValue(new IntegerType(position));
+                positionComp.setCode(new CodeableConcept(new Coding (CodeSystems.Component, "position", "Position")));//, null);
+                ob.getComponent().add(positionComp);
+
+                Observation.ObservationComponentComponent eCodeComp = new Observation.ObservationComponentComponent();
+                eCodeComp.setValue(new BooleanType (eCode));
+                eCodeComp.setCode(new CodeableConcept(new Coding (CodeSystems.Component, "eCodeIndicator", "eCodeIndicator")));//, null);
+                ob.getComponent().add(eCodeComp);
+
+                Resource resource = ob;
+                resource.setId("urn:uuid:"+ ob.getId());
+                Bundle.addEntry(new BundleEntryComponent().setResource(resource));
+                //Bundle.addResourceEntry(ob, "urn:uuid:" + ob.getId());
+                EntityAxisCauseOfDeathObsList.add(ob);
+            }
+        }
+    }
 
 
     /// <summary>Record Axis Cause Of Death</summary>
     /// <value>record-axis codes</value>
     /// <example>
     /// <para>// Setter:</para>
-    /// <para>Tuple&lt;String, String, String&gt;[] eac = new Tuple&lt;String, String, String&gt;{Tuple.Create("position", "code", "pregnancy")}</para>
+    /// <para>Tuple&lt;string, string, string&gt;[] eac = new Tuple&lt;string, string, string&gt;{Tuple.Create("position", "code", "pregnancy")}</para>
     /// <para>ExampleDeathRecord.RecordAxisCauseOfDeath = new [] { (Position: 1, Code: "T27.3", Pregnancy: true) };</para>
     /// <para>// Getter:</para>
     /// <para>Console.WriteLine($"First Record Axis Code: {ExampleDeathRecord.RecordAxisCauseOfDeath.ElememtAt(0).Code}");</para>
     /// </example>
-    ///[Property("Record Axis Cause Of Death", Property.Types.Tuple4Arr, "Coded Content", "", true, IGURL.RecordAxisCauseOfDeath, false, 50)]
-    ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=80357-7)", "")]
-    //public Iterable<(int Position, String Code, boolean Pregnancy)> getRecordAxisCauseOfDeath()
-    //        {
-    //
-    //        List<(int Position, String Code, boolean Pregnancy)> rac = new List<(int Position, String Code, boolean Pregnancy)>();
-    //        if (RecordAxisCauseOfDeathObsList != null)
-    //        {
-    //        for(Observation ob:RecordAxisCauseOfDeathObsList)
-    //        {
-    //        Integer position = null;
-    //        String icd10code = null;
-    //        boolean pregnancy = false;
-    //        Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("position")).findFirst().get();
-    //        if (positionComp != null && positionComp.getValue() != null)
-    //        {
-    //        position = ((IntegerType)positionComp.getValue()).getValue();
-    //        }
-    //        CodeableConcept valueCC = (CodeableConcept)ob.getValue();
-    //        if (valueCC != null && valueCC.getCoding() != null && valueCC.getCoding().size() > 0)
-    //        {
-    //        icd10code = valueCC.getCoding().get(0).getCode();
-    //        }
-    //        Observation.ObservationComponentComponent pregComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("wouldBeUnderlyingCauseOfDeathWithoutPregnancy")).findFirst().get();
-    //        if (pregComp != null && pregComp.getValue() != null)
-    //        {
-    //        pregnancy = ((BooleanType)pregComp.getValue()).getValue();
-    //        }
-    //        if (position != null && icd10code != null)
-    //        {
-    //        rac.add((Position: (int)position, Code: icd10code, Pregnancy: pregnancy));
-    //        }
-    //        }
-    //        }
-    //        return rac.OrderBy(entry -> entry.Position);
-    //        }
-    //public void setRecordAxisCauseOfDeath(String value)
-    //        {
-    //        // clear all existing eac
-    //        Bundle.entry.removeIf(entry -> entry.getResource() instanceof Observation && (((Observation)entry.Resource).getCode().getCoding().get(0).getCode().equals("80357-7")));
-    //        if (RecordAxisCauseOfDeathObsList != null)
-    //        {
-    //        RecordAxisCauseOfDeathObsList.Clear();
-    //        }
-    //        else
-    //        {
-    //        RecordAxisCauseOfDeathObsList = new List<Observation>();
-    //        }
-    //        // Rebuild the list of observations
-    //        for((int Position, String Code, boolean Pregnancy) rac:value)
-    //        {
-    //        if(!isNullOrEmpty(rac.getCode()))
-    //        {
-    //        Observation ob = new Observation();
-    //        ob.setId(UUID.randomUUID().toString());
-    //        ob.setMeta(new Meta());
-    //        CanonicalType[] recordAxis_profile = { URL.ProfileURL.RecordAxisCauseOfDeath };
-    //        ob.getMeta().setProfile(Arrays.asList(recordAxis_profile));
-    //        ob.setStatus(Observation.ObservationStatus.FINAL);
-    //        ob.setCode(new CodeableConcept(new Coding (CodeSystems.LOINC, "80357-7", "Cause of death record axis code [Automated]")));//, null);
-    //        ob.setSubject(new Reference("urn:uuid:" + Decedent.getId()));
-    //        AddReferenceToComposition(ob.getId(), "CodedContent");
-    //        ob.setEffective(new DateTimeType());
-    //        ob.setValue(new CodeableConcept(new Coding (CodeSystems.ICD10, rac.getCode(), null)));//, null);
-    //        Observation.ObservationComponentComponent positionComp = new Observation.ObservationComponentComponent();
-    //        positionComp.setValue(new Integer(rac.getPosition())));
-    //        positionComp.setCode(new CodeableConcept(new Coding (CodeSystems.Component, "position", "Position")));//, null);
-    //        ob.getComponent().add(positionComp);
+    //[Property("Record Axis Cause Of Death", Property.Types.Tuple4Arr, "Coded Content", "", true, IGURL.RecordAxisCauseOfDeath, false, 50)]
+    //[FHIRPath("Bundle.entry.resource.where($this is Observation).where(code.coding.code=80357-7)", "")]
+   // public IEnumerable<(int Position, String Code, boolean Pregnancy)> getRecordAxisCauseOfDeath()
+    public List<Tuple> getRecordAxisCauseOfDeath()
+    {
+        //List<(int Position, String Code, boolean Pregnancy)> rac = new List<(int Position, String Code, boolean Pregnancy)>();
+        List<Tuple> rac = new ArrayList<>();
+        if (RecordAxisCauseOfDeathObsList != null)
+        {
+            for(Observation ob:RecordAxisCauseOfDeathObsList)
+            {
+                Integer position = null;
+                String icd10code = null;
+                boolean pregnancy = false;
+                Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("position")).findFirst().get();
+                if (positionComp != null && positionComp.getValue() != null)
+                {
+                    position = ((IntegerType)positionComp.getValue()).getValue();
+                }
+                CodeableConcept valueCC = (CodeableConcept)ob.getValue();
+                if (valueCC != null && valueCC.getCoding() != null && valueCC.getCoding().size() > 0)
+                {
+                    icd10code = valueCC.getCoding().get(0).getCode();
+                }
+                Observation.ObservationComponentComponent pregComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("wouldBeUnderlyingCauseOfDeathWithoutPregnancy")).findFirst().get();
+                if (pregComp != null && pregComp.getValue() != null)
+                {
+                    pregnancy = ((BooleanType)pregComp.getValue()).getValue();
+                }
+                if (position != null && icd10code != null)
+                {
+                    Tuple tuple = new Tuple();
+                    tuple.addChild(java.lang.String.valueOf(position));
+                    tuple.addChild(icd10code);
+                    tuple.addChild(java.lang.String.valueOf(pregnancy));
+                    rac.add(tuple);
+                    //rac.add((Position: (int)position, Code: icd10code, Pregnancy: pregnancy));
+                }
+            }
+        }
+        //return rac.stream().sorted(entry -> entry.children().get(0));
+        return rac.stream().sorted(Comparator.comparing(children).collect(Collectors.toList());
+    }
+    
+    public void setRecordAxisCauseOfDeath(List<Tuple> value)
+    {
+        // clear all existing eac
+        Bundle.getEntry().removeIf(entry -> entry.getResource() instanceof Observation && (((Observation)entry.getResource()).getCode().getCoding().get(0).getCode().equals("80357-7")));
+        if (RecordAxisCauseOfDeathObsList != null)
+        {
+            RecordAxisCauseOfDeathObsList.clear();
+        }
+        else
+        {
+            RecordAxisCauseOfDeathObsList = new ArrayList<Observation>();
+        }
+        // Rebuild the list of observations
+        //foreach ((int Position, String Code, boolean Pregnancy) rac in value)
+        for(Tuple rac:value)
+        {
+            String code = java.lang.String.valueOf(rac.children().get(1));
+            if(!isNullOrEmpty(code))
+            {
+                Observation ob = new Observation();
+                ob.setId(UUID.randomUUID().toString());
+                ob.setMeta(new Meta());
+                CanonicalType[] entityAxis_profile = { URL.ProfileURL.EntityAxisCauseOfDeath };
+                ob.getMeta().setProfile(Arrays.asList(entityAxis_profile));
+                ob.setStatus(Observation.ObservationStatus.FINAL);
+                ob.setCode(new CodeableConcept(new Coding(CodeSystems.LOINC, "80357-7", "Cause of death record axis code [Automated]")));//, null);
+                ob.setSubject(new Reference("urn:uuid:" + Decedent.getId()));
+                AddReferenceToComposition(ob.getId(), "CodedContent");
 
-    // Record axis codes have an unusual and obscure handling of a Pregnancy flag, for more information see
-    // http://build.fhir.org/ig/HL7/vrdr/branches/master/StructureDefinition-vrdr-record-axis-cause-of-death.html#usage
-    //        if (rac.getPregnancy())
-    //        {
-    //        Observation.ObservationComponentComponent pregComp = new Observation.ObservationComponentComponent();
-    //        pregComp.setValue(new BooleanType(true));
-    //        pregComp.setCode(new CodeableConcept(new Coding (CodeSystems.Component, "wouldBeUnderlyingCauseOfDeathWithoutPregnancy", "Would be underlying cause of death without pregnancy, if true")));
-    //        ob.getComponent().add(pregComp);
-    //        }
-    //
-    //        Bundle.AddResourceEntry(ob, "urn:uuid:" + ob.getId());
-    //        RecordAxisCauseOfDeathObsList.add(ob);
-    //        }
-    //        }
-    //        }
+                ob.setEffective(new DateTimeType());
+                ob.setValue(new CodeableConcept(new Coding (CodeSystems.ICD10, code, null)));//, null));
+                Observation.ObservationComponentComponent positionComp = new Observation.ObservationComponentComponent();
+                String position = rac.children().get(1).toString();
+                positionComp.setValue(new IntegerType(position));
+                positionComp.setCode(new CodeableConcept(new Coding (CodeSystems.Component, "position", "position")));//, null);
+                ob.getComponent().add(positionComp);
+
+
+                // Record axis codes have an unusual and obscure handling of a Pregnancy flag, for more information see
+                // http://build.fhir.org/ig/HL7/vrdr/branches/master/StructureDefinition-vrdr-record-axis-cause-of-death.html#usage
+                String pregnancy = rac.children().get(2).toString();
+                if (pregnancy != null)
+                {
+                    Observation.ObservationComponentComponent pregComp = new Observation.ObservationComponentComponent();
+                    pregComp.setValue(new BooleanType (true));
+                    pregComp.setCode(new CodeableConcept(new Coding(CodeSystems.Component, "wouldBeUnderlyingCauseOfDeathWithoutPregnancy", "Would be underlying cause of death without pregnancy")));//, if true");
+                    ob.getComponent().add(pregComp);
+                }
+                Resource resource = ob;
+                resource.setId("urn:uuid:"+ ob.getId());
+                Bundle.addEntry(new BundleEntryComponent().setResource(resource));
+                RecordAxisCauseOfDeathObsList.add(ob);
+            }
+        }
+    }
+    
 
 
     /// <summary>The year NCHS received the death record.</summary>
@@ -11021,17 +11099,58 @@ public class DeathCertificateDocument extends Bundle {
         }
     }
 
+    public static class IValueProviderFPExtensions
+    {
+        public static int MAX_FP_EXPRESSION_CACHE_SIZE = FhirPathCompilerCache.DEFAULT_FP_EXPRESSION_CACHE_SIZE;
+
+        private static Lazy<FhirPathCompilerCache> CACHE = new(() => new(compiler: null, cacheSize: MAX_FP_EXPRESSION_CACHE_SIZE));
+
+        /// <inheritdoc cref="FhirPathCompilerCache.Select(ITypedElement, string, EvaluationContext?)"/>
+        public static IEnumerable<ITypedElement> Select(this ITypedElement input, string expression, EvaluationContext? ctx = null)
+            => CACHE.Value.Select(input, expression, ctx);
+
+        /// <inheritdoc cref="FhirPathCompilerCache.Scalar(ITypedElement, string, EvaluationContext?)"/>
+        public static object? Scalar(this ITypedElement input, string expression, EvaluationContext? ctx = null)
+            => CACHE.Value.Scalar(input, expression, ctx);
+
+        /// <inheritdoc cref="FhirPathCompilerCache.Predicate(ITypedElement, string, EvaluationContext?)"/>
+        public static booleanPredicate(this ITypedElement input, string expression, EvaluationContext? ctx = null)
+            => CACHE.Value.Predicate(input, expression, ctx);
+
+        /// <inheritdoc cref="FhirPathCompilerCache.IsTrue(ITypedElement, string, EvaluationContext?)"/>
+        public static booleanIsTrue(this ITypedElement input, string expression, EvaluationContext? ctx = null)
+            => CACHE.Value.IsTrue(input, expression, ctx);
+
+        /// <inheritdoc cref="FhirPathCompilerCache.IsBoolean(ITypedElement, string, bool, EvaluationContext?)"/>
+        public static booleanIsBoolean(this ITypedElement input, string expression, booleanvalue, EvaluationContext? ctx = null)
+            => CACHE.Value.IsBoolean(input, expression, value, ctx);
+
+        /// <summary>
+        /// Reinitialize the cache. This method is only meant for the unit tests, but can be made public later. We need some refactoring here, I (MV) think.
+        /// </summary>
+        /// <param name="compiler">A userdefined compiler</param>
+        /// <param name="cacheSize">the new size for the cache</param>
+        static void ReInitializeCache(FhirPathCompiler? compiler = null, int? cacheSize = null)
+        {
+        CACHE = new(() => new(compiler, cacheSize ?? MAX_FP_EXPRESSION_CACHE_SIZE));
+        }
+    }
+    
     /// <summary>Given a FHIR path, return the elements that match the given path;
     /// returns an empty array if no matches are found.</summary>
     /// <param name="path">represents a FHIR path.</param>
     /// <returns>all elements that match the given path, or an empty array if no matches are found.</returns>
     public Object[] GetAll(String path)
     {
-        var matches = Navigator.Select(path);
+        FhirContext fhirContext = FhirContext.forR4();
+        IParser parser = fhirContext.newJsonParser(); // or newXmlParser() for XML format
+        IBaseBundle bundle = parser.parseResource();//resourceXmlOrJson);
+        List matches = Navigator.Select(path);
+        List matches = bundle.select(path);
         List list = new ArrayList();
-        for(Object match:matches)
+        for(IBaseElement match:matches)
         {
-            list.add(match.getValue());
+            list.add(match.);
         }
         return list.toArray();
     }
@@ -11042,7 +11161,7 @@ public class DeathCertificateDocument extends Bundle {
     /// <returns>the first element that matches the given path, or null if no match is found.</returns>
     public Object GetFirst(String path)
     {
-        var matches = Navigator.Select(path);
+        List matches = Navigator.Select(path);
         if (matches.size() > 0)
         {
             return matches.get(0).getValue();
@@ -11168,9 +11287,9 @@ public class DeathCertificateDocument extends Bundle {
 /// </example>
 ///[Property("Entity Axis Cause of Death", Property.Types.Tuple4Arr, "Coded Content", "", true, IGURL.EntityAxisCauseOfDeath, false, 50)]
 ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=80356-9)", "")]
-//public Iterable<(int LineNumber, int Position, String Code, boolean ECode)> getEntityAxisCauseOfDeath()
+//public Iterable<(int LineNumber, int Position, String Code, boolean  ECode)> getEntityAxisCauseOfDeath()
 //        {
-//        List<(int LineNumber, int Position, String Code, boolean ECode)> eac = new List<(int LineNumber, int Position, String Code, boolean ECode)>();
+//        List<(int LineNumber, int Position, String Code, boolean  ECode)> eac = new List<(int LineNumber, int Position, String Code, boolean  ECode)>();
 //        if (EntityAxisCauseOfDeathObsList != null)
 //        {
 //        for(Observation ob:EntityAxisCauseOfDeathObsList)
@@ -11178,7 +11297,7 @@ public class DeathCertificateDocument extends Bundle {
 //        Integer lineNumber = null;
 //        Integer position = null;
 //        String icd10code = null;
-//        boolean ecode = false;
+//        boolean  ecode = false;
 //        Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("position").stream().filter();
 //        if (positionComp != null && positionComp.getValue() != null)
 //        {
@@ -11197,7 +11316,7 @@ public class DeathCertificateDocument extends Bundle {
 //        Observation.ObservationComponentComponent ecodeComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("eCodeIndicator").stream().filter();
 //        if (ecodeComp != null && ecodeComp.getValue() != null)
 //        {
-//        ecode = (boolean)((BooleanType)ecodeComp.getValue()).getValue();
+//        ecode = (boolean )((boolean Type)ecodeComp.getValue()).getValue();
 //        }
 //        if (lineNumber != null && position != null && icd10code != null)
 //        {
@@ -11220,7 +11339,7 @@ public class DeathCertificateDocument extends Bundle {
 //        EntityAxisCauseOfDeathObsList = new List<Observation>();
 //        }
 //        // Rebuild the list of observations
-//        for((int LineNumber, int Position, String Code, boolean ECode) eac:value)
+//        for((int LineNumber, int Position, String Code, boolean  ECode) eac:value)
 //        {
 //        if(!isNullOrEmpty(eac.Code))
 //        {
@@ -11269,17 +11388,17 @@ public class DeathCertificateDocument extends Bundle {
 /// </example>
 ///[Property("Record Axis Cause Of Death", Property.Types.Tuple4Arr, "Coded Content", "", true, IGURL.RecordAxisCauseOfDeath, false, 50)]
 ///[FHIRPath("Bundle.entry.resource.stream().filter($this is Observation).stream().filter(code.coding.code=80357-7)", "")]
-//public Iterable<(int Position, String Code, boolean Pregnancy)> getRecordAxisCauseOfDeath()
+//public Iterable<(int Position, String Code, boolean  Pregnancy)> getRecordAxisCauseOfDeath()
 //        {
 //
-//        List<(int Position, String Code, boolean Pregnancy)> rac = new List<(int Position, String Code, boolean Pregnancy)>();
+//        List<(int Position, String Code, boolean  Pregnancy)> rac = new List<(int Position, String Code, boolean  Pregnancy)>();
 //        if (RecordAxisCauseOfDeathObsList != null)
 //        {
 //        for(Observation ob:RecordAxisCauseOfDeathObsList)
 //        {
 //        Integer position = null;
 //        String icd10code = null;
-//        boolean pregnancy = false;
+//        boolean  pregnancy = false;
 //        Observation.ObservationComponentComponent positionComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("position")).findFirst().get();
 //        if (positionComp != null && positionComp.getValue() != null)
 //        {
@@ -11293,7 +11412,7 @@ public class DeathCertificateDocument extends Bundle {
 //        Observation.ObservationComponentComponent pregComp = ob.getComponent().stream().filter(c -> c.getCode().getCoding().get(0).getCode().equals("wouldBeUnderlyingCauseOfDeathWithoutPregnancy")).findFirst().get();
 //        if (pregComp != null && pregComp.getValue() != null)
 //        {
-//        pregnancy = ((BooleanType)pregComp.getValue()).getValue();
+//        pregnancy = ((boolean Type)pregComp.getValue()).getValue();
 //        }
 //        if (position != null && icd10code != null)
 //        {
@@ -11316,7 +11435,7 @@ public class DeathCertificateDocument extends Bundle {
 //        RecordAxisCauseOfDeathObsList = new List<Observation>();
 //        }
 //        // Rebuild the list of observations
-//        for((int Position, String Code, boolean Pregnancy) rac:value)
+//        for((int Position, String Code, boolean  Pregnancy) rac:value)
 //        {
 //        if(!isNullOrEmpty(rac.getCode()))
 //        {
