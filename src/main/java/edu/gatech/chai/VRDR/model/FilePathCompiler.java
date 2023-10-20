@@ -1,4 +1,6 @@
 package edu.gatech.chai.VRDR.model;
+import org.hl7.*;
+import org.fhir.*;
 
 public class FhirPathCompiler
 {
@@ -9,12 +11,26 @@ public class FhirPathCompiler
         _defaultSymbolTable = st;
     }
 
-    public static SymbolTable DefaultSymbolTable
-    {
-        get { return _defaultSymbolTable.Value; }
+    public static SymbolTable getDefaultSymbolTable() {
+        return _defaultSymbolTable;
     }
 
-    public SymbolTable Symbols { get; private set; }
+//    public static SymbolTable DefaultSymbolTable
+//    {
+//        get { return _defaultSymbolTable.Value; }
+//    }
+
+    public SymbolTable Symbols;// { get; private set; }
+
+    public SymbolTable getSymbols() {
+        return Symbols;
+    }
+
+    private void setSymbols(SymbolTable symbols) {
+        Symbols = symbols;
+    }
+
+
 
     public FhirPathCompiler(SymbolTable symbols)
     {
@@ -26,7 +42,7 @@ public class FhirPathCompiler
     }
 
 //#pragma warning disable CA1822 // Mark members as static
-    public Expression Parse(string expression)
+    public Expression Parse(String expression)
 //#pragma warning restore CA1822 // This might access instance data in the future.
     {
         var parse = Grammar.Expression.End().TryParse(expression);
@@ -38,14 +54,14 @@ public class FhirPathCompiler
     {
         Invokee inv = expression.ToEvaluator(Symbols);
 
-        return (ITypedElement focus, EvaluationContext ctx) =>
+        return (TypedElemental focus, EvaluationContext ctx) =>
         {
             var closure = Closure.Root(focus, ctx);
             return inv(closure, InvokeeFactory.EmptyArgs);
         };
     }
 
-    public CompiledExpression Compile(string expression)
+    public CompiledExpression Compile(String expression)
     {
         return Compile(Parse(expression));
     }

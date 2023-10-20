@@ -56,6 +56,11 @@ import org.hl7.fhir.r4.model.Observation.ObservationStatus;
 import org.hl7.fhir.r4.elementmodel.Property.*;
 import org.hl7.fhir.r4.model.codesystems.EventStatus;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Patient;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+
 import static edu.gatech.chai.VRDR.model.util.DeathCertificateDocumentUtil.*;
 
 @ResourceDef(name = "Bundle", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-death-certificate-document")
@@ -11151,6 +11156,30 @@ public class DeathCertificateDocument extends Bundle {
         for(IBaseElement match:matches)
         {
             list.add(match.);
+        }
+        return list.toArray();
+    }
+
+    public Object[] GetAll(String path)
+    {
+        FhirContext ctx = FhirContext.forR4();
+        IParser parser = ctx.newJsonParser(); // or newXmlParser() for XML format
+        IBaseBundle bundle = parser.parseResource();//resourceXmlOrJson);
+        List list = new ArrayList();
+        // Create a FHIR client
+        IGenericClient client = ctx.newRestfulGenericClient("http://fhir-server/baseDstu3");
+
+        // Execute a FHIR search query
+        Bundle results = client.search()
+                .forResource(Decedent.class)
+                .where(path)
+                .returnBundle(Bundle.class)
+                .execute();
+
+        // Process the search results
+        for (Bundle.BundleEntryComponent entry : results.getEntry()) {
+            Decedent decedent = (Decedent) entry.getResource();
+            list.add(decedent);
         }
         return list.toArray();
     }

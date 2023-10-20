@@ -1,5 +1,6 @@
 package edu.gatech.chai.VRDR.model;
 
+
 public class FhirPathCompilerCache
 {
     public final int DEFAULT_FP_EXPRESSION_CACHE_SIZE = 500;
@@ -40,11 +41,11 @@ public class FhirPathCompilerCache
     /// <param name="expression">Expression which is to be evaluated</param>
     /// <param name="ctx">Context of the evaluation</param>
     /// <returns>The result(s) of the expression</returns>
-    public IEnumerable<ITypedElement> Select(ITypedElement input, String expression, EvaluationContext? ctx = null)
+    public Iterable<TypedElemental> Select(TypedElemental input, String expression, EvaluationContext? ctx = null)
     {
         input = input.ToScopedNode();
-        var evaluator = GetCompiledExpression(expression);
-        return evaluator(input, ctx ?? EvaluationContext.CreateDefault());
+        CompiledExpression evaluator = GetCompiledExpression(expression);
+        return evaluator(input, ctx != null ? ctx : EvaluationContext.CreateDefault());
     }
 
     /// <summary>
@@ -54,7 +55,7 @@ public class FhirPathCompilerCache
     /// <param name="expression">Expression which is to be evaluated</param>
     /// <param name="ctx">Context of the evaluation</param>
     /// <returns>The single result of the expression, and null if the expression returns multiple results</returns>
-    public object? Scalar(ITypedElement input, String expression, EvaluationContext? ctx = null)
+    public Object? Scalar(TypedElemental input, String expression, EvaluationContext? ctx = null)
 {
     input = input.ToScopedNode();
     var evaluator = GetCompiledExpression(expression);
@@ -68,7 +69,7 @@ public class FhirPathCompilerCache
     /// <param name="expression">Expression which is to be evaluated</param>
     /// <param name="ctx">Context of the evaluation</param>
     /// <returns>True if expression returns true of empty, otheriwse false</returns>
-    public boolean Predicate(ITypedElement input, String expression, EvaluationContext? ctx = null)
+    public boolean Predicate(TypedElemental input, String expression, EvaluationContext? ctx = null)
     {
         input = input.ToScopedNode();
         var evaluator = GetCompiledExpression(expression);
@@ -82,7 +83,7 @@ public class FhirPathCompilerCache
     /// <param name="expression">Expression which is to be evaluated</param>
     /// <param name="ctx">Context of the evaluation</param>
     /// <returns>True if expression returns true , and false if expression returns empty of false.</returns>
-    public boolean IsTrue(ITypedElement input, String expression, EvaluationContext? ctx = null)
+    public boolean IsTrue(TypedElemental input, String expression, EvaluationContext? ctx = null)
     {
         input = input.ToScopedNode();
         var evaluator = GetCompiledExpression(expression);
@@ -98,7 +99,7 @@ public class FhirPathCompilerCache
     /// <param name="expression">Expression which is to be evaluated</param>
     /// <param name="ctx">Context of the evaluation</param>
     /// <returns>True if the result of an expression is equal to a given boolean, otherwise false</returns>
-    public boolean IsBoolean(ITypedElement input, String expression, boolean value, EvaluationContext? ctx = null)
+    public boolean IsBoolean(TypedElemental input, String expression, boolean value, EvaluationContext? ctx = null)
     {
         input = input.ToScopedNode();
 

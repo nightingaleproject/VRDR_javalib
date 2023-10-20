@@ -4,13 +4,37 @@ import java.util.List;
 
 public class CallSignature
 {
-    public String Name { get; private set; }
+    public String Name;
+    public String getName() {
+        return Name;
+    }
 
-    public Class[] ArgumentTypes { get; private set; }
+    public void setName(String name) {
+        Name = name;
+    }
 
-    public Class ReturnType { get; private set; }
 
-    public CallSignature(String name, Class returnType, params Class[] argTypes )
+    public Class[] ArgumentTypes
+    public Class[] getArgumentTypes() {
+        return ArgumentTypes;
+    }
+
+    public void setArgumentTypes(Class[] argumentTypes) {
+        ArgumentTypes = argumentTypes;
+    }
+
+    public Class ReturnType;
+    public Class getReturnType() {
+        return ReturnType;
+    }
+
+    public void setReturnType(Class returnType) {
+        ReturnType = returnType;
+    }
+
+
+
+    public CallSignature(String name, Class returnType,  Class[] argTypes )
     {
         Name = name;
         ArgumentTypes = argTypes;
