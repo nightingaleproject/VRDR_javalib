@@ -1,38 +1,38 @@
 package edu.gatech.chai.VRDR.model;
 
+import org.hl7.fhir.r4.elementmodel.Element;
+//import org.hl7.fhir.r4.elementmodel.TypedElemental;
+//import org.hl7.fhir.r4.utils.FhirPathCompilerCache;
+//import org.hl7.fhir.r4.utils.FhirPathEvaluator.EvaluationContext;
+
+import java.util.List;
 
 public interface ValueProviderFPExtensions {
-    public static int MAX_FP_EXPRESSION_CACHE_SIZE = FhirPathCompilerCache.DEFAULT_FP_EXPRESSION_CACHE_SIZE;
+    public static int MAX_FP_EXPRESSION_CACHE_SIZE = new FhirPathCompilerCache().DEFAULT_FP_EXPRESSION_CACHE_SIZE;
 
-    private static Lazy<FhirPathCompilerCache> CACHE = new(() -> new(compiler: null, cacheSize: MAX_FP_EXPRESSION_CACHE_SIZE));
+    static final Lazy<FhirPathCompilerCache> CACHE = new Lazy<>(() -> new FhirPathCompilerCache(null, MAX_FP_EXPRESSION_CACHE_SIZE));
 
-    /// <inheritdoc cref="FhirPathCompilerCache.Select(TypedElemental, string, EvaluationContext?)"/>
-    public static Iterable<TypedElemental> Select(this TypedElemental input, String expression, EvaluationContext? ctx = null)
-            -> CACHE.Value.Select(input, expression, ctx);
+    public static List<TypedElemental> select(TypedElemental input, String expression, EvaluationContext ctx) {
+        return CACHE.getValue().select(input, expression, ctx);
+    }
 
-    /// <inheritdoc cref="FhirPathCompilerCache.Scalar(TypedElemental, string, EvaluationContext?)"/>
-    public static Object? Scalar(this TypedElemental input, String expression, EvaluationContext? ctx = null)
-            -> CACHE.Value.Scalar(input, expression, ctx);
+    public static Object scalar(TypedElemental input, String expression, EvaluationContext ctx) {
+        return CACHE.getValue().scalar(input, expression, ctx);
+    }
 
-    /// <inheritdoc cref="FhirPathCompilerCache.Predicate(TypedElemental, string, EvaluationContext?)"/>
-    public static boolean Predicate(this TypedElemental input, String expression, EvaluationContext? ctx = null)
-            -> CACHE.Value.Predicate(input, expression, ctx);
+    public static boolean predicate(TypedElemental input, String expression, EvaluationContext ctx) {
+        return CACHE.getValue().predicate(input, expression, ctx);
+    }
 
-    /// <inheritdoc cref="FhirPathCompilerCache.IsTrue(TypedElemental, string, EvaluationContext?)"/>
-    public static boolean IsTrue(this TypedElemental input, String expression, EvaluationContext? ctx = null)
-            -> CACHE.Value.IsTrue(input, expression, ctx);
+    public static boolean isTrue(TypedElemental input, String expression, EvaluationContext ctx) {
+        return CACHE.getValue().isTrue(input, expression, ctx);
+    }
 
-    /// <inheritdoc cref="FhirPathCompilerCache.IsBoolean(TypedElemental, string, bool, EvaluationContext?)"/>
-    public static boolean IsBoolean(this TypedElemental input, String expression, boolean value, EvaluationContext? ctx = null)
-            -> CACHE.Value.IsBoolean(input, expression, value, ctx);
+    public static boolean isBoolean(TypedElemental input, String expression, boolean value, EvaluationContext ctx) {
+        return CACHE.getValue().isBoolean(input, expression, value, ctx);
+    }
 
-    /// <summary>
-    /// Reinitialize the cache. This method is only meant for the unit tests, but can be made public later. We need some refactoring here, I (MV) think.
-    /// </summary>
-    /// <param name="compiler">A userdefined compiler</param>
-    /// <param name="cacheSize">the new size for the cache</param>
-    internal static void ReInitializeCache(FhirPathCompiler? compiler = null, int? cacheSize = null)
-    {
-        CACHE = new(() -> new(compiler, cacheSize ?? MAX_FP_EXPRESSION_CACHE_SIZE));
+    public static void reInitializeCache(FhirPathCompiler compiler, Integer cacheSize) {
+        CACHE.set(new FhirPathCompilerCache(compiler, cacheSize != null ? cacheSize : MAX_FP_EXPRESSION_CACHE_SIZE));
     }
 }

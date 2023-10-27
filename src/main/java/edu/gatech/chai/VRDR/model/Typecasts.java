@@ -14,13 +14,25 @@ import org.hl7.fhir.r4.model.*;
 import ca.uhn.fhir.model.api.IElement;
 import ca.uhn.fhir.model.api.IElement.*;
 import org.hl7.fhir.r4.elementmodel.Element;
+
 import org.hl7.fhir.r4.elementmodel.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.hl7.fhir.r4.model.Type.*;
+import org.hl7.fhir.r4.model.TypeDetails;
+import org.hl7.fhir.r4.model.Enumerations.FHIRAllTypes;
+import org.hl7.fhir.r4.elementmodel.ObjectConverter;
+
+import java.util.*;
+import java.lang.*;
+import java.math.*;
+
+
+
 import org.hl7.fhir.r4.elementmodel.Element;
-import org.hl7.fhir.r4.model.api.*;
+//import org.hl7.fhir.r4.model.api.*;
 //import org.hl7.fhir.r4.elementmodel.Manager.FhirFormat. .ITypedElement;
 import org.hl7.fhir.r4.elementmodel.Element.ICodingImpl.*; //.Types;
 //import org.hl7.fhir.r4.elementmodel.Types;
@@ -32,7 +44,39 @@ import org.hl7.fhir.r4.elementmodel.Element.ICodingImpl.*; //.Types;
 import org.hl7.fhir.r4.model.*;
 public class Typecasts
 {
+    static List<String> fhirPathNames = new ArrayList<>() {{
+        add("model.BooleanType");
+        add("model.IntegerType");
+        add("model.DecimalType");
+        add("model.StringType");
+        add("model.DateTimeType");
+        add("model.DateType");
+        add("model.TimeType");
+        add("model.Quantity");
+        add("model.UriType");
+        add("model.Identifier");
+        add("model.CodeType");
+        add("model.Coding");
+        add("model.CodeableConcept");
+        add("model.Reference");
+        add("model.InstantType");
+        add("model.Base64BinaryType");
+        add("model.IdType");
+        add("model.UuidType");
+        add("model.OidType");
+        add("model.MarkdownType");
+        add("model.UnsignedIntType");
+        add("model.PositiveIntType");
+        add("model.Ratio");
+        add("model.Annotation");
+        add("model.SampledData");
+        add("model.Signature");
+        add("model.Meta");
+    }};
+
     //public delegate Object Cast(Object source);
+
+
     public interface Cast { Object cast(Object source); }
 
     //private static Object id(Object source) -> source;
@@ -76,7 +120,7 @@ public class Typecasts
     private static Quantity tryQuantity(Object source)
         {
             if (source instanceof TypedElemental element) {
-                if (element.InstanceType == "Quantity") {
+                if (element.InstanceType.equals("Quantity")) {
                     // Need to downcast from a FHIR Quantity to a System.Quantity
                     return ParseQuantity(element);
                 } else
@@ -86,6 +130,14 @@ public class Typecasts
             throw new ClassCastException(new StringBuffer("Cannot convert from '").append(source.getClass()).append("' to Quantity").toString());
         }
 
+    public static Quantity ParseQuantity1(TypedElemental qe) {
+        BigDecimal value = qe.Children("value").stream().findFirst().map(e -> (BigDecimal) e.getValue()).orElse(null);
+        if (value == null) {
+            return null;
+        }
+        String unit = qe.Children("code").stream().findFirst().map(e -> (String) e.getValue()).orElse(null);
+        return new Quantity().setValue(value).setUnit(unit);
+    }
 
         public static Quantity ParseQuantity(TypedElemental qe)
         {
@@ -121,7 +173,7 @@ public class Typecasts
             return new Quantity().setValue(value).setUnit(unit);
         }
 
-    private static Quantity parseQuantity1(TypedElemental qe) {
+    private static Quantity parseQuantity2(TypedElemental qe) {
         BigDecimal value = qe.Children("value").stream()
                 .findFirst()
                 .map(TypedElemental::getValue)
@@ -143,19 +195,21 @@ public class Typecasts
         {
             Class<?> from = f.getClass();
 
-            if (to == Object.class) return id;
+            if (to == Object.class) return Typecasts::id;
             if (from.isAssignableFrom(to)) {
-                return id;
+                return Typecasts::id;
             }
-            List<TypedElemental> list = new ArrayList<>();
-            boolean fromElemList = from instanceof list;
+            //List<TypedElemental> list = new ArrayList<>();
+            boolean fromElemList = List.class.isAssignableFrom(from);
             //if (to instanceof Quantity.class && from instanceof TypedElemental.class return tryQuantity;
             if (to == Quantity.class && TypedElemental.class.isAssignableFrom(from))
             {
-                return tryQuantity;
+                return o -> Typecasts.tryQuantity(o); //Typecasts::tryQuantity;
             }
-            if (to == TypedElemental.class && (!fromElemList)) return any2primitiveTypedElement;
-            if (to == list.getClass()) return any2List;
+
+            if (to == TypedElemental.class && (!fromElemList)) return o -> Typecasts.any2primitiveTypedElement(o);
+            if (to == List.class) return o -> Typecasts.any2List(o);
+
 
 //            if (from == long.class && to == BigDecimal.class || to == BigDecimal.class)
 //                return makeNativeCast(BigDecimal.class);
@@ -166,6 +220,7 @@ public class Typecasts
                     return makeNativeCast(BigDecimal.class);
             }
 
+
 //            if (from == int.class && (to == BigDecimal.class || to == BigDecimal.class))
 //                return makeNativeCast(BigDecimal.class);
 //            if (from == Integer.class && to == BigDecimal.class) return makeNativeCast(BigDecimal.class);
@@ -175,69 +230,35 @@ public class Typecasts
                     return makeNativeCast(BigDecimal.class);
             }
 
+            if (from == Integer.class && to == Long.class) {
+                return Typecasts.makeNativeCast(Long.class);
+            }
+            if (from == Integer.class && to == Long.class) {
+                return Typecasts.makeNativeCast(Long.class);
+            }
+
             // cast ints to longs
-            if (from == int.class && to == long.class) return makeNativeCast(Long.class);
-            if (from == Integer.class && to == Long.class) return makeNativeCast(Long.class);
+            if (from == int.class || from == Integer.class && (to == long.class || to == Long.class)) return makeNativeCast(Long.class);
+
 
             //if (typeof(P.Any).IsAssignableFrom(to) && !fromElemList) {
-            if (P.Any.class.isAssignableFrom(to) && !fromElemList) {
+
+            if (FHIRAllTypes.ANY.getClass().isAssignableFrom(to) && !fromElemList) {
                 if (f instanceof TypedElemental te && te.InstanceType.equals("Quantity"))
                     return o -> ParseQuantity((TypedElemental) o);
-                return o -> P.Any.Convert(o);
+                return makeNativeCast(FHIRAllTypes.ANY.getClass());//  o -> FHIRAllTypes.ANY. .convert(o);
             }
 
             return null;
         }
-
-    private static Cast getImplicitCast(Object f, Class<?> to) {
-        Class<?> from = f.getClass();
-
-        if (to == Object.class) {
-            return Typecasts::id;
-        }
-        if (to.isAssignableFrom(from)) {
-            return Typecasts::id;
-        }
-
-        boolean fromElemList = Iterable.class.isAssignableFrom(from);
-        if (to == Quantity.class && TypedElemental.class.isAssignableFrom(from)) {
-            return Typecasts::tryQuantity;
-        }
-        if (to == TypedElemental.class && !fromElemList) {
-            return Typecasts::any2primitiveTypedElement::cast;
-        }
-        if (to == List.class && !fromElemList) {
-            return Typecasts::any2List::cast;
-        }
-
-        if (from == Long.class && (to == BigDecimal.class || to == BigDecimal.class)) {
-            return Typecasts.makeNativeCast(BigDecimal.class);
-        }
-        if (from == Integer.class && (to == BigDecimal.class || to == BigDecimal.class)) {
-            return Typecasts.makeNativeCast(BigDecimal.class);
-        }
-        if (from == Integer.class && to == Long.class) {
-            return Typecasts.makeNativeCast(Long.class);
-        }
-
-        if (to == Any.class && !fromElemList) {
-            if (f instanceof TypedElemental) {
-                TypedElemental te = (TypedElemental) f;
-                if (te.fhirType().equals("Quantity")) {
-                    return Typecasts::tryQuantity;
-                }
-            }
-            return o -> AnyConverter.convert(o);
-        }
-        return null;
-    }
 
     private static Object unboxTo(Object instance, Class<?> to) {
         if (instance == null) {
             return null;
         }
         if (instance instanceof Iterable<?>) {
-            Iterable<?> list = (Iterable<?>) instance;
+            //Iterable<?> list = (Iterable<?>) instance;
+            Iterable<TypedElemental> list = (Iterable<TypedElemental>) instance;
             if (to.isAssignableFrom(Iterable.class)) {
                 return instance;
             }
@@ -256,9 +277,11 @@ public class Typecasts
             if (to == Object.class) {
                 return instance;
             }
-//            if (to.isPrimitive())
-//                instance = ((TypedElemental) instance).getValue();
-            if (element.getValue() != null || (element != null && Character.isLowerCase(element.toString().charAt(0)) || element.toString().startsWith("System."))) {
+
+            boolean isPrimitive = element.getValue() != null || (element.InstanceType != null && Character.isLowerCase(element.InstanceType.charAt(0)) || element.InstanceType.startsWith("System."));
+            //if (element.getValue() != null || (element != null && Character.isLowerCase(element.toString().charAt(0)) || element.toString().startsWith("System."))) {
+
+            if (isPrimitive) {
                 instance = element.getValue();
             }
         }
@@ -270,10 +293,9 @@ public class Typecasts
         {
             if (source == null)
                 return DeathCertificateDocumentUtil.isNullable(to); //to.isNullable();
-            var from = unboxTo(source, to);
+            Object from = unboxTo(source, to);
             return from == null ? DeathCertificateDocumentUtil.isNullable(to) : getImplicitCast(from, to) != null;
         }
-
 
     public static boolean isOfExactType(Object source, Class<?> to) {
         if (source == null) {
@@ -291,16 +313,20 @@ public class Typecasts
     }
 
 
-        //public static boolean CanCastTo(Type from, Type to) -> getImplicitCast(from, to) != null;
+    //public static boolean CanCastTo(Type from, Type to) -> getImplicitCast(from, to) != null;
 
-        //public static T CastTo<T > (Object source) -> (T) CastTo(source, typeof(T));
+    //public static T CastTo<T > (Object source) -> (T) CastTo(source, typeof(T));
     //public static <T> T CastTo(Object source) { return (T) CastTo(source, T.class); }
+
+//    public static <T> T castTo(Object source, Class<T> to) {
+//        return to.cast(castTo(source, (Class<?>) to));
+//    }
 
 
     public static <T> T castTo(Object source, Class<T> to) {
         if (source != null) {
             if (to.isAssignableFrom(source.getClass())) {
-                return to.cast(source); // for efficiency
+                return to.cast(source); // source
             }
             source = unboxTo(source, to);
             if (source != null) {
@@ -310,7 +336,7 @@ public class Typecasts
                             Typecasts.readableFhirPathName(source), Typecasts.readableTypeName(to));
                     throw new ClassCastException(message);
                 }
-                return to.cast(cast.cast(source));
+                return to.cast(cast.cast(source)); // cast.apply(source);
             }
         }
 
@@ -318,18 +344,16 @@ public class Typecasts
         if (Iterable.class.isAssignableFrom(to)) {
             return (T) ElementNode.EmptyList;//to.cast(ElementFactory.emptyList());
         }
-        if (to.isPrimitive() || to.isAssignableFrom(Object.class)) {
+        if (to.isPrimitive() || to.isAssignableFrom(Object.class) || to.isAssignableFrom(Void.class)) {
             return null;
         } else {
             throw new ClassCastException("Cannot cast a null value to non-nullable type '" + to.getSimpleName() + "'");
         }
     }
 
-
     public static boolean isNullable(Class<?> type) {
         return Optional.class.isAssignableFrom(type);
     }
-
 
     public static String readableFhirPathName(Object value) {
         if (value instanceof Iterable<?>) {
@@ -347,38 +371,7 @@ public class Typecasts
         }
     }
 
-
     public static String readableTypeName(Class<?> type) {
-        List<String> fhirPathNames = new ArrayList<>() {{
-            add("model.BooleanType");
-            add("model.IntegerType");
-            add("model.DecimalType");
-            add("model.StringType");
-            add("model.DateTimeType");
-            add("model.DateType");
-            add("model.TimeType");
-            add("model.Quantity");
-            add("model.UriType");
-            add("model.Identifier");
-            add("model.CodeType");
-            add("model.Coding");
-            add("model.CodeableConcept");
-            add("model.Reference");
-            add("model.InstantType");
-            add("model.Base64BinaryType");
-            add("model.IdType");
-            add("model.UuidType");
-            add("model.OidType");
-            add("model.MarkdownType");
-            add("model.UnsignedIntType");
-            add("model.PositiveIntType");
-            add("model.Ratio");
-            add("model.Annotation");
-            add("model.SampledData");
-            add("model.Signature");
-            add("model.Meta");
-        }};
-
         //List<String> matchingStrings = fhirPathNames.stream().filter(s -> s.contains(type.getName())).toList();
         for (String fhirPathName : fhirPathNames) {
             if (type.getName().contains(fhirPathName)){

@@ -1,153 +1,102 @@
 package edu.gatech.chai.VRDR.model;
 
-public class SymbolTable
-{
-    public SymbolTable()
-    {
+//import java.util.concurrent.ConcurrentBag;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+public class SymbolTable {
+    //private List<TableEntry> _entries = new ArrayList<>();
+    private ConcurrentLinkedQueue<TableEntry> _entries = new ConcurrentLinkedQueue<>();
+    private SymbolTable Parent;
+    public SymbolTable() {
 
     }
 
-    public SymbolTable(SymbolTable parent)
-    {
+    public SymbolTable(SymbolTable parent) {
         Parent = parent;
     }
 
-    public int Count()
-    {
-        var cnt = _entries.Count;
-        if (Parent != null) cnt += Parent.Count();
 
-        return cnt;
-    }
+    private class TableEntry {
+        public CallSignature Signature;
+        public Invokee Body;
 
-    internal Invokee First()
-{
-    return _entries.Any() ? _entries.First().Body : (Parent?.First());
-}
-
-    public SymbolTable Parent { get; private set; }
-
-        [System.Diagnostics.DebuggerDisplay(@"\{{DebuggerDisplayValue()}}")]
-    private class TableEntry
-    {
-        public String DebuggerDisplayValue()
-        {
-            if (Signature != null)
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.append(Signature.ReturnType.Name);
-                sb.append(' ');
-                sb.append(Signature.Name);
-                sb.append(" (");
-                boolean b = false;
-                for(var item : Signature.ArgumentTypes)
-                {
-                    if (b)
-                        sb.append(", ");
-                    sb.append(item.Name);
-                    b = true;
-                }
-                sb.append(')');
-                return sb.ToString();
-            }
-            return null;
-        }
-
-        public CallSignature Signature { get; private set; }
-        public Invokee Body { get; private set; }
-
-        public TableEntry(CallSignature signature, Invokee body)
-        {
+        public TableEntry(CallSignature signature, Invokee body) {
             Signature = signature;
             Body = body;
         }
     }
 
-    private ConcurrentBag<TableEntry> _entries = new();
 
-    internal void Add(CallSignature signature, Invokee body)
-{
-    _entries.add(new TableEntry(signature, body));
-}
+    public void Add(CallSignature signature, Invokee body) {
+        _entries.add(new TableEntry(signature, body));
+    }
 
-    public SymbolTable Filter(String name, int argCount)
-    {
-        var result = new SymbolTable
-        {
-            _entries = new(_entries.Where(e => e.Signature.Matches(name, argCount)))
-        };
+    public int count() {
+        int cnt = _entries.size();
+        if (Parent != null) cnt += Parent.count();
 
-        if (Parent != null)
+        return cnt;
+    }
+
+
+//    public Invokee First() {
+//        return _entries.size() > 0 ? _entries.peek().Body : (Parent != null ? Parent.First() : null);
+//    }
+
+    private Invokee First() {
+        return _entries.isEmpty() ? (Parent != null ? Parent.First() : null) : _entries.peek().Body;//get(0).Body;
+    }
+
+    public SymbolTable Filter(String name, int argCount) {
+        SymbolTable result = new SymbolTable();
+//        result._entries = new ArrayList<>(_entries);
+//        result._entries.removeIf(e -> !e.Signature.Matches(name, argCount));
+        for (TableEntry e : _entries) {
+            if (e.Signature.Matches(name, argCount)) {
+                result.Add(e.Signature, e.Body);
+            }
+        }
+
+        if (Parent != null) {
             result.Parent = Parent.Filter(name, argCount);
+        }
 
         return result;
     }
 
-    internal Invokee DynamicGet(String name, IEnumerable<Object> args)
-{
-    var exactMatches = _entries.Where(e => e.Signature.DynamicExactMatches(name, args));
-    TableEntry entry = exactMatches.Union(_entries.Where(e => e.Signature.DynamicMatches(name, args))).FirstOrDefault();
+    public Invokee DynamicGet(String name, List<Object> args) {
+        List<TableEntry> exactMatches = new ArrayList<TableEntry>();
+        for (TableEntry e : _entries) {
+            if (e.Signature.DynamicExactMatches(name, args)) {
+                exactMatches.add(e);
+            }
+        }
+//        TableEntry entry = null;
+//        if (entry == null && Parent != null)
+//            return Parent.DynamicGet(name, args);
+//        return entry != null ? entry.Body : null;
+        TableEntry entry = exactMatches.isEmpty() ? null : exactMatches.get(0);
+        for (TableEntry e : exactMatches) {
+            if (entry == null || e.Signature.ArgumentTypes.length < entry.Signature.ArgumentTypes.length) {
+                entry = e;
+            }
+        }
+        if (entry == null) {
+            for (TableEntry e : _entries) {
+                if (e.Signature.DynamicMatches(name, args)) {
+                    if (entry == null || e.Signature.ArgumentTypes.length < entry.Signature.ArgumentTypes.length) {
+                        entry = e;
+                    }
+                }
+            }
+        }
+        if (entry == null && Parent != null) {
+            return Parent.DynamicGet(name, args);
+        }
 
-    if (entry == null && Parent != null) return Parent.DynamicGet(name, args);
-
-    return entry?.Body;
-}
-}
-
-
-public static class SymbolTableExtensions
-{
-    public static void Add<R>(this SymbolTable table, String name, Func<R> func)
-    {
-        table.add(new CallSignature(name, typeof(R)), InvokeeFactory.Wrap(func));
-    }
-
-    public static void Add<A, R>(this SymbolTable table, String name, Func<A, R> func, boolean doNullProp = false)
-    {
-        if (typeof(A) != typeof(EvaluationContext))
-            table.add(new CallSignature(name, typeof(R), typeof(A)), InvokeeFactory.Wrap(func, doNullProp));
-        else
-            table.add(new CallSignature(name, typeof(R)), InvokeeFactory.Wrap(func, doNullProp));
-    }
-
-    public static void Add<A, B, R>(this SymbolTable table, String name, Func<A, B, R> func, boolean doNullProp = false)
-    {
-        if (typeof(B) != typeof(EvaluationContext))
-            table.add(new CallSignature(name, typeof(R), typeof(A), typeof(B)), InvokeeFactory.Wrap(func, doNullProp));
-        else
-            table.add(new CallSignature(name, typeof(R), typeof(A)), InvokeeFactory.Wrap(func, doNullProp));
-    }
-
-    public static void Add<A, B, C, R>(this SymbolTable table, String name, Func<A, B, C, R> func, boolean doNullProp = false)
-    {
-        if (typeof(C) != typeof(EvaluationContext))
-            table.add(new CallSignature(name, typeof(R), typeof(A), typeof(B), typeof(C)), InvokeeFactory.Wrap(func, doNullProp));
-        else
-            table.add(new CallSignature(name, typeof(R), typeof(A), typeof(B)), InvokeeFactory.Wrap(func, doNullProp));
-    }
-
-    public static void Add<A, B, C, D, R>(this SymbolTable table, String name, Func<A, B, C, D, R> func, boolean doNullProp = false)
-    {
-        if (typeof(D) != typeof(EvaluationContext))
-            table.add(new CallSignature(name, typeof(R), typeof(A), typeof(B), typeof(C), typeof(D)), InvokeeFactory.Wrap(func, doNullProp));
-        else
-            table.add(new CallSignature(name, typeof(R), typeof(A), typeof(B), typeof(C)), InvokeeFactory.Wrap(func, doNullProp));
-
-    }
-
-    public static void AddLogic(this SymbolTable table, String name, Func<Func<bool?>, Func<bool?>, bool?> func)
-    {
-        table.add(new CallSignature(name, typeof(bool?), typeof(object), typeof(Func<bool?>), typeof(Func<bool?>)),
-        InvokeeFactory.WrapLogic(func));
-    }
-
-    public static void AddVar(this SymbolTable table, String name, object value)
-    {
-        table.AddVar(name, ElementNode.ForPrimitive(value));
-    }
-
-    public static void AddVar(this SymbolTable table, String name, ITypedElement value)
-    {
-        table.add(new CallSignature(name, typeof(string)), InvokeeFactory.Return(value));
+        return entry.Body;
     }
 }

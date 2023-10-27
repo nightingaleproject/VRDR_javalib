@@ -1,110 +1,60 @@
 package edu.gatech.chai.VRDR.model;
 
+import org.hl7.fhir.elementmodel.*;
+import org.hl7.fhir.utility.*;
+import java.util.*;
 
-public class FhirPathCompilerCache
-{
-    public final int DEFAULT_FP_EXPRESSION_CACHE_SIZE = 500;
+public class FhirPathCompilerCache {
+    public static final int DEFAULT_FP_EXPRESSION_CACHE_SIZE = 500;
 
-    private Cache<String, CompiledExpression> _cache = new();
-    private final FhirPathCompiler _compiler;
-    private final int _cacheSize = DEFAULT_FP_EXPRESSION_CACHE_SIZE;
+    private Cache<String, CompiledExpression> cache = new Cache<>();
+    private final FhirPathCompiler compiler;
+    private final int cacheSize = DEFAULT_FP_EXPRESSION_CACHE_SIZE;
 
-    public FhirPathCompilerCache(FhirPathCompiler? compiler = null, int cacheSize = DEFAULT_FP_EXPRESSION_CACHE_SIZE)
-    {
-        _cacheSize = cacheSize;
-        _compiler = compiler ?? new FhirPathCompiler(FhirPathCompiler.DefaultSymbolTable);
-        Clear();
+    public FhirPathCompilerCache(FhirPathCompiler compiler, int cacheSize) {
+        this.compiler = compiler != null ? compiler : new FhirPathCompiler(FhirPathCompiler.getDefaultSymbolTable());
+        clear();
     }
 
-    /// <summary>
-    /// Clears the cache.
-    /// </summary>
-    public void Clear()
-    {
-        _cache = new(expr -> compile(expr),
-            new CacheSettings() { MaxCacheSize = _cacheSize });
-
-        CompiledExpression compile(String expression) -> _compiler.Compile(expression);
+    public void clear() {
+        cache = new Cache<>(this::compile, new CacheSettings().setMaxCacheSize(cacheSize));
     }
 
-    /// <summary>
-    /// Returns a <see cref="CompiledExpression"/> for the given FhirPath expression.
-    /// </summary>
-    /// <remarks>The expression will be retrieved from the cache if available, otherwise
-    /// it will be added to the cache.</remarks>
-    public CompiledExpression GetCompiledExpression(String expression) -> _cache!.GetValue(expression);
-
-    /// <summary>
-    /// Evaluates an expression against a given context and returns the result(s)
-    /// </summary>
-    /// <param name="input">Input on which the expression is being evaluated</param>
-    /// <param name="expression">Expression which is to be evaluated</param>
-    /// <param name="ctx">Context of the evaluation</param>
-    /// <returns>The result(s) of the expression</returns>
-    public Iterable<TypedElemental> Select(TypedElemental input, String expression, EvaluationContext? ctx = null)
-    {
-        input = input.ToScopedNode();
-        CompiledExpression evaluator = GetCompiledExpression(expression);
-        return evaluator(input, ctx != null ? ctx : EvaluationContext.CreateDefault());
+    public CompiledExpression getCompiledExpression(String expression) {
+        return cache.getValue(expression);
     }
 
-    /// <summary>
-    /// Evaluates an expression against a given context and returns a single result
-    /// </summary>
-    /// <param name="input">Input on which the expression is being evaluated</param>
-    /// <param name="expression">Expression which is to be evaluated</param>
-    /// <param name="ctx">Context of the evaluation</param>
-    /// <returns>The single result of the expression, and null if the expression returns multiple results</returns>
-    public Object? Scalar(TypedElemental input, String expression, EvaluationContext? ctx = null)
-{
-    input = input.ToScopedNode();
-    var evaluator = GetCompiledExpression(expression);
-    return evaluator.Scalar(input, ctx ?? EvaluationContext.CreateDefault());
-}
-
-    /// <summary>
-    /// Evaluates an expression and returns true for expression being evaluated as true or empty, otherwise false.
-    /// </summary>
-    /// <param name="input">Input on which the expression is being evaluated</param>
-    /// <param name="expression">Expression which is to be evaluated</param>
-    /// <param name="ctx">Context of the evaluation</param>
-    /// <returns>True if expression returns true of empty, otheriwse false</returns>
-    public boolean Predicate(TypedElemental input, String expression, EvaluationContext? ctx = null)
-    {
-        input = input.ToScopedNode();
-        var evaluator = GetCompiledExpression(expression);
-        return evaluator.Predicate(input, ctx ?? EvaluationContext.CreateDefault());
+    public Iterable<TypedElemental> select(TypedElemental input, String expression, EvaluationContext ctx) {
+        input = input.toScopedNode();
+        CompiledExpression evaluator = getCompiledExpression(expression);
+        return evaluator.evaluate(input, ctx != null ? ctx : EvaluationContext.createDefault());
     }
 
-    /// <summary>
-    /// Evaluates an expression and returns true for expression being evaluated as true, and false if the expression returns false or empty.
-    /// </summary>
-    /// <param name="input">Input on which the expression is being evaluated</param>
-    /// <param name="expression">Expression which is to be evaluated</param>
-    /// <param name="ctx">Context of the evaluation</param>
-    /// <returns>True if expression returns true , and false if expression returns empty of false.</returns>
-    public boolean IsTrue(TypedElemental input, String expression, EvaluationContext? ctx = null)
-    {
-        input = input.ToScopedNode();
-        var evaluator = GetCompiledExpression(expression);
-        return evaluator.IsTrue(input, ctx ?? EvaluationContext.CreateDefault());
+    public Object scalar(TypedElemental input, String expression, EvaluationContext ctx) {
+        input = input.toScopedNode();
+        CompiledExpression evaluator = getCompiledExpression(expression);
+        return evaluator.evaluateSingle(input, ctx != null ? ctx : EvaluationContext.createDefault());
     }
 
-
-    /// <summary>
-    ///Evaluates if the result of an expression is equal to a given boolean.
-    /// </summary>
-    /// <param name="input">Input on which the expression is being evaluated</param>
-    /// <param name="value">Boolean that is to be compared to the result of the expression</param>
-    /// <param name="expression">Expression which is to be evaluated</param>
-    /// <param name="ctx">Context of the evaluation</param>
-    /// <returns>True if the result of an expression is equal to a given boolean, otherwise false</returns>
-    public boolean IsBoolean(TypedElemental input, String expression, boolean value, EvaluationContext? ctx = null)
-    {
-        input = input.ToScopedNode();
-
-        var evaluator = GetCompiledExpression(expression);
-        return evaluator.IsBoolean(value, input, ctx ?? EvaluationContext.CreateDefault());
+    public boolean predicate(TypedElemental input, String expression, EvaluationContext ctx) {
+        input = input.toScopedNode();
+        CompiledExpression evaluator = getCompiledExpression(expression);
+        return evaluator.evaluatePredicate(input, ctx != null ? ctx : EvaluationContext.createDefault());
     }
 
+    public boolean isTrue(TypedElemental input, String expression, EvaluationContext ctx) {
+        input = input.toScopedNode();
+        CompiledExpression evaluator = getCompiledExpression(expression);
+        return evaluator.evaluatePredicate(input, ctx != null ? ctx : EvaluationContext.createDefault());
+    }
+
+    public boolean isBoolean(TypedElemental input, String expression, boolean value, EvaluationContext ctx) {
+        input = input.toScopedNode();
+        CompiledExpression evaluator = getCompiledExpression(expression);
+        return evaluator.evaluatePredicate(input, ctx != null ? ctx : EvaluationContext.createDefault());
+    }
+
+    private CompiledExpression compile(String expression) {
+        return compiler.compile(expression);
+    }
 }

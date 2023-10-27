@@ -61,6 +61,6 @@ public interface TypedElemental
         public Object getLocation();
 
         ElementDefinitionSummarily Definition = null; //{ get; }
-        public Object getElementDefinitionSummarily();
+        public ElementDefinitionSummarily getElementDefinitionSummarily();
 }
 

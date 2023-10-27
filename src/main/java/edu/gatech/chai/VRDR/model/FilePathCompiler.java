@@ -1,68 +1,52 @@
 package edu.gatech.chai.VRDR.model;
 import org.hl7.*;
 import org.fhir.*;
+import org.hl7.fhir.r4.model.Expression;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-public class FhirPathCompiler
-{
-    private static Lazy<SymbolTable> _defaultSymbolTable = new(() => new SymbolTable().AddStandardFP());
 
-    public static void SetDefaultSymbolTable(Lazy<SymbolTable> st)
-    {
-        _defaultSymbolTable = st;
+public class FhirPathCompiler {
+    private static final Lazy<SymbolTable> _defaultSymbolTable = new Lazy<>(() -> new SymbolTable().addStandardFhirPath());
+
+    public static void setDefaultSymbolTable(Lazy<SymbolTable> st) {
+        // Do nothing
     }
 
     public static SymbolTable getDefaultSymbolTable() {
-        return _defaultSymbolTable;
+        return _defaultSymbolTable.get();
     }
 
-//    public static SymbolTable DefaultSymbolTable
-//    {
-//        get { return _defaultSymbolTable.Value; }
-//    }
+    private final SymbolTable symbols;
 
-    public SymbolTable Symbols;// { get; private set; }
-
-    public SymbolTable getSymbols() {
-        return Symbols;
+    public FhirPathCompiler(SymbolTable symbols) {
+        this.symbols = symbols;
     }
 
-    private void setSymbols(SymbolTable symbols) {
-        Symbols = symbols;
+    public FhirPathCompiler() {
+        this(getDefaultSymbolTable());
     }
 
-
-
-    public FhirPathCompiler(SymbolTable symbols)
-    {
-        Symbols = symbols;
+    public Expression parse(String expression) {
+        ParseResult<Expression> parse = Grammar.expression.end().tryParse(expression);
+        if (parse.wasSuccessful()) {
+            return parse.get();
+        } else {
+            throw new IllegalArgumentException("Compilation failed: " + parse.toString());
+        }
     }
 
-    public FhirPathCompiler() : this(DefaultSymbolTable)
-    {
-    }
-
-//#pragma warning disable CA1822 // Mark members as static
-    public Expression Parse(String expression)
-//#pragma warning restore CA1822 // This might access instance data in the future.
-    {
-        var parse = Grammar.Expression.End().TryParse(expression);
-
-        return parse.WasSuccessful ? parse.Value : throw new FormatException("Compilation failed: " + parse.ToString());
-    }
-
-    public CompiledExpression Compile(Expression expression)
-    {
-        Invokee inv = expression.ToEvaluator(Symbols);
-
-        return (TypedElemental focus, EvaluationContext ctx) =>
-        {
-            var closure = Closure.Root(focus, ctx);
-            return inv(closure, InvokeeFactory.EmptyArgs);
+    public CompiledExpression compile(Expression expression) {
+        Invokee inv = expression.toEvaluator(symbols);
+        return (TypedElemental focus, EvaluationContext ctx) -> {
+            Closure closure = Closure.root(focus, ctx);
+            return inv.invoke(closure, InvokeeFactory.emptyArgs());
         };
     }
 
-    public CompiledExpression Compile(String expression)
-    {
-        return Compile(Parse(expression));
+    public CompiledExpression compile(String expression) {
+        return compile(parse(expression));
     }
 }

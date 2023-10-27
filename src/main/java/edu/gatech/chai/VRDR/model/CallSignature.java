@@ -1,8 +1,65 @@
 package edu.gatech.chai.VRDR.model;
 
 import java.util.List;
+import java.util.Arrays;
 
-public class CallSignature
+public class CallSignature {
+    private String name;
+    private List<Class<?>> argumentTypes;
+    private Class<?> returnType;
+
+    public CallSignature(String name, Class<?> returnType, Class<?>... argumentTypes) { //Class[] argumentTypes
+        this.name = name;
+        this.argumentTypes = Arrays.asList(argumentTypes);
+        this.returnType = returnType;
+    }
+
+
+    public boolean dynamicMatches(String functionName, List<Object> arguments) {
+        if (!functionName.equals(name) || arguments.size() != argumentTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < arguments.size(); i++) {
+            if (!Typecasts.CanCastTo(arguments.get(i), argumentTypes.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean dynamicExactMatches(String functionName, List<Object> arguments) {
+        if (!functionName.equals(name) || arguments.size() != argumentTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < arguments.size(); i++) {
+            if (!Typecasts.isOfExactType(arguments.get(i), argumentTypes.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean matches(String functionName, int argCount) {
+        return functionName.equals(name) && argumentTypes.size() == argCount;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<Class<?>> getArgumentTypes() {
+        return argumentTypes;
+    }
+
+    public Class<?> getReturnType() {
+        return returnType;
+    }
+}
+class CallSignature1
 {
     public String Name;
     public String getName() {
@@ -14,7 +71,7 @@ public class CallSignature
     }
 
 
-    public Class[] ArgumentTypes
+    public Class[] ArgumentTypes;
     public Class[] getArgumentTypes() {
         return ArgumentTypes;
     }
@@ -32,31 +89,6 @@ public class CallSignature
         ReturnType = returnType;
     }
 
-
-
-    public CallSignature(String name, Class returnType,  Class[] argTypes )
-    {
-        Name = name;
-        ArgumentTypes = argTypes;
-        ReturnType = returnType;
-    }
-
-    //public boolean Matches(String functionName, Iterable <Type> argumentTypes)
-    //{
-    //    return functionName == Name && argumentTypes.length == ArgumentTypes.length &&
-    //           argumentTypes.Zip(ArgumentTypes, (call, sig) -> Typecasts.CanCastTo(call,sig)).All(r -> r == true);
-    //}
-
-    public boolean DynamicMatches(String functionName, List<Object> arguments)
-    {
-        return functionName == Name && arguments.size() == ArgumentTypes.length &&
-                arguments.Zip(ArgumentTypes, (call, sig) -> Typecasts.CanCastTo(call, sig)).All(r -> r == true);
-    }
-    public boolean DynamicExactMatches(String functionName, List<Object> arguments)
-    {
-        return functionName == Name && arguments.size() == ArgumentTypes.length &&
-                arguments.Zip(ArgumentTypes, (call, sig) -> Typecasts.IsOfExactType(call, sig)).All(r -> r == true);
-    }
 
     public boolean Matches(String functionName, int argCount)
     {

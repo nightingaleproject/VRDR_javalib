@@ -4,14 +4,19 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class Lazy<T> {
-    private final AtomicReference<T> instance = new AtomicReference<>();
+    private final Supplier<T> supplier;
+    private volatile T value;
 
-    public T get(Supplier<T> supplier) {
-        T value = instance.get();
+    public Lazy(Supplier<T> supplier) {
+        this.supplier = supplier;
+    }
+
+    public T getValue() {
         if (value == null) {
-            value = supplier.get();
-            if (!instance.compareAndSet(null, value)) {
-                value = instance.get();
+            synchronized (this) {
+                if (value == null) {
+                    value = supplier.get();
+                }
             }
         }
         return value;
