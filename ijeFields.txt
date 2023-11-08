@@ -1,0 +1,252 @@
+DOD_YR
+DSTATE: dataLookup.JurisdictionNameToJurisdictionCode/DictValueFinderHelper/MortalityData.cs/LinqHelper/
+FILENO
+VOID: logics 0, 1
+AUXNO
+MFILED
+GNAME
+MNAME
+LNAME
+SUFF
+ALIAS: logics 0, 1
+FLNAME
+SEX
+SEX_BYPASS
+SSN: hyphen "-"
+AGETYPE: Dictionary_Get_Full
+AGE
+AGE_BYPASS
+DOB_YR: NumericAllowingUnknown_Get/Set
+DOB_MO: NumericAllowingUnknown_Get/Set
+DOB_DY: NumericAllowingUnknown_Get/Set
+BPLACE_CNT: Dictionary_Geo_Get/Set
+BPLACE_ST: Dictionary_Geo_Get/Set
+COUNTYC: Dictionary_Geo_Get/Set
+STATEC: Dictionary_Geo_Get/Set
+COUNTRYC: Dictionary_Geo_Get/Set
+LIMITS
+MARITAL
+MARITAL_BYPASS
+DPLACE
+COD: Dictionary_Geo_Get/Set
+DISP
+DOD_MO: NumericAllowingUnknown_Set/Set
+DOD_DY: NumericAllowingUnknown_Set/Set
+TOD: TimeAllowingUnknown_Get/Set
+DEDUC
+DEDUC_BYPASS
+DETHNIC2
+DETHNIC3
+DETHNIC4
+DETHNIC5
+RACE1: Get/Set_Race
+RACE2: Get/Set_Race
+RACE3: Get/Set_Race
+RACE4: Get/Set_Race
+RACE5: Get/Set_Race
+RACE6: Get/Set_Race
+RACE7: Get/Set_Race
+RACE8: Get/Set_Race
+RACE9: Get/Set_Race
+RACE10: Get/Set_Race
+RACE11: Get/Set_Race
+RACE12: Get/Set_Race
+RACE13: Get/Set_Race
+RACE14: Get/Set_Race
+RACE15: Get/Set_Race
+RACE16: Get/Set_Race
+RACE17: Get/Set_Race
+RACE18: Get/Set_Race
+RACE19: Get/Set_Race
+RACE20: Get/Set_Race
+RACE21: Get/Set_Race
+RACE22: Get/Set_Race
+RACE23: Get/Set_Race
+RACE1E
+RACE2E
+RACE3E
+RACE4E
+RACE5E
+RACE6E
+RACE7E
+RACE8E
+RACE16C
+RACE17C
+RACE18C
+RACE19C
+RACE20C
+RACE21C
+RACE22C
+RACE23C
+RACE_MVR
+OCCUP
+OCCUPC
+INDUST
+INDUSTC
+BCNO
+IDOB_YR: NumericAllowingUnknown_Get/Set
+BSTATE
+R_YR: NumericAllowingUnknown_Get/Set
+R_MO: NumericAllowingUnknown_Get/Set
+R_DY: NumericAllowingUnknown_Get/Set
+OCCUPC4
+INDUSTC
+DOR_YR: DateTime_Get/Set
+DOR_MO: DateTime_Get/Set
+DOR_DY: DateTime_Get/Set
+FILLER2
+MANNER
+INT_REJ
+SYS_REJ
+INJPL
+MAN_UC
+ACME_UC
+EAC: multiple String manipulations
+TRX_FLG
+RAC: multiple String manipulations
+AUTOP
+AUTOPF
+TOBAC
+PREG
+PREG_BYPASS
+DOI_MO: NumericAllowingUnknown_Get/Set
+DOI_DY: NumericAllowingUnknown_Get/Set
+DOI_YR: NumericAllowingUnknown_Get/Set
+TOI_HR: TimeAllowingUnknown_Get/Set
+WORKINJ
+CERTL: record.CertificationRoleHelper
+INACT
+AUXNO2: record.StateLocalIdentifier2
+STATESP
+SUR_MO: NumericAllowingUnknown_Get/Set
+SUR_DY: NumericAllowingUnknown_Get/Set
+SUR_YR: NumericAllowingUnknown_Get/Set
+TOI_UNIT
+BLANK1
+ARMEDF
+DINSTI
+ADDRESS_D: Dictionary_Get/Set
+STNUM_D: Dictionary_Geo_Get/Set
+PREDIR_D: Dictionary_Geo_Get/Set
+STNAME_D: Dictionary_Geo_Get/Set
+STDESIG_D: Dictionary_Geo_Get/Set
+POSTDIR_D: Dictionary_Geo_Get/Set
+CITYTEXT_D: Dictionary_Geo_Get/Set
+STATETEXT_D: Dictionary_Geo_Get/Set
+ZIP9_D: Dictionary_Get/Set
+COUNTYTEXT_D: Dictionary_Geo_Get/Set
+CITYCODE_D: Dictionary_Geo_Get/Set
+LONG_D
+LAT_D
+SPOUSELV
+SPOUSEF
+SPOUSEL
+CITYTEXT_R: Dictionary_Geo_Get/Set
+ZIP9_R: Dictionary_Geo_Get/Set
+COUNTYTEXT_R: Dictionary_Geo_Get/Set
+STATETEXT_R: Dictionary_Geo_Get/Set
+COUNTRYTEXT_R: Dictionary_Geo_Get/Set
+ADDRESS_R: Dictionary_Get/Set
+RESSTATE
+RESCON
+STNUM_R: Dictionary_Geo_Get/Set
+PREDIR_R: Dictionary_Geo_Get/Set
+STNAME_R: Dictionary_Geo_Get/Set
+POSTDIR_R: Dictionary_Geo_Get/Set
+UNITNUM_R: Dictionary_Geo_Get/Set
+DETHNICE
+NCHSBRIDGE
+HISPOLDC
+RACEOLDC
+HISPSTSP
+RACESTSP
+DMIDDLE
+DDADF
+DDADMID
+DMOMF
+DMOMMID: record.MotherGivenNames, FHIRPath
+DMOMMDN
+REFERRED
+POILITRL
+HOWINJ
+TRANSPRT: record.TransportationRoleHelper
+COUNTYTEXT_I: Dictionary_Geo_Get/Set
+COUNTYCODE_I: Dictionary_Geo_Get/Set
+CITYTEXT_I: Dictionary_Geo_Get/Set
+CITYCODE_I: Dictionary_Geo_Get/Set
+STATECODE_I: Dictionary_Geo_Get/Set
+LONG_I 
+LAT_I
+OLDEDUC
+COD1A: record.COD1A
+INTERVAL1A: record.INTERVAL1A
+COD1B: record.COD1B
+INTERVAL1B: record.INTERVAL1B
+COD1C: record.COD1C
+INTERVAL1C: record.INTERVAL1C
+COD1D: record.COD1D
+INTERVAL1D: record.INTERVAL1D
+OTHERCONDITION: record.ContributingConditions
+DMAIDEN
+DBPLACECITYCODE: Dictionary_Geo_Get/Set
+DBPLACECITY: Dictionary_Geo_Get/Set
+INFORMRELATE: Dictionary_Get/Set
+SPOUSEMIDNAME: record.SpouseGivenNames, FHIRPath
+SPOUSESUFFIX
+FATHERSUFFIX
+MOTHERSSUFFIX
+DISPSTATECD: Dictionary_Geo_Get/Set
+DISPSTATE: Dictionary_Geo_Get/Set
+DISPCITYCODE: Dictionary_Geo_Get/Set
+DISPCITY: Dictionary_Geo_Get/Set
+FUNFACNAME
+FUNFACSTNUM: Dictionary_Geo_Get/Set
+FUNFACPREDIR: Dictionary_Geo_Get/Set
+FUNFACSTRNAME: Dictionary_Geo_Get/Set
+FUNFACSTRDESIG: Dictionary_Geo_Get/Set
+FUNPOSTDIR: Dictionary_Geo_Get/Set
+FUNUNITNUM: Dictionary_Geo_Get/Set
+FUNFACADDRESS: Dictionary_Get/Set
+FUNCITYTEXT: Dictionary_Get/Set
+FUNSTATECD: Dictionary_Geo_Get/Set
+FUNSTATE: Dictionary_Geo_Get/Set
+FUNZIP: Dictionary_Get/Set
+PPDATESIGNED: record.DateOfDeathPronouncementMonth/Day/Year, multiple String manipulations
+PPTIME: record.DateOfDeathPronouncementTime, multiple String manipulations
+CERTFIRST: record.CertifierGivenNames, FHIRPath
+CERTMIDDLE: record.CertifierGivenNames, FHIRPath
+CERTLAST: record.CertifierGivenNames, FHIRPath
+CERTSUFFIX
+CERTSTNUM: Dictionary_Geo_Get/Set
+CERTPREDIR: Dictionary_Geo_Get/Set
+CERTSTRNAME: Dictionary_Geo_Get/Set
+CERTSTRDESIG: Dictionary_Geo_Get/Set
+CERTPOSTDIR: Dictionary_Geo_Get/Set
+CERTUNITNUM: Dictionary_Geo_Get/Set
+CERTADDRESS: Dictionary_Get/Set
+CERTCITYTEXT: Dictionary_Get/Set
+CERTSTATECD: Dictionary_Get/Set
+CERTSTATE: Dictionary_Get/Set, dataLookup.StateCodeToStateName
+CERTZIP: Dictionary_Get/Set
+CERTDATE: DateTime_Get/Set
+FILEDATE
+STINJURY: Dictionary_Geo_Get, dataLookup.StateCodeToStateName
+STATEBTH: Dictionary_Geo_Get, dataLookup.StateCodeToStateName
+DTHCOUNTRYCD: Dictionary_Geo_Get/Set
+DTHCOUNTRY: Dictionary_Geo_Get/Set, dataLookup.CountryCodeToCountryName
+SSADTHCODE
+SSAFOREIGN
+SSAVERIFY
+SSADATEVER
+SSADATETRANS
+DETHNIC5C
+PLACE1_1
+aPLACE1_2
+PLACE1_3
+PLACE1_4
+PLACE1_5
+PLACE1_6
+PLACE8_1
+PLACE8_2
+PLACE8_3
+PLACE20
