@@ -54,6 +54,11 @@
             <artifactId>hapi-fhir-validation-resources-r4</artifactId>
             <version>${fhir.version}</version>
         </dependency>
+        <dependency>
+            <groupId>edu.gatech.chai</groupId>
+            <artifactId>hapi-fhir-validation-resources-r4</artifactId>
+            <version>${fhir.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -82,4 +87,3 @@
         </repository>
     </distributionManagement>
 </project>
-
