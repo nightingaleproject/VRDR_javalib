@@ -1,0 +1,3 @@
+[submodule "VRCL_javalib"]
+	path = VRCL_javalib
+	url = https://github.com/MortalityReporting/VRCL_javalib/
