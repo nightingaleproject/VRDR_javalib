@@ -184,7 +184,7 @@ public class Decedent extends Patient {
 		maritalStatusCC = maritalStatusCC.copy();
 		if(bypassEditFlag != null) {
 			Extension extension = new Extension();
-			extension.setUrl(maritalStatus);
+			extension.setUrl(DecedentUtil.bypassEditFlagExtensionURL);
 			extension.setValue(bypassEditFlag);
 			maritalStatusCC.addExtension(extension);
 		}

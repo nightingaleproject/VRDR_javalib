@@ -231,6 +231,27 @@ public class BuildDCD {
 		CommonUtil.setUUID(resource);
 	}
 	//Example demonstrating how to give a partial birthdate extension component
+	public static Decedent buildSampleDecedent() {
+		Decedent decedent = new Decedent();
+		initResourceForTesting(decedent);
+		Address decedentsHome = new Address().addLine("1808 Stroop Hill Road").setCity("Atlanta")
+				.setState("GA").setPostalCode("30303").setCountry("USA").setUse(AddressUse.HOME);
+		Extension withinCityLimits = new Extension();
+		withinCityLimits.setUrl(AddressUtil.withinCityLimitsIndicatorUrl);
+		withinCityLimits.setValue(new BooleanType(true));
+		decedentsHome.addExtension(withinCityLimits);
+		decedent.setGender(AdministrativeGender.MALE);
+		decedent.addRace("Asian", new Coding("2034-7","Chinese","Chinese"), "Asian Chinese"); //Must provide a Coding for a "Detailed" section
+		decedent.addEthnicity("Not Hispanic", new Coding(), "Not Hispanic Or Latino"); //Provide empty coding for no detailed section
+		decedent.setBirthPlace(decedentsHome);
+		decedent.addSSNIdentifier("1AN2BN3DE45");
+		decedent.addName(new HumanName().setFamily("Wright").addGiven("Vivien Lee").setUse(NameUse.OFFICIAL));
+		//Adding partial where the specific date of birth is unknown, but the year is known
+		decedent.addPartialBirthDateExtension(new IntegerType(1960), "", null, "unknown", null, "unknown");
+		decedent.setMaritalStatus("S",new CodeableConcept().addCoding(new Coding(CommonUtil.bypassEditFlagCsUrl,"0","Edit Passed")));
+		return decedent;
+	}
+	//Example demonstrating how to give a partial birthdate extension component
 	public static Decedent buildDecedentWithBirthDateAbsentReason() {
 		Decedent decedent = new Decedent();
 		initResourceForTesting(decedent);

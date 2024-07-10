@@ -29,6 +29,7 @@ public class CommonUtil {
 	public static final String dataAbsentReasonUrl = "http://unitsofmeasure.org";
 	public static final String unitsOfMeasureUrl = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
 	public static final String missingValueReasonUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-missing-value-reason-cs";
+	public static final String bypassEditFlagCsUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-bypass-edit-flag-cs";
 	public static final String partialDatePartAbsentReasonURL = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-Partial-date-part-absent-reason";
 	public static final String partialDateDateYearURL = "date-year";
 	public static final String partialDateDateYearAbsentReasonURL = "year-absent-reason";
@@ -124,7 +125,7 @@ public class CommonUtil {
 			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"21", "Kentucky")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"22", "Louisiana")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"23", "Maine")),
-			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"24", "Maryland")),	
+			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"24", "Maryland")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"25", "Massachusetts")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"26", "Michigan")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.locationJurisdictionURL,"27", "Minnesota")),
@@ -170,7 +171,7 @@ public class CommonUtil {
 			new CodeableConcept().addCoding(new Coding(CommonUtil.missingValueReasonUrl,"R","Refused")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.missingValueReasonUrl,"S","Sought, but unknown")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.missingValueReasonUrl,"C", "Not obtainable"))));
-	
+
 	public static Extension getExtension(DomainResource resource, String url) {
 		for (Extension extension : resource.getExtension()) {
 			if (extension.getUrl().equals(url)) {
@@ -183,16 +184,16 @@ public class CommonUtil {
 	public static void initResource(Resource resource) {
 		setUUID(resource);
 	}
-	
+
 	public static void setUUID(Resource resource) {
 		resource.setId(new IdType(UUID.randomUUID().toString()));
 	}
-	
+
 	public static Bundle addBundleEntry(DeathCertificateDocument deathCertificateDocument, Resource resource) {
 		deathCertificateDocument.addEntry().setResource(resource).setFullUrl(resource.getId());
 		return deathCertificateDocument;
 	}
-	
+
 	public static DeathCertificate addSectionEntry(DeathCertificate deathCertificate,Resource resource) {
 		if(deathCertificate.getSection() != null && !deathCertificate.getSection().isEmpty()) {
 			deathCertificate.addSection(new SectionComponent());
@@ -201,7 +202,7 @@ public class CommonUtil {
 		sectionComponent.addEntry(new Reference(resource.getId()));
 		return deathCertificate;
 	}
-	
+
 	public static CodeableConcept findConceptFromCollectionUsingSimpleString(String key,Collection<CodeableConcept> collection) {
 		for(CodeableConcept conceptIter:collection) {
 			Coding coding = conceptIter.getCodingFirstRep();
@@ -211,7 +212,7 @@ public class CommonUtil {
 		}
 		return null;
 	}
-	
+
 	public static CodeType findCodeFromCollectionUsingSimpleString(String key,Collection<CodeType> collection) {
 		for(CodeType conceptIter:collection) {
 			if(conceptIter.getValue().equalsIgnoreCase(key)) {
@@ -220,7 +221,7 @@ public class CommonUtil {
 		}
 		return null;
 	}
-	
+
 	public static boolean assignableFrom(Class test, Class[] candidates){
 	    for(Class candidate : candidates){
 	        if(candidate.isAssignableFrom(test)){
