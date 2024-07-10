@@ -741,7 +741,7 @@
                             "status": "final",
                             "code": {"coding": [{
                                 "system": "http://loinc.org",
-                                "code": "30525-0",
+                                "code": "39016-1",
                                 "display": "Age"
                             }]},
                             "subject": {"reference": "urn:uuid:949354d3-9dcf-4c96-8ec4-6be27dd4c65f"},
