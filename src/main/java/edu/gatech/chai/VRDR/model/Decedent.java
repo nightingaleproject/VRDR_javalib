@@ -114,7 +114,7 @@ public class Decedent extends Patient {
 		CodeableConcept ccSAD = CommonUtil.findConceptFromCollectionUsingSimpleString(value, DecedentUtil.sexAtDeathSet);
 		return setSexAtDeath(ccSAD);
 	}
-	
+
 	public Extension setSexAtDeath(CodeableConcept value) {
 		Extension extension = getSexAtDeath();
 		if (extension == null) {
@@ -124,7 +124,7 @@ public class Decedent extends Patient {
 		this.addExtension(extension);
 		return extension;
 	}
-	
+
 	public Extension getSpouseAlive() {
 		return CommonUtil.getExtension(this, DecedentUtil.spouseAliveExtensionURL);
 	}
@@ -133,7 +133,7 @@ public class Decedent extends Patient {
 		CodeableConcept ccSAD = CommonUtil.findConceptFromCollectionUsingSimpleString(value, DecedentUtil.spouseAliveSet);
 		return setSpouseAlive(ccSAD);
 	}
-	
+
 	public Extension setSpouseAlive(CodeableConcept value) {
 		Extension extension = getSpouseAlive();
 		if (extension == null) {
@@ -172,24 +172,26 @@ public class Decedent extends Patient {
 		addIdentifier(identifier);
 		return identifier;
 	}
-	
+
 	public Decedent setMaritalStatus(String maritalStatus) {
 		CodeableConcept maritalStatusCC = CommonUtil.findConceptFromCollectionUsingSimpleString(maritalStatus, DecedentUtil.maritalStatusSet);
 		this.setMaritalStatus(maritalStatusCC);
 		return this;
 	}
-	
+
 	public Decedent setMaritalStatus(String maritalStatus, CodeableConcept bypassEditFlag) {
 		CodeableConcept maritalStatusCC = CommonUtil.findConceptFromCollectionUsingSimpleString(maritalStatus, DecedentUtil.maritalStatusSet);
 		maritalStatusCC = maritalStatusCC.copy();
 		if(bypassEditFlag != null) {
 			Extension extension = new Extension();
 			extension.setUrl(maritalStatus);
+			extension.setValue(bypassEditFlag);
+			maritalStatusCC.addExtension(extension);
 		}
 		this.setMaritalStatus(maritalStatusCC);
 		return this;
 	}
-	
+
 	public Decedent addPartialBirthDateExtension(IntegerType year,String yearDataAbsentReason, IntegerType month,String monthDataAbsentReason,
 			IntegerType day,String dayDataAbsentReason) {
 		if(this.birthDate == null) {
@@ -202,12 +204,12 @@ public class Decedent extends Patient {
 		this.birthDate.addExtension(baseExtension);
 		return this;
 	}
-	
+
 	private Extension addPartialBirthDateBaseExtension() {
 		Extension baseExtension = new Extension(CommonUtil.partialDatePartAbsentReasonURL);
 		return baseExtension;
 	}
-	
+
 	private Decedent addPartialDateYear(Extension baseExtension, IntegerType year,String dataAbsentReason) {
 		if(dataAbsentReason != null && !dataAbsentReason.isEmpty()) {
 			baseExtension.addExtension(new Extension(CommonUtil.partialDateDateYearAbsentReasonURL,CommonUtil.findCodeFromCollectionUsingSimpleString(dataAbsentReason, CommonUtil.dataAbsentReasonCodeSet)));
@@ -217,7 +219,7 @@ public class Decedent extends Patient {
 		}
 		return this;
 	}
-	
+
 	private Decedent addPartialDateMonth(Extension baseExtension, IntegerType month,String dataAbsentReason) {
 		if(dataAbsentReason != null && !dataAbsentReason.isEmpty()) {
 			baseExtension.addExtension(new Extension(CommonUtil.partialDateDateMonthAbsentReasonURL,CommonUtil.findCodeFromCollectionUsingSimpleString(dataAbsentReason, CommonUtil.dataAbsentReasonCodeSet)));
@@ -227,7 +229,7 @@ public class Decedent extends Patient {
 		}
 		return this;
 	}
-	
+
 	private Decedent addPartialDateDay(Extension baseExtension, IntegerType day,String dataAbsentReason) {
 		if(dataAbsentReason != null || !dataAbsentReason.isEmpty()) {
 			baseExtension.addExtension(new Extension(CommonUtil.partialDateDateDayAbsentReasonURL,CommonUtil.findCodeFromCollectionUsingSimpleString(dataAbsentReason, CommonUtil.dataAbsentReasonCodeSet)));
