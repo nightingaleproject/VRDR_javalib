@@ -10,6 +10,6 @@ import org.hl7.fhir.r4.model.Observation.ObservationStatus;
 public class DecedentAgeUtil {
 	public static final ObservationStatus status = ObservationStatus.FINAL;
 	public static final CodeableConcept code = new CodeableConcept()
-			.addCoding(new Coding(CommonUtil.loincSystemUrl, "30525-0", "Age"));
-	public static final HashSet<String> values = new HashSet<>(Arrays.asList("mo","a"));
+			.addCoding(new Coding(CommonUtil.loincSystemUrl, "39016-1", "Age"));
+	public static final HashSet<String> values = new HashSet<>(Arrays.asList("min","d","h","mo","a"));
 }

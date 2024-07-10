@@ -12,7 +12,7 @@ import edu.gatech.chai.VRDR.model.util.DecedentAgeUtil;
 @ResourceDef(name = "Observation", profile = "http://hl7.org/fhir/us/vrdr/StructureDefinition/vrdr-decedent-age")
 public class DecedentAge extends Observation {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7680111116236062577L;
 
@@ -23,7 +23,7 @@ public class DecedentAge extends Observation {
 		super.setStatus(DecedentAgeUtil.status);
 		super.setCode(DecedentAgeUtil.code);
 	}
-	
+
 	public DecedentAge(Reference subject) {
 		this();
 		super.setSubject(subject);
@@ -31,7 +31,7 @@ public class DecedentAge extends Observation {
 
 	public DecedentAge(Quantity quantity) {
 		this();
-		if(quantity.getCode() == null || !DecedentAgeUtil.values.contains(quantity.getCode())) {
+		if(quantity.getCode() == null || !DecedentAgeUtil.values.contains(quantity.getCode()) || !quantity.getCode().equalsShallow(CommonUtil.unknownCode)) {
 			throw new FHIRException("DecedentAge: Quantity expects a Code of:"+
 					DecedentAgeUtil.values);
 		}
