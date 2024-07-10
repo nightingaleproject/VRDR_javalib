@@ -11,5 +11,5 @@ public class DecedentAgeUtil {
 	public static final ObservationStatus status = ObservationStatus.FINAL;
 	public static final CodeableConcept code = new CodeableConcept()
 			.addCoding(new Coding(CommonUtil.loincSystemUrl, "39016-1", "Age"));
-	public static final HashSet<String> values = new HashSet<>(Arrays.asList("mo","a"));
+	public static final HashSet<String> values = new HashSet<>(Arrays.asList("min", "h", "d", "mo", "a", "UNK"));
 }
