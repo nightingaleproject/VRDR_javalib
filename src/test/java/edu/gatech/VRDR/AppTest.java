@@ -8,7 +8,11 @@ import java.util.List;
 import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.parser.DataFormatException;
 import edu.gatech.chai.VRDR.context.VRDRFhirContextDataStructuresOnly;
-import edu.gatech.chai.VRDR.model.*;
+import edu.gatech.chai.VRDR.model.DeathCertificateDocument;
+import edu.gatech.chai.VRDR.model.DeathDate;
+import edu.gatech.chai.VRDR.model.Decedent;
+import edu.gatech.chai.VRDR.model.InjuryIncident;
+import edu.gatech.chai.VRDR.model.MannerOfDeath;
 import edu.gatech.chai.VRDR.model.util.BuildDCD;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -118,5 +122,12 @@ public class AppTest
 		assertEquals("unknown", injuryIncident.injuryIncident.getValueDateTimeType().getExtension().get(0).getExtension().get(2).getValue().primitiveValue());
 		assertEquals("date-time", injuryIncident.injuryIncident.getValueDateTimeType().getExtension().get(0).getExtension().get(3).getUrl());
 		assertEquals("T16:47:04-05:00", injuryIncident.injuryIncident.getValueDateTimeType().getExtension().get(0).getExtension().get(3).getValue().primitiveValue());
+	}
+
+
+	public void testDecedentRecord() {
+		Decedent decedent = BuildDCD.buildSampleDecedent();
+		String jsonForm = context.getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(decedent);
+		assertTrue(jsonForm != null && jsonForm.length() > 0);
 	}
 }
