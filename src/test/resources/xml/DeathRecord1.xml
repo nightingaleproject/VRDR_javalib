@@ -452,7 +452,7 @@
             <coding>
               <system value="http://snomed.info/sct" />
               <code value="434641000124105" />
-              <display value="Physician certified and pronounced death certificate" />
+              <display value="Death certification and verification by physician (procedure)" />
             </coding>
           </function>
           <actor>
