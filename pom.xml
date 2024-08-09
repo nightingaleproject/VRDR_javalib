@@ -4,7 +4,7 @@
 
     <groupId>edu.gatech</groupId>
     <artifactId>vrdr</artifactId>
-    <version>4.0.5</version>
+    <version>4.0.6</version>
     <packaging>jar</packaging>
 
     <name>VRDR</name>
