@@ -37,5 +37,5 @@ public class InjuryIncidentUtil {
 	public static final CodeableConcept passengerRoleCode = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl, "257500003", "Passenger"));
 	public static final CodeableConcept pedestrianRoleCode = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl, "257518000", "Pedestrian"));
 	public static Set<CodeableConcept> transportationRoleValueSet = new HashSet<CodeableConcept>(Arrays.asList(
-		driverRoleCode,passengerRoleCode,pedestrianRoleCode,CommonUtil.otherCode, CommonUtil.unknownCode));
+		driverRoleCode,passengerRoleCode,pedestrianRoleCode,CommonUtil.otherCode, CommonUtil.unknownCode, CommonUtil.notApplicableCode));
 }
