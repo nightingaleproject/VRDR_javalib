@@ -63,10 +63,10 @@ public class CommonUtil {
 	public static List<CodeableConcept> deathReportingIdentifierTypeCodes = new ArrayList<CodeableConcept>(Arrays.asList(deathCertificateIdCode,deathCertificateFileNumberCode,deathCertificateLicenseNumberCode,
 			nationalProviderIdentifierCode,stateRegistryIdCode,SocialSecurityNumberCode));
 	public static final HashSet<CodeableConcept> certifierTypeSet = new HashSet<>(Arrays.asList(
-			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"455381000124109","Medical Examiner/Coroner")),
+			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"455381000124109","Death certification by medical examiner or coroner (procedure)")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434641000124105","Death certification and verification by physician (procedure)")),
-			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434651000124107","Physician certified death certificate")),
-			new CodeableConcept().addCoding(new Coding(CommonUtil.nullFlavorHL7System,"OTH","Other"))
+			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434651000124107","Death certification by physician (procedure)")),
+			new CodeableConcept().addCoding(new Coding(CommonUtil.nullFlavorHL7System,"OTH","Other (Specify)"))
 			));
 	public static final HashSet<CodeableConcept> yesNoUnknownSet = new HashSet<>(Arrays.asList(yesCode,noCode,unknownCode));
 	public static final HashSet<CodeableConcept> yesNoNASet = new HashSet<>(Arrays.asList(yesCode,noCode,notApplicableCode));
