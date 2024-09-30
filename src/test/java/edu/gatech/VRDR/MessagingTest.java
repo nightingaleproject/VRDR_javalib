@@ -1065,7 +1065,7 @@ public class MessagingTest extends TestCase {
     public void testCodeableConceptPlaceOfDeath() {
         CodeableConcept codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("16983000", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
-        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital-based emergency department or outpatient department (event)", DeathDateUtil.placeOfDeathTypeSet);
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital-based emergency department or outpatient department", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("450391000124102", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
         codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in home", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("440081000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
@@ -1073,12 +1073,14 @@ public class MessagingTest extends TestCase {
         assertEquals("440071000124103", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
         codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Dead on arrival at hospital", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("63238001", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
-        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in nursing home or long term care facility (event)", DeathDateUtil.placeOfDeathTypeSet);
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in nursing home or long term care facility", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("450381000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
-        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Unknown", DeathDateUtil.placeOfDeathTypeSet);
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("UNK", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("UNK", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        assertEquals(CommonUtil.nullFlavorHL7System, codeableConceptPlaceofDeath.getCoding().get(0).getSystem());
         codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Other", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("OTH", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        assertEquals(CommonUtil.nullFlavorHL7System, codeableConceptPlaceofDeath.getCoding().get(0).getSystem());
     }
 
 }

@@ -50,7 +50,7 @@ public class DeathCertificateUtil {
 			.addCoding(new Coding(CommonUtil.loincSystemUrl,"64297-5","Death certificate"));
 	public static final Composition.CompositionAttestationMode attesterMode = Composition.CompositionAttestationMode.LEGAL;
 	public static final CodeableConcept eventCodeFixedValue = new CodeableConcept()
-			.addCoding(new Coding(CommonUtil.snomedSystemUrl,"103693007"));
+			.addCoding(new Coding(CommonUtil.snomedSystemUrl,"103693007",null));
 	public static final String vrdrDocumentSectionUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-document-section-cs";
 	public static final CodeableConcept decendentDemographicsSectionCode = new CodeableConcept()
 			.addCoding(new Coding(vrdrDocumentSectionUrl,"DecedentDemographics",""));

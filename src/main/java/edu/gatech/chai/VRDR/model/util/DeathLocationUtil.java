@@ -13,8 +13,8 @@ public class DeathLocationUtil {
 	public static final CodeableConcept VALUE_HOSPICE = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"440071000124103","Death in hospice"));
 	public static final CodeableConcept VALUE_ARRIVAL = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"63238001","Dead on arrival at hospital"));
 	public static final CodeableConcept VALUE_NURSINGHOME = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"450381000124100","Death in nursing home or long term care facility"));
-	public static final CodeableConcept VALUE_UNKNOWN = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"UNK","UNK"));
-	public static final CodeableConcept VALUE_OTHER = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"OTH","Other"));
+	public static final CodeableConcept VALUE_UNKNOWN = new CodeableConcept().addCoding(new Coding(CommonUtil.nullFlavorHL7System,"UNK","UNK"));
+	public static final CodeableConcept VALUE_OTHER = new CodeableConcept().addCoding(new Coding(CommonUtil.nullFlavorHL7System,"OTH","Other"));
 	public static final HashSet<CodeableConcept> placeOfDeathTypeSet = new HashSet<>(Arrays.asList(
 			VALUE_HOSPITAL,
 			VALUE_EMERGENCY_OUTPATIENT,
