@@ -63,7 +63,7 @@ public class CommonUtil {
 	public static List<CodeableConcept> deathReportingIdentifierTypeCodes = new ArrayList<CodeableConcept>(Arrays.asList(deathCertificateIdCode,deathCertificateFileNumberCode,deathCertificateLicenseNumberCode,
 			nationalProviderIdentifierCode,stateRegistryIdCode,SocialSecurityNumberCode));
 	public static final HashSet<CodeableConcept> certifierTypeSet = new HashSet<>(Arrays.asList(
-			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"455381000124109","Death certification by medical examiner or coroner (procedure)r")),
+			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"455381000124109","Death certification by medical examiner or coroner (procedure)")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434641000124105","Death certification and verification by physician (procedure)")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"434651000124107","Death certification by physician (procedure)")),
 			new CodeableConcept().addCoding(new Coding(CommonUtil.nullFlavorHL7System,"OTH","Other (Specify)"))
