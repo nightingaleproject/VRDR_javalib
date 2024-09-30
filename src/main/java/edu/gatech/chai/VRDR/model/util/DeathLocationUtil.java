@@ -13,8 +13,8 @@ public class DeathLocationUtil {
 	public static final CodeableConcept VALUE_HOSPICE = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"440071000124103","Death in hospice"));
 	public static final CodeableConcept VALUE_ARRIVAL = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"63238001","Dead on arrival at hospital"));
 	public static final CodeableConcept VALUE_NURSINGHOME = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"450381000124100","Death in nursing home or long term care facility"));
-	public static final CodeableConcept VALUE_UNKNOWN = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"UNK","unknown"));
-	public static final CodeableConcept VALUE_OTHER = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"OTH","other"));
+	public static final CodeableConcept VALUE_UNKNOWN = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"UNK","UNK"));
+	public static final CodeableConcept VALUE_OTHER = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"OTH","Other"));
 	public static final HashSet<CodeableConcept> placeOfDeathTypeSet = new HashSet<>(Arrays.asList(
 			VALUE_HOSPITAL,
 			VALUE_EMERGENCY_OUTPATIENT,
@@ -22,8 +22,8 @@ public class DeathLocationUtil {
 			VALUE_HOSPICE,
 			VALUE_ARRIVAL,
 			VALUE_NURSINGHOME,
-			CommonUtil.otherCode,
-			CommonUtil.unknownCode
+			VALUE_UNKNOWN,
+			VALUE_OTHER
 	));
 	public static CodeableConcept typeCode = new CodeableConcept(new Coding().setSystem("http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-location-type-cs").setCode("death").setDisplay("death location"));
 }
