@@ -1,13 +1,18 @@
 package edu.gatech.chai.VRDR.messaging;
 
-import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
-import edu.gatech.chai.VRDR.model.util.CommonUtil;
-import org.hl7.fhir.r4.model.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.MessageHeader;
+import org.hl7.fhir.r4.model.OperationOutcome;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.ResourceType;
+
+import ca.uhn.fhir.model.api.annotation.ResourceDef;
+import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
+import edu.gatech.chai.VRDR.model.util.CommonUtil;
 
 @ResourceDef(name = "ExtractionErrorMessage", profile = "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-ExtractionErrorMessage")
 public class ExtractionErrorMessage extends BaseMessage {
@@ -38,6 +43,12 @@ public class ExtractionErrorMessage extends BaseMessage {
                 throw new IllegalArgumentException("No OperationOutcome found in the passed messageBundle");
             }
             this.details = operationOutcome;
+
+            Bundle.BundleEntryComponent operationoutcomeEntry = new Bundle.BundleEntryComponent();
+            operationoutcomeEntry.setResource(operationOutcome);
+            operationoutcomeEntry.setFullUrl(ensureRefPrefix(operationOutcome.getId()));
+            operationoutcomeEntry.getResource().setId(ensureBareId(operationOutcome.getId()));
+            addEntry(operationoutcomeEntry);
         } catch (IllegalArgumentException ex) {
             throw new MessageParseException("Error processing entry in the message: " + ex, messageBundle);
         }
@@ -70,7 +81,9 @@ public class ExtractionErrorMessage extends BaseMessage {
     }
 
     public String getFailedMessageId() {
-        return messageHeader != null && messageHeader.getResponse() != null ? messageHeader.getResponse().getIdentifier() : null;
+        return messageHeader != null && messageHeader.getResponse() != null
+                ? messageHeader.getResponse().getIdentifier()
+                : null;
     }
 
     public void setFailedMessageId(String value) {
@@ -81,7 +94,8 @@ public class ExtractionErrorMessage extends BaseMessage {
         messageHeader.getResponse().setIdentifier(value);
     }
 
-    public void addIssue(OperationOutcome.IssueSeverity issueSeverity, OperationOutcome.IssueType issueType, String message) {
+    public void addIssue(OperationOutcome.IssueSeverity issueSeverity, OperationOutcome.IssueType issueType,
+            String message) {
         Issue issue = new Issue(issueSeverity, issueType, message);
         getIssues().add(issue);
     }
@@ -123,7 +137,8 @@ public class ExtractionErrorMessage extends BaseMessage {
             return description;
         }
 
-        public Issue(OperationOutcome.IssueSeverity issueSeverity, OperationOutcome.IssueType issueType, String description) {
+        public Issue(OperationOutcome.IssueSeverity issueSeverity, OperationOutcome.IssueType issueType,
+                String description) {
             this.issueSeverity = issueSeverity;
             this.issueType = issueType;
             this.description = description;
