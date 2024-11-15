@@ -1,41 +1,10 @@
 import sys
 import os
 from pathlib import Path
-import json
-from typing import List
 
-# import fhir.resources.codeableconcept
-# import fhir.resources.codesystem as cs
 from fhir.resources.valueset import ValueSet
-from fhir.resources.codeableconcept import CodeableConcept
 from fhir.resources.coding import Coding
 from fhir.resources.codesystem import CodeSystem
-from pprint import pprint
-
-import fhir.resources
-
-# package edu.gatech.chai.VRDR.model.util;
-
-# import java.io.File;
-# import java.io.FileReader;
-# import java.util.Arrays;
-# import java.util.HashSet;
-
-# import org.hl7.fhir.r4.model.CodeableConcept;
-# import org.hl7.fhir.r4.model.Coding;
-
-# public class ValueSets {
-#     public static final HashSet<CodeableConcept> valueSet = new HashSet<>(Arrays.asList(
-# 			new CodeableConcept().addCoding(new Coding(valueSetSystemUrl,"0","While engaged in sports activity")),
-# 			new CodeableConcept().addCoding(new Coding(valueSetSystemUrl,"1","While engaged in leisure activities.")),
-# 			new CodeableConcept().addCoding(new Coding(valueSetSystemUrl,"2","While working for income")),
-# 			new CodeableConcept().addCoding(new Coding(valueSetSystemUrl,"3","While engaged in other types of work")),
-# 			new CodeableConcept().addCoding(new Coding(valueSetSystemUrl,"4","While resting, sleeping, eating, or engaging in other vital activities")),
-# 			new CodeableConcept().addCoding(new Coding(valueSetSystemUrl,"8","While engaged in other specified activities.")),
-# 			new CodeableConcept().addCoding(new Coding(valueSetSystemUrl,"9","During unspecified activity")),
-# 			CommonUtil.unknownCode
-# 			));
-
 
 def help():
     print("Usage: python generate_valueset_lookups_from_ig.py <path_to_ig>")
@@ -128,18 +97,9 @@ public class {vs.name} {{
 };"""
             )
 
-
 if __name__ == "__main__":
-    # args = sys.argv[1:]  #
-
     if len(sys.argv[1:]) != 1:
         help()
         exit(1)
 
     main()
-    # print(
-    #     os.path.join(
-    #         Path(__file__).parent.parent,
-    #         "src/main/java/edu/gatech/chai/VRDR/model/valueset",
-    #     )
-    # )
