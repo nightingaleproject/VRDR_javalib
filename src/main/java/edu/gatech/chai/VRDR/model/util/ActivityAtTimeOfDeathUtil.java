@@ -4,7 +4,7 @@ import java.util.HashSet;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 
-import edu.gatech.chai.VRDR.model.valueset.*;;
+import edu.gatech.chai.VRDR.model.valueset.ActivityAtTimeOfDeathVS;
 
 public class ActivityAtTimeOfDeathUtil {
 	public static final CodeableConcept code = new CodeableConcept()
