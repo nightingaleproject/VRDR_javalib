@@ -14,13 +14,17 @@ public class DeathLocation extends Location {
 		super();
 		CommonUtil.initResource(this);
 		// type is required and values are fixed as per VRDR IG http://hl7.org/fhir/us/vrdr/StructureDefinition-vrdr-death-location.html
-		addType(DeathLocationUtil.typeCode);
+		if(!CommonUtil.listContainsCodeableConcept(getType(), DeathLocationUtil.typeCode)){
+			addType(DeathLocationUtil.typeCode);
+		}
 	}
 	public DeathLocation(String name, String description, Address address) {
 		this();
 		setName(name);
+		if(!CommonUtil.listContainsCodeableConcept(getType(), DeathLocationUtil.typeCode)){
+			addType(DeathLocationUtil.typeCode);
+		}
 		setDescription(description);
 		setAddress(address);
 	}
-
 }
