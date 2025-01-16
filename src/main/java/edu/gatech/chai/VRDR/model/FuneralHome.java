@@ -15,7 +15,9 @@ public class FuneralHome extends Organization {
 	}
 	public FuneralHome(String name, Address address) {
 		this();
-		addType(FuneralHomeUtil.type);
+		if (this.type == null || this.type.isEmpty()) {
+			addType(FuneralHomeUtil.type);
+		}
 		setName(name);
 		addAddress(address);
 	}

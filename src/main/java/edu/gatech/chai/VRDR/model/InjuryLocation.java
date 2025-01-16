@@ -19,7 +19,9 @@ public class InjuryLocation extends Location {
 		this();
 		setName(name);
 		setDescription(description);
-		addType(type);
+		if (this.type == null || this.type.isEmpty()) {
+			addType(type);
+		}
 		setAddress(address);
 		setPhysicalType(physicalType);
 	}
