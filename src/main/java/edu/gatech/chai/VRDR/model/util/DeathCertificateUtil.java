@@ -44,13 +44,13 @@ import edu.gatech.chai.VRDR.model.SurgeryDate;
 import edu.gatech.chai.VRDR.model.TobaccoUseContributedToDeath;
 
 public class DeathCertificateUtil {
-	public static final CompositionStatus status = CompositionStatus.FINAL;  
+	public static final CompositionStatus status = CompositionStatus.FINAL;
 	public static final String title = "Death Certificate";
 	public static final CodeableConcept typeFixedValue = new CodeableConcept()
 			.addCoding(new Coding(CommonUtil.loincSystemUrl,"64297-5","Death certificate"));
 	public static final Composition.CompositionAttestationMode attesterMode = Composition.CompositionAttestationMode.LEGAL;
 	public static final CodeableConcept eventCodeFixedValue = new CodeableConcept()
-			.addCoding(new Coding(CommonUtil.snomedSystemUrl,"103693007","Diagnostic procedure (procedure)"));
+			.addCoding(new Coding(CommonUtil.snomedSystemUrl,"103693007",null));
 	public static final String vrdrDocumentSectionUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-document-section-cs";
 	public static final CodeableConcept decendentDemographicsSectionCode = new CodeableConcept()
 			.addCoding(new Coding(vrdrDocumentSectionUrl,"DecedentDemographics",""));
@@ -62,7 +62,7 @@ public class DeathCertificateUtil {
 			.addCoding(new Coding(vrdrDocumentSectionUrl,"DecedentDisposition",""));
 	public static final CodeableConcept codedContentSectionCode = new CodeableConcept()
 			.addCoding(new Coding(vrdrDocumentSectionUrl,"CodedContent",""));
-	
+
 	public static final Class[] decedentDemographicResources = {Decedent.class, DecedentFather.class, DecedentMother.class,
 			DecedentSpouse.class, DecedentAge.class, BirthRecordIdentifier.class, DecedentEducationLevel.class,
 			DecedentMilitaryService.class, DecedentUsualWork.class, EmergingIssues.class, InputRaceAndEthnicity.class};
@@ -76,7 +76,7 @@ public class DeathCertificateUtil {
 	public static final Class[] codedContentResources = {ActivityAtTimeOfDeath.class, AutomatedUnderlyingCauseOfDeath.class,
 			CodedRaceAndEthnicity.class,EntityAxisCauseOfDeath.class,RecordAxisCauseOfDeath.class,PlaceOfInjury.class,
 			CodingStatusValues.class};
-	
+
 	public static final String filingFormatExtensionUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/FilingFormat";
 	public static final String filingFormatExtensionCodeSystem = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-filing-format-cs";
 	public static final CodeableConcept electronicFilingFormat = new CodeableConcept()

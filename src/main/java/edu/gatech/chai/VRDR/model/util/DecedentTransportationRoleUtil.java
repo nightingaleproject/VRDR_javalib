@@ -14,8 +14,8 @@ public class DecedentTransportationRoleUtil {
 	public static final CodeableConcept code = new CodeableConcept()
 			.addCoding(new Coding().setSystem(CommonUtil.loincSystemUrl).setCode("69451-3")
 					.setDisplay("Transportation role of decedent"));
-	public static final CodeableConcept VALUE_DRIVER = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"236320001","Driver/Operator"));
+	public static final CodeableConcept VALUE_DRIVER = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"236320001","Vehicle driver"));
 	public static final CodeableConcept VALUE_PASSENGER = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"25750003","Passenger"));
 	public static final CodeableConcept VALUE_PEDESTRIAN = new CodeableConcept().addCoding(new Coding(CommonUtil.snomedSystemUrl,"25751800","Pedestrian"));
-	public static Set<CodeableConcept> valueCodesetList = new HashSet<CodeableConcept>(Arrays.asList(VALUE_DRIVER,VALUE_PASSENGER,VALUE_PEDESTRIAN));
+	public static Set<CodeableConcept> valueCodesetList = new HashSet<CodeableConcept>(Arrays.asList(VALUE_DRIVER,VALUE_PASSENGER,VALUE_PEDESTRIAN,CommonUtil.otherCode,CommonUtil.unknownCode,CommonUtil.notApplicableCode));
 }

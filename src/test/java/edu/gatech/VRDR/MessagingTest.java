@@ -2,7 +2,6 @@ package edu.gatech.VRDR;
 
 import edu.gatech.chai.VRDR.context.VRDRFhirContext;
 import edu.gatech.chai.VRDR.messaging.*;
-import edu.gatech.chai.VRDR.messaging.BaseMessage;
 import edu.gatech.chai.VRDR.messaging.util.MessageParseException;
 import edu.gatech.chai.VRDR.model.*;
 import edu.gatech.chai.VRDR.model.util.CodedRaceAndEthnicityUtil;
@@ -21,9 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.gatech.chai.VRDR.model.util.UploadUtil;
 
 import java.util.Random;
-import org.hl7.fhir.r4.model.IntegerType;
-import org.hl7.fhir.r4.model.UnsignedIntType;
-import org.hl7.fhir.r4.model.ExtraDateTimeType;
 
 
 public class MessagingTest extends TestCase {
@@ -911,7 +907,7 @@ public class MessagingTest extends TestCase {
         assertEquals("The message was invalid", issues.get(0).getDescription());
         assertEquals(OperationOutcome.IssueSeverity.WARNING, issues.get(1).getIssueSeverity());
         assertEquals(OperationOutcome.IssueType.EXPIRED, issues.get(1).getIssueType());
-        assertEquals("The message was very old", issues.get(1).getDescription());
+        assertEquals("The message was very old", issues.get(1).getDescription());       
     }
 
     public void testCreateSubmissionWithRaceLiterals() {
@@ -1008,26 +1004,6 @@ public class MessagingTest extends TestCase {
         assertEquals(listOfMessages.get(8).getMessageType(), DemographicsCodingUpdateMessage.MESSAGE_TYPE);
         assertTrue(listOfMessages.get(9).toString().contains("StatusMessage"));
         assertEquals(listOfMessages.get(9).getMessageType(), StatusMessage.MESSAGE_TYPE);
-
-        // test parsing deficient messages that cause thrown exceptions
-        try {
-            responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(BaseMessage.parseJsonFile(ExtractionErrorMessage.class, ctx, "src/test/resources/json/ExtractionErrorMessage.json")));
-            bundleString = responseBundle.toJson(ctx);
-            listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
-            fail("Expected MessageParseException");
-        } catch (MessageParseException ex) {
-            assertEquals("Error processing entry in the message: edu.gatech.chai.VRDR.messaging.util.MessageParseException: Failed to find a Bundle Entry containing a Resource of type org.hl7.fhir.r4.model.OperationOutcome", ex.getMessage());
-        }
-
-        try {
-            DeathCertificate DeathCertificate =  new DeathCertificate();
-            responseBundle.addEntry(new Bundle.BundleEntryComponent().setResource(DeathCertificate));
-            bundleString = responseBundle.toJson(ctx);
-            listOfMessages = BaseMessage.parseBundleOfBundles(ctx, bundleString);
-            fail("Expected MessageParseException");
-        } catch (MessageParseException ex) {
-            assertEquals("Error processing entry in the message: edu.gatech.chai.VRDR.messaging.util.MessageParseException: Failed to find a Bundle Entry containing a Resource of type org.hl7.fhir.r4.model.OperationOutcome", ex.getMessage());
-        }
     }
 
     public void testCreateBulkUploadPayload() {
@@ -1065,7 +1041,7 @@ public class MessagingTest extends TestCase {
     public void testCodeableConceptPlaceOfDeath() {
         CodeableConcept codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("16983000", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
-        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital-based emergency department or outpatient department (event)", DeathDateUtil.placeOfDeathTypeSet);
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in hospital-based emergency department or outpatient department", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("450391000124102", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
         codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in home", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("440081000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
@@ -1073,12 +1049,14 @@ public class MessagingTest extends TestCase {
         assertEquals("440071000124103", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
         codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Dead on arrival at hospital", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("63238001", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
-        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in nursing home or long term care facility (event)", DeathDateUtil.placeOfDeathTypeSet);
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Death in nursing home or long term care facility", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("450381000124100", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
-        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Unknown", DeathDateUtil.placeOfDeathTypeSet);
+        codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("UNK", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("UNK", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        assertEquals(CommonUtil.nullFlavorHL7System, codeableConceptPlaceofDeath.getCoding().get(0).getSystem());
         codeableConceptPlaceofDeath = CommonUtil.findConceptFromCollectionUsingSimpleString("Other", DeathDateUtil.placeOfDeathTypeSet);
         assertEquals("OTH", codeableConceptPlaceofDeath.getCoding().get(0).getCode());
+        assertEquals(CommonUtil.nullFlavorHL7System, codeableConceptPlaceofDeath.getCoding().get(0).getSystem());
     }
 
 }

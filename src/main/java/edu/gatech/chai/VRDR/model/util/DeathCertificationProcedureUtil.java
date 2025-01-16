@@ -5,7 +5,7 @@ import org.hl7.fhir.r4.model.Coding;
 
 public class DeathCertificationProcedureUtil {
 	public static final CodeableConcept categoryFixedValue = new CodeableConcept()
-			.addCoding(new Coding(CommonUtil.snomedSystemUrl,"103693007","Diagnostic procedure"));
+			.addCoding(new Coding(CommonUtil.snomedSystemUrl,"103693007",null));
 	public static final CodeableConcept codeFixedValue = new CodeableConcept()
 			.addCoding(new Coding(CommonUtil.snomedSystemUrl,"308646001","Death certification"));
 
