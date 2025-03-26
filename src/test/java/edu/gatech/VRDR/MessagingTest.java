@@ -907,7 +907,7 @@ public class MessagingTest extends TestCase {
         assertEquals("The message was invalid", issues.get(0).getDescription());
         assertEquals(OperationOutcome.IssueSeverity.WARNING, issues.get(1).getIssueSeverity());
         assertEquals(OperationOutcome.IssueType.EXPIRED, issues.get(1).getIssueType());
-        assertEquals("The message was very old", issues.get(1).getDescription());       
+        assertEquals("The message was very old", issues.get(1).getDescription());
     }
 
     public void testCreateSubmissionWithRaceLiterals() {
@@ -1059,4 +1059,46 @@ public class MessagingTest extends TestCase {
         assertEquals(CommonUtil.nullFlavorHL7System, codeableConceptPlaceofDeath.getCoding().get(0).getSystem());
     }
 
+
+    public void testMultipleDestinationEndpoints() {
+        DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
+        submission.setDeathRecord(new DeathCertificateDocument());
+        submission.setCertNo(42);
+        submission.setStateAuxiliaryId("identifier");
+
+
+        final String submissionBundleStr = submission.toJson(ctx);
+
+        DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
+        final String parsedBundleStr = parsed.toJson(ctx);
+        assertEquals(submissionBundleStr, parsedBundleStr);
+        assertEquals(submission.getMessageType(), parsed.getMessageType());
+        assertEquals(submission.getCertNo(), parsed.getCertNo());
+        assertEquals(submission.getStateAuxiliaryId(), parsed.getStateAuxiliaryId());
+        assertEquals(submission.getNCHSIdentifier(), parsed.getNCHSIdentifier());
+    }
+
+    public void testCreateSubmissionWithMultipleDestinations() {
+        DeathRecordSubmissionMessage submission = new DeathRecordSubmissionMessage();
+        submission.setDeathRecord(new DeathCertificateDocument());
+        submission.setCertNo(42);
+        submission.setStateAuxiliaryId("identifier");
+        submission.setMessageDestinations(Arrays.asList("http://steve.naphsis.us/vrdr_exchange", "http://nchs.cdc.gov/vrdr_submission"));
+
+        assertNotNull(submission.getMessageDestinations());
+        assertEquals(2, submission.getMessageDestinations().size());
+        assertTrue(submission.getMessageDestinations().contains("http://steve.naphsis.us/vrdr_exchange"));
+        assertTrue(submission.getMessageDestinations().contains("http://nchs.cdc.gov/vrdr_submission"));
+
+        final String submissionBundleStr = submission.toJson(ctx);
+
+        DeathRecordSubmissionMessage parsed = BaseMessage.parseJson(DeathRecordSubmissionMessage.class, ctx, submissionBundleStr);
+        final String parsedBundleStr = parsed.toJson(ctx);
+        assertEquals(submissionBundleStr, parsedBundleStr);
+        assertEquals(submission.getMessageType(), parsed.getMessageType());
+        assertEquals(submission.getCertNo(), parsed.getCertNo());
+        assertEquals(submission.getStateAuxiliaryId(), parsed.getStateAuxiliaryId());
+        assertEquals(submission.getNCHSIdentifier(), parsed.getNCHSIdentifier());
+        assertEquals(submission.getMessageDestinations(), parsed.getMessageDestinations());
+    }
 }
