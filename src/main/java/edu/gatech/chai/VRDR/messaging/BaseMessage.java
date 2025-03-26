@@ -25,8 +25,8 @@ public class BaseMessage extends Bundle {
 
     public static void addBundleEntryAndLinkToHeader(Bundle bundle, MessageHeader header, Bundle innerBundle) {
         // remove any existing entries of the same type
-        bundle.getEntry().removeIf(entry ->
-                innerBundle.getResourceType().equals(entry.getResource().getResourceType()));
+        bundle.getEntry()
+                .removeIf(entry -> innerBundle.getResourceType().equals(entry.getResource().getResourceType()));
         // remove the header link
         header.setFocus(null);
         // create a new bundle entry
@@ -77,7 +77,8 @@ public class BaseMessage extends Bundle {
         setTimestamp(messageBundle.getTimestamp());
         BundleType bundleType = messageBundle == null ? BundleType.NULL : messageBundle.getType();
         if (!ignoreExceptions && bundleType != BundleType.MESSAGE) {
-            throw new MessageParseException("The FHIR Bundle must be of type message, not " + bundleType.toString(), messageBundle);
+            throw new MessageParseException("The FHIR Bundle must be of type message, not " + bundleType.toString(),
+                    messageBundle);
         }
         setType(bundleType);
 
@@ -89,6 +90,7 @@ public class BaseMessage extends Bundle {
 
         addBundleEntryForHeaderAndParameters();
     }
+
     protected BaseMessage(String messageType) {
         this(messageType, true);
     }
@@ -100,7 +102,8 @@ public class BaseMessage extends Bundle {
         // Start with a message header
         messageHeader = new MessageHeader();
         if (includeMetaProfiles) {
-            messageHeader.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-SubmissionHeader");
+            messageHeader.getMeta().addProfile(
+                    "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-SubmissionHeader");
         }
         messageHeader.setId(UUID.randomUUID().toString());
         messageHeader.setEvent(new UriType(messageType));
@@ -119,7 +122,8 @@ public class BaseMessage extends Bundle {
         // setup parameters and reference in header
         messageParameters = new Parameters();
         if (includeMetaProfiles) {
-            messageParameters.getMeta().addProfile("http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-MessageParameters");
+            messageParameters.getMeta().addProfile(
+                    "http://cdc.gov/nchs/nvss/fhir/vital-records-messaging/StructureDefinition/VRM-MessageParameters");
         }
         messageParameters.setId(UUID.randomUUID().toString());
         messageHeader.addFocus(new Reference(ensureRefPrefix(messageParameters.getId())));
@@ -142,7 +146,8 @@ public class BaseMessage extends Bundle {
         addEntry(parametersBundleComponent);
     }
 
-    protected <T extends Bundle> void setDocumentBundleFromMessageBundle(Class<T> tClass, DocumentBundler<T> documentBundler, Bundle messageBundle) {
+    protected <T extends Bundle> void setDocumentBundleFromMessageBundle(Class<T> tClass,
+            DocumentBundler<T> documentBundler, Bundle messageBundle) {
         try {
             Bundle bundle = CommonUtil.findEntry(messageBundle, tClass);
             if (bundle == null) {
@@ -152,7 +157,7 @@ public class BaseMessage extends Bundle {
                 throw new IllegalArgumentException("Bundle found in the passed messageBundle is of type "
                         + bundle.getClass().getCanonicalName() + " not of expected type " + tClass.getCanonicalName());
             }
-            documentBundler.setDocumentBundle((T)bundle);
+            documentBundler.setDocumentBundle((T) bundle);
         } catch (IllegalArgumentException ex) {
             throw new MessageParseException("Error processing entry in the message: " + ex.getMessage(), messageBundle);
         }
@@ -166,9 +171,9 @@ public class BaseMessage extends Bundle {
         return null; // override for specific IG message types in subclass
     }
 
-
     protected String getMessageEventType() {
-        return messageHeader != null && messageHeader.hasEventUriType() ? messageHeader.getEventUriType().getValue() : null;
+        return messageHeader != null && messageHeader.hasEventUriType() ? messageHeader.getEventUriType().getValue()
+                : null;
     }
 
     protected boolean isMessageEventMatchingMessageType(String messageType) {
@@ -177,7 +182,8 @@ public class BaseMessage extends Bundle {
     }
 
     protected String getMessageEventTypeMismatchErrorMessage(String messageType) {
-        return "Message event uri type " + getMessageEventType() + " does not match the expected message type " + messageType;
+        return "Message event uri type " + getMessageEventType() + " does not match the expected message type "
+                + messageType;
     }
 
     protected void extractBusinessIdentifiers(DeathCertificateDocument from) {
@@ -189,30 +195,30 @@ public class BaseMessage extends Bundle {
 
     private void extractCertNo(DeathCertificateDocument from) {
         setCertNo(null);
-        if (from != null && from.hasIdentifier() && from.getIdentifier().hasExtension(DeathCertificateDocumentUtil.certificateNumberUrl)) {
-            Extension extension = from.getIdentifier().getExtensionByUrl(DeathCertificateDocumentUtil.certificateNumberUrl);
+        if (from != null && from.hasIdentifier()
+                && from.getIdentifier().hasExtension(DeathCertificateDocumentUtil.certificateNumberUrl)) {
+            Extension extension = from.getIdentifier()
+                    .getExtensionByUrl(DeathCertificateDocumentUtil.certificateNumberUrl);
             if (extension.hasValue() && extension.getValue() instanceof IntegerType) {
                 setCertNo(((IntegerType) extension.getValue()).getValue());
-            }
-            else if (extension.hasValue() && extension.getValue() instanceof StringType) {
+            } else if (extension.hasValue() && extension.getValue() instanceof StringType) {
                 setCertNo(Integer.parseInt(((StringType) extension.getValue()).getValue()));
-            }
-            else {
+            } else {
                 setCertNo(null);
             }
-        }
-        else {
+        } else {
             setCertNo(null);
         }
     }
 
     private void extractStateAuxiliaryId(DeathCertificateDocument from) {
-        if (from != null && from.hasIdentifier() && from.getIdentifier().hasExtension(DeathCertificateDocumentUtil.auxillaryStateIndentifierUrl)) {
-            Extension extension = from.getIdentifier().getExtensionByUrl(DeathCertificateDocumentUtil.auxillaryStateIndentifierUrl);
+        if (from != null && from.hasIdentifier()
+                && from.getIdentifier().hasExtension(DeathCertificateDocumentUtil.auxillaryStateIndentifierUrl)) {
+            Extension extension = from.getIdentifier()
+                    .getExtensionByUrl(DeathCertificateDocumentUtil.auxillaryStateIndentifierUrl);
             if (extension.hasValue() && extension.getValue() instanceof StringType) {
                 setStateAuxiliaryId(((StringType) extension.getValue()).getValue());
-            }
-            else {
+            } else {
                 setStateAuxiliaryId(null);
             }
         } else {
@@ -265,28 +271,28 @@ public class BaseMessage extends Bundle {
     }
 
     protected void setSingleStringValue(String key, String value) {
-        messageParameters.setParameter(key, (String)null);
+        messageParameters.setParameter(key, (String) null);
         if (value != null && !value.trim().isEmpty()) {
             messageParameters.setParameter(key, value);
         }
     }
 
     public Integer getCertNo() {
-        if (messageParameters.hasParameter("cert_no") && messageParameters.getParameter("cert_no") instanceof IntegerType) {
+        if (messageParameters.hasParameter("cert_no")
+                && messageParameters.getParameter("cert_no") instanceof IntegerType) {
             IntegerType certNoIntegerType = (IntegerType) messageParameters.getParameter("cert_no");
             if (certNoIntegerType.hasValue()) {
                 return certNoIntegerType.getValue();
             } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     public void setCertNo(Integer value) {
-        messageParameters.setParameter("cert_no", (UnsignedIntType)null);
+        messageParameters.setParameter("cert_no", (UnsignedIntType) null);
         if (value != null) {
             if (value > 999999) {
                 throw new IllegalArgumentException("Certificate number must be a maximum of six digits");
@@ -296,15 +302,15 @@ public class BaseMessage extends Bundle {
     }
 
     public String getStateAuxiliaryId() {
-        if (messageParameters.hasParameter("state_auxiliary_id") && messageParameters.getParameter("state_auxiliary_id") instanceof StringType) {
+        if (messageParameters.hasParameter("state_auxiliary_id")
+                && messageParameters.getParameter("state_auxiliary_id") instanceof StringType) {
             StringType stateAuxiliaryIdStringType = (StringType) messageParameters.getParameter("state_auxiliary_id");
             if (stateAuxiliaryIdStringType.hasValue()) {
                 return stateAuxiliaryIdStringType.getValue();
             } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -321,14 +327,13 @@ public class BaseMessage extends Bundle {
             } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     public void setDeathYear(Integer value) {
-        messageParameters.setParameter("death_year", (UnsignedIntType)null);
+        messageParameters.setParameter("death_year", (UnsignedIntType) null);
         if (value != null) {
             if (value < 1000 || value > 9999) {
                 throw new IllegalArgumentException("Year of death must be specified using four digits");
@@ -338,21 +343,21 @@ public class BaseMessage extends Bundle {
     }
 
     public String getJurisdictionId() {
-        if (messageParameters.hasParameter("jurisdiction_id") && messageParameters.getParameter("jurisdiction_id") instanceof StringType) {
+        if (messageParameters.hasParameter("jurisdiction_id")
+                && messageParameters.getParameter("jurisdiction_id") instanceof StringType) {
             StringType jurisdictionIdStringType = (StringType) messageParameters.getParameter("jurisdiction_id");
             if (jurisdictionIdStringType.hasValue()) {
                 return jurisdictionIdStringType.getValue();
             } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     public void setJurisdictionId(String value) {
-        messageParameters.setParameter("jurisdiction_id", (StringType)null);
+        messageParameters.setParameter("jurisdiction_id", (StringType) null);
         if (value != null) {
             if (value.length() != 2) {
                 throw new IllegalArgumentException("Jurisdiction ID must be a two character string");
@@ -436,8 +441,35 @@ public class BaseMessage extends Bundle {
         }
     }
 
+    public List<String> getMessageDestinations() {
+        if (messageHeader != null && messageHeader.getDestination().size() > 0) {
+            List<String> endpoints = new ArrayList<>();
+            for (MessageHeader.MessageDestinationComponent destination : messageHeader.getDestination()) {
+                endpoints.add(destination.getEndpoint());
+            }
+            return endpoints;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     public void setMessageDestination(String value) {
         messageHeader.getDestination().clear();
+        MessageHeader.MessageDestinationComponent dest = new MessageHeader.MessageDestinationComponent();
+        dest.setEndpoint(value);
+        messageHeader.getDestination().add(dest);
+    }
+
+    public void setMessageDestinations(List<String> values) {
+        messageHeader.getDestination().clear();
+        for (String endpoint : values) {
+            MessageHeader.MessageDestinationComponent dest = new MessageHeader.MessageDestinationComponent();
+            dest.setEndpoint(endpoint);
+            messageHeader.getDestination().add(dest);
+        }
+    }
+
+    public void addMessageDestination(String value) {
         MessageHeader.MessageDestinationComponent dest = new MessageHeader.MessageDestinationComponent();
         dest.setEndpoint(value);
         messageHeader.getDestination().add(dest);
@@ -480,7 +512,8 @@ public class BaseMessage extends Bundle {
         return parse(tClass, ctx.getCtx().newJsonParser(), null, jsonString);
     }
 
-    public static <T extends Bundle> T parseJsonBundleOfBundles(Class<T> tClass, VRDRFhirContext ctx, String jsonString) {
+    public static <T extends Bundle> T parseJsonBundleOfBundles(Class<T> tClass, VRDRFhirContext ctx,
+            String jsonString) {
         return parse(tClass, new JsonParser4BundleOfBundles(ctx.getCtx(), new LenientErrorHandler()), null, jsonString);
     }
 
@@ -510,30 +543,31 @@ public class BaseMessage extends Bundle {
             }
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof MessageParseException) {
-                throw (MessageParseException)e.getTargetException();
+                throw (MessageParseException) e.getTargetException();
             } else {
-                throw new IllegalArgumentException("Unable to instantiate class with bundle parameter, exception: " + e.getMessage());
+                throw new IllegalArgumentException(
+                        "Unable to instantiate class with bundle parameter, exception: " + e.getMessage());
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Unable to parse bundle, exception: " + e);
         }
     }
 
-public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
+    public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String bundleStrings) {
         Bundle outerBundle = BaseMessage.parseJsonBundleOfBundles(Bundle.class, ctx, bundleStrings);
         List<BaseMessage> listMessages = new ArrayList();
         ListIterator iterator = outerBundle.getEntry().listIterator();
         BaseMessage message;
         String messageType;
-        while(iterator.hasNext()) {
-            BundleEntryComponent bundleEntryComponent = (BundleEntryComponent)iterator.next();
+        while (iterator.hasNext()) {
+            BundleEntryComponent bundleEntryComponent = (BundleEntryComponent) iterator.next();
             Resource resource = bundleEntryComponent.getResource();
-            if(resource.getResourceType().toString().equals("Bundle")) {
-                Bundle bundle = (Bundle)resource;
-                if(bundle != null) {
+            if (resource.getResourceType().toString().equals("Bundle")) {
+                Bundle bundle = (Bundle) resource;
+                if (bundle != null) {
                     message = new BaseMessage(bundle, true);
                     messageType = message.getMessageType();
-                    switch(messageType) {
+                    switch (messageType) {
                         case DeathRecordSubmissionMessage.MESSAGE_TYPE:
                             listMessages.add(new DeathRecordSubmissionMessage(bundle));
                             break;
@@ -569,9 +603,9 @@ public static List<BaseMessage> parseBundleOfBundles(VRDRFhirContext ctx, String
                             break;
                         default:
                             String errorText;
-                            if(message.messageHeader == null || message.messageHeader.isEmpty()) {
+                            if (message.messageHeader == null || message.messageHeader.isEmpty()) {
                                 errorText = "Failed to find a Bundle Entry containing a Resource of type MessageHeader";
-                            } else if(messageType == null) {
+                            } else if (messageType == null) {
                                 errorText = "Message type was missing from MessageHeader";
                             } else {
                                 errorText = "Unsupported message type: " + messageType;
