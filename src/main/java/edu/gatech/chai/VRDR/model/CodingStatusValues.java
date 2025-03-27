@@ -1,6 +1,10 @@
 package edu.gatech.chai.VRDR.model;
 
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.StringType;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import edu.gatech.chai.VRDR.model.util.CodingStatusValuesUtil;
@@ -13,34 +17,37 @@ public class CodingStatusValues extends Parameters {
 		super();
 		CommonUtil.initResource(this);
 	}
-	
+
 	public Parameters addShipmentNumber(String value) {
-		return addParameter("shipmentNumber",value);
+		return addParameter("shipmentNumber", value);
 	}
-	
+
 	public Parameters addReceiptDate(String value) {
-		return addParameter("receiptDate",value);
+		return addParameter("receiptDate", value);
 	}
-	
+
 	public Parameters addCoderStatus(String value) {
-		return addParameter("coderStatus",value);
+		return addParameter("coderStatus", value);
 	}
-	
+
 	public Parameters addIntentionalReject(String value) {
-		CodeableConcept ccValue = CommonUtil.findConceptFromCollectionUsingSimpleString(value, CodingStatusValuesUtil.intentionalRejectValueset); 
-		return addParameter("intentionalReject",ccValue);
+		CodeableConcept ccValue = CommonUtil.findConceptFromCollectionUsingSimpleString(value,
+				CodingStatusValuesUtil.intentionalRejectValueset);
+		return addParameter("intentionalReject", ccValue);
 	}
-	
+
 	public Parameters addAcmeSystemReject(String value) {
-		CodeableConcept ccValue = CommonUtil.findConceptFromCollectionUsingSimpleString(value, CodingStatusValuesUtil.intentionalRejectValueset); 
-		return addParameter("acmeSystemReject",ccValue);
+		CodeableConcept ccValue = CommonUtil.findConceptFromCollectionUsingSimpleString(value,
+				CodingStatusValuesUtil.systemRejectValueset);
+		return addParameter("acmeSystemReject", ccValue);
 	}
-	
+
 	public Parameters addTransaxConversion(String value) {
-		CodeableConcept ccValue = CommonUtil.findConceptFromCollectionUsingSimpleString(value, CodingStatusValuesUtil.intentionalRejectValueset); 
-		return addParameter("transaxConversion",ccValue);
+		CodeableConcept ccValue = CommonUtil.findConceptFromCollectionUsingSimpleString(value,
+				CodingStatusValuesUtil.transaxConversionValueset);
+		return addParameter("transaxConversion", ccValue);
 	}
-	
+
 	public Parameters addParameter(String name, String value) {
 		ParametersParameterComponent ppc = new ParametersParameterComponent();
 		ppc.setName(name);
@@ -48,7 +55,7 @@ public class CodingStatusValues extends Parameters {
 		this.addParameter(ppc);
 		return this;
 	}
-	
+
 	public Parameters addParameter(String name, CodeableConcept value) {
 		ParametersParameterComponent ppc = new ParametersParameterComponent();
 		ppc.setName(name);
@@ -58,11 +65,11 @@ public class CodingStatusValues extends Parameters {
 	}
 
 	public Integer getCoderStatus() {
-		return getParameter("coderStatus") == null ? null : ((IntegerType)getParameter("coderStatus")).getValue();
+		return getParameter("coderStatus") == null ? null : ((IntegerType) getParameter("coderStatus")).getValue();
 	}
 
 	public String getShipmentNumber() {
-		return getParameter("shipmentNumber") == null ? null : ((StringType)getParameter("shipmentNumber")).getValue();
+		return getParameter("shipmentNumber") == null ? null : ((StringType) getParameter("shipmentNumber")).getValue();
 	}
 
 	public static final String PartialDateExtensionUrl = "http://hl7.org/fhir/us/vrdr/StructureDefinition/PartialDate";
@@ -82,7 +89,7 @@ public class CodingStatusValues extends Parameters {
 		if (datePart == null || datePart.getValue() == null) {
 			return null;
 		}
-		return ((IntegerType)datePart.getValue()).getValue();
+		return ((IntegerType) datePart.getValue()).getValue();
 	}
 
 	public Integer getReceiptYear() {
