@@ -1,7 +1,6 @@
 package edu.gatech.chai.VRDR.model;
 
 import org.hl7.fhir.r4.model.Address;
-import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Location;
 
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
@@ -14,13 +13,17 @@ public class DeathLocation extends Location {
 		super();
 		CommonUtil.initResource(this);
 		// type is required and values are fixed as per VRDR IG http://hl7.org/fhir/us/vrdr/StructureDefinition-vrdr-death-location.html
-		addType(DeathLocationUtil.typeCode);
+		if (this.type == null || this.type.isEmpty()) {
+			this.addType(DeathLocationUtil.typeCode);
+		}
 	}
 	public DeathLocation(String name, String description, Address address) {
 		this();
 		setName(name);
+		if (this.type == null || this.type.isEmpty()) {
+			addType(DeathLocationUtil.typeCode);
+		}
 		setDescription(description);
 		setAddress(address);
 	}
-
 }
