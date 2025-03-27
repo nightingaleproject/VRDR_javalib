@@ -7,6 +7,8 @@ import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Observation.ObservationStatus;
 
+import edu.gatech.chai.VRDR.model.valueset.DateOfDeathDeterminationMethodsVS;
+
 public class DeathDateUtil {
 	public static final CodeableConcept code = new CodeableConcept()
 			.addCoding(new Coding(CommonUtil.loincSystemUrl, "81956-5", "Date+time of death"));
@@ -20,12 +22,6 @@ public class DeathDateUtil {
 			.addCoding(new Coding(CommonUtil.snomedSystemUrl, "414135002", "Estimated"));
 	public static final String deathDeterminationMethodUrl = "http://hl7.org/fhir/us/vrdr/CodeSystem/vrdr-date-of-death-determination-methods-cs";
 	// DateOfDeathDeterminationMethodsVS Lee we have few less methods
-	public static final HashSet<CodeableConcept> deathDeterminationMethodSet = new HashSet<>(Arrays.asList(
-			new CodeableConcept().addCoding(new Coding(deathDeterminationMethodUrl, "exact", "Exact")),
-			new CodeableConcept().addCoding(new Coding(deathDeterminationMethodUrl, "approximate", "Approximate")),
-			new CodeableConcept().addCoding(new Coding(deathDeterminationMethodUrl, "presumed", "Presumed")),
-			new CodeableConcept().addCoding(new Coding(deathDeterminationMethodUrl, "16983000", "Death in hospital")),
-			new CodeableConcept()
-					.addCoding(new Coding(deathDeterminationMethodUrl, "court-appointed", "Court Appointed"))));
+	public static final HashSet<CodeableConcept> deathDeterminationMethodSet = DateOfDeathDeterminationMethodsVS.valueSet;
 	public static final HashSet<CodeableConcept> placeOfDeathTypeSet = DeathLocationUtil.placeOfDeathTypeSet;
 }
